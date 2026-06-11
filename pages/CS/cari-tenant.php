@@ -8,26 +8,22 @@ function sanitize(string $val): string {
     return htmlspecialchars(strip_tags(trim($val)), ENT_QUOTES, 'UTF-8');
 }
 
-/* ── Ambil data lantai untuk filter ─────────────────────── */
 $floors = [];
 if ($conn) {
     $res = $conn->query("SELECT * FROM floors ORDER BY id_floor ASC");
     $floors = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
 }
 
-/* ── Ambil data kategori untuk filter ───────────────────── */
 $categories = [];
 if ($conn) {
     $res = $conn->query("SELECT * FROM tenant_categories ORDER BY nama_kategori ASC");
     $categories = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
 }
 
-/* ── Filter & Search ─────────────────────────────────────── */
 $search      = isset($_GET['search'])    ? sanitize($_GET['search'])    : '';
 $filterFloor = isset($_GET['floor'])     ? (int)$_GET['floor']          : 0;
 $filterCat   = isset($_GET['category'])  ? (int)$_GET['category']       : 0;
 
-/* ── Query tenant ────────────────────────────────────────── */
 $tenants = [];
 if ($conn) {
     $where = ["t.status = 'Aktif'"];
@@ -72,11 +68,9 @@ if ($conn) {
     }
 }
 
-/* ── Render konten ───────────────────────────────────────── */
 ob_start();
 ?>
 
-<!-- Search & Filter Bar -->
 <div class="cs-card">
     <h2 class="text-body font-semibold mb-1">Cari Tenant</h2>
     <p class="text-caption text-text/50 mb-5">Cari informasi tenant berdasarkan nama toko, kategori, atau lokasi unit.</p>
@@ -115,7 +109,6 @@ ob_start();
     </form>
 </div>
 
-<!-- Hasil Pencarian -->
 <div class="cs-card">
     <div class="flex items-center justify-between mb-5">
         <div>
@@ -167,7 +160,6 @@ ob_start();
     <?php endif; ?>
 </div>
 
-<!-- Modal Detail Tenant -->
 <div id="detailModal" class="fixed inset-0 z-50 hidden items-center justify-center"
      style="background: rgba(2,31,66,0.85); backdrop-filter: blur(4px);">
     <div class="bg-surface-raised border border-border-strong rounded-xl p-6 w-full max-w-md mx-4 shadow-lg">
@@ -247,7 +239,6 @@ function closeDetail() {
     modal.style.display = 'none';
 }
 
-// Tutup modal klik luar
 modal.addEventListener('click', function(e) {
     if (e.target === modal) closeDetail();
 });
