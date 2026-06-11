@@ -8,12 +8,10 @@ function sanitize(string $val): string {
     return htmlspecialchars(strip_tags(trim($val)), ENT_QUOTES, 'UTF-8');
 }
 
-/* ── Filter ──────────────────────────────────────────────── */
 $filterStatus = isset($_GET['status']) ? sanitize($_GET['status']) : '';
 $filterTipe   = isset($_GET['tipe'])   ? sanitize($_GET['tipe'])   : '';
 $search       = isset($_GET['search']) ? sanitize($_GET['search']) : '';
 
-/* ── Ambil data event ────────────────────────────────────── */
 $events = [];
 if ($conn) {
     $where  = ["1=1"];
@@ -59,7 +57,6 @@ if ($conn) {
     }
 }
 
-/* ── Hitung summary ──────────────────────────────────────── */
 $countAll        = 0;
 $countBerlangsung = 0;
 $countAkanDatang  = 0;
@@ -78,11 +75,9 @@ if ($conn) {
 
 $tipeList = ['Pameran','Hiburan','Bazaar','Promosi','Lainnya'];
 
-/* ── Render konten ───────────────────────────────────────── */
 ob_start();
 ?>
 
-<!-- Summary -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     <a href="event.php" class="cs-card flex items-center gap-4 hover:border-accent/50 transition-all <?= $filterStatus === '' && $filterTipe === '' && $search === '' ? 'border-accent bg-accent/5' : '' ?>">
         <div class="w-10 h-10 rounded-md bg-accent/10 flex items-center justify-center flex-shrink-0">
@@ -122,7 +117,6 @@ ob_start();
     </a>
 </div>
 
-<!-- Filter Bar -->
 <div class="cs-card">
     <form method="GET" action="" class="flex flex-wrap items-center gap-3">
         <div class="relative flex-1 min-w-48">
@@ -152,7 +146,6 @@ ob_start();
     </form>
 </div>
 
-<!-- Daftar Event -->
 <div class="cs-card">
     <div class="flex items-center justify-between mb-5">
         <div>
@@ -216,7 +209,6 @@ ob_start();
     <?php endif; ?>
 </div>
 
-<!-- Modal Detail Event -->
 <div id="detailModal" class="fixed inset-0 z-50 hidden items-center justify-center"
      style="background: rgba(2,31,66,0.85); backdrop-filter: blur(4px);">
     <div class="bg-surface-raised border border-border-strong rounded-xl p-6 w-full max-w-lg mx-4 shadow-lg">
