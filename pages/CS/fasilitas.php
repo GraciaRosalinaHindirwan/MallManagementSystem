@@ -8,18 +8,15 @@ function sanitize(string $val): string {
     return htmlspecialchars(strip_tags(trim($val)), ENT_QUOTES, 'UTF-8');
 }
 
-/* ── Ambil data lantai ───────────────────────────────────── */
 $floors = [];
 if ($conn) {
     $res    = $conn->query("SELECT * FROM floors ORDER BY id_floor ASC");
     $floors = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
 }
 
-/* ── Filter ──────────────────────────────────────────────── */
 $filterFloor = isset($_GET['floor']) ? (int)$_GET['floor']           : 0;
 $filterJenis = isset($_GET['jenis']) ? sanitize($_GET['jenis'])       : '';
 
-/* ── Ambil data fasilitas ────────────────────────────────── */
 $facilities = [];
 if ($conn) {
     $where  = ["1=1"];
@@ -57,7 +54,6 @@ if ($conn) {
     }
 }
 
-/* ── Hitung per jenis (untuk summary) ───────────────────── */
 $jenisList  = ['Toilet','ATM','Mushola','Lift','Eskalator','Parkir','Lainnya'];
 $jenisCount = [];
 $jenisIcon  = [
@@ -79,18 +75,15 @@ if ($conn) {
     }
 }
 
-/* ── Grup fasilitas per lantai ───────────────────────────── */
 $grouped = [];
 foreach ($facilities as $fac) {
     $key = $fac['nama_lantai'] ?? 'Tidak Diketahui';
     $grouped[$key][] = $fac;
 }
 
-/* ── Render konten ───────────────────────────────────────── */
 ob_start();
 ?>
 
-<!-- Summary Cards -->
 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
     <?php foreach ($jenisList as $jenis): ?>
     <?php $count = $jenisCount[$jenis] ?? 0; ?>
@@ -103,7 +96,6 @@ ob_start();
     <?php endforeach; ?>
 </div>
 
-<!-- Filter Bar -->
 <div class="cs-card">
     <form method="GET" action="" class="flex flex-wrap items-center gap-3">
         <select name="floor" class="cs-input !w-44 cursor-pointer">
@@ -130,7 +122,6 @@ ob_start();
     </form>
 </div>
 
-<!-- Daftar Fasilitas per Lantai -->
 <?php if (empty($facilities)): ?>
 <div class="cs-card flex flex-col items-center justify-center py-16 text-text/30">
     <i class="bi bi-geo-alt text-5xl mb-3"></i>
