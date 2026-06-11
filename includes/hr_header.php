@@ -9,8 +9,8 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?? 'HR Management' ?> — Mall Management System</title>
-    <link rel="stylesheet" href="/asset/css/designSystem.css">
-    <link rel="stylesheet" href="/asset/css/hr.css">
+    <link rel="stylesheet" href="/../public/asset/css/designSystem.css">
+    <link rel="stylesheet" href="/../public/asset/css/hr.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
