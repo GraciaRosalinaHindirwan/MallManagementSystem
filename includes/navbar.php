@@ -13,18 +13,38 @@ if (!defined('BASE_URL')) {
     define('BASE_URL', $base);
 }
 
-// Set default nilai kosong jika tidak didefinisikan oleh halaman pemanggil
-$department_name = $department_name ?? 'Department ABC XYZ'; // Isi nama departmen di sini. Ganti kata yang diapit petik 2
-$menu_items = $menu_items ?? [];  // Isi di sini untuk menu-menu yang ada di sidebar
-// Contoh untuk sidebar (menu item untuk sidebar ya):
-//$menu_items = [
-//    ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard', 'link' => BASE_URL . '/pages/Finance/dashboard.php', 'active_page' => 'dashboard'],
-//    ['icon' => 'fa-solid fa-chart-pie', 'label' => 'Laporan Keuangan', 'link' => BASE_URL . '/pages/Finance/laporan/index.php', 'active_page' => 'laporan'],
-//    ['icon' => 'fa-solid fa-file-invoice', 'label' => 'Invoice', 'link' => BASE_URL . '/pages/Finance/invoice/index.php', 'active_page' => 'invoice'],
-//    ['icon' => 'fa-solid fa-receipt', 'label' => 'Transaksi', 'link' => BASE_URL . '/pages/Finance/transaksi/index.php', 'active_page' => 'transaksi'],
-//];
-$user_name = $user_name ?? 'User'; // Isi username di sini. Ganti kata yang diapit petik 2
-$page_title = $page_title ?? 'Default Page Title'; // Isi judul halaman di sini. Ganti kata yang diapit petik 2
+// Edit di sini untuk mengubah nama department, menu di sidebar, dan nama user yang tampil di navbar
+$department_name = $department_name ?? 'Department ABC DEF'; // Ganti kata-kata yang diapit petik satu
+$menu_items = $menu_items ?? [];
+// Contoh format menu_items:
+// $menu_items = [
+//     [
+//         'icon' => 'fa-solid fa-chart-line',
+//         'label' => 'Dashboard',
+//         'link' => 'dashboard.php',
+//         'active_page' => 'dashboard'
+//     ],
+//     [
+//         'icon' => 'fa-solid fa-file-invoice',
+//         'label' => 'Invoice',
+//         'link' => 'invoice/index.php',
+//         'active_page' => 'invoice'
+//     ],
+//     [
+//         'icon' => 'fa-solid fa-chart-pie',
+//         'label' => 'Laporan Keuangan',
+//         'link' => 'laporan/index.php',
+//         'active_page' => 'laporan'
+//     ],
+//     [
+//         'icon' => 'fa-solid fa-receipt',
+//         'label' => 'Transaksi',
+//         'link' => 'transaksi/index.php',
+//         'active_page' => 'transaksi'
+//     ],
+// ];
+$user_name = $user_name ?? 'Manager';
+$page_title = $page_title ?? 'Dashboard';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -32,30 +52,36 @@ $page_title = $page_title ?? 'Default Page Title'; // Isi judul halaman di sini.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $page_title ?? '[Judul Halaman1]' ?> — Mall Management System</title>
+    <title><?= $page_title ?: '' ?> — Mall Management System</title>
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/asset/css/designSystem.css">
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/asset/css/template.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
-    <div class="layout">
 
+    <div class="layout">
         <!-- SIDEBAR -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-close" id="sidebarClose">
+                <i class="fa-solid fa-times"></i>
+            </button>
+
             <div class="sidebar-brand">
                 <i class="fa-solid fa-building"></i>
                 <span>Mall ERP</span>
             </div>
-            <div class="sidebar-section-label"><?= htmlspecialchars($department_name) ?></div>
+            <div class="sidebar-section-label"><?= htmlspecialchars($department_name ?: 'Menu') ?></div>
             <nav class="sidebar-nav">
                 <?php if (empty($menu_items)): ?>
-                    <!-- KOSONG: tidak menampilkan menu apapun -->
-                    <!-- Nanti setiap departemen akan mengisi menu_items sendiri -->
+                    <div class="nav-item">
+                        <i class="fa-solid fa-circle-info"></i> Tidak ada menu
+                    </div>
                 <?php else: ?>
                     <?php foreach ($menu_items as $item): ?>
                         <a href="<?= $item['link'] ?? '#' ?>" class="nav-item <?= ($current_page === ($item['active_page'] ?? '')) ? 'active' : '' ?>">
-                            <i class="<?= $item['icon'] ?>"></i> <?= htmlspecialchars($item['label'] ?? '') ?>
+                            <i class="<?= $item['icon'] ?? 'fa-solid fa-circle' ?>"></i>
+                            <?= htmlspecialchars($item['label'] ?? 'Menu') ?>
                         </a>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -70,14 +96,17 @@ $page_title = $page_title ?? 'Default Page Title'; // Isi judul halaman di sini.
         <!-- MAIN CONTENT -->
         <main class="main-content">
             <div class="topbar">
-                <h1 class="page-title"><?= $page_title ?? '[Judul Halaman]' ?></h1>
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h1 class="page-title"><?= htmlspecialchars($page_title ?: 'Dashboard') ?></h1>
                 <div class="topbar-user">
                     <i class="fa-solid fa-circle-user"></i>
-                    <span><?= htmlspecialchars($user_name) ?></span>
+                    <span><?= htmlspecialchars($user_name ?: 'User') ?></span>
                 </div>
             </div>
             <div class="content-body">
-                <div class="container mt-4">
+                <div class="container">
                     <?php
                     if (isset($content)) {
                         echo $content;
@@ -88,6 +117,60 @@ $page_title = $page_title ?? 'Default Page Title'; // Isi judul halaman di sini.
             </div>
         </main>
     </div>
+
+    <script>
+        (function() {
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const body = document.body;
+
+            if (!menuToggle || !sidebar) {
+                return;
+            }
+
+            function openSidebar() {
+                sidebar.classList.add('open');
+                body.classList.add('sidebar-open');
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                body.classList.remove('sidebar-open');
+            }
+
+            menuToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openSidebar();
+            });
+
+            if (sidebarClose) {
+                sidebarClose.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeSidebar();
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 576) {
+                    closeSidebar();
+                }
+            });
+
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 576) {
+                    const isClickInsideSidebar = sidebar.contains(event.target);
+                    const isClickOnToggle = menuToggle.contains(event.target);
+
+                    if (!isClickInsideSidebar && !isClickOnToggle && sidebar.classList.contains('open')) {
+                        closeSidebar();
+                    }
+                }
+            });
+        })();
+    </script>
 </body>
 
 </html>
