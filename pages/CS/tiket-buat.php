@@ -59,19 +59,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $foto_json = !empty($foto_paths) ? json_encode($foto_paths) : null;
-        $created_by = $_SESSION['user_id'] ?? null;
-
         $stmt = $pdo->prepare("
             INSERT INTO tiket (
                 id, report_date, pelapor, no_hp, lokasi, floor_name, area_name,
                 asset_name, asset_code, kategori, damage_type, priority, severity_level,
-                deskripsi, foto, created_by
-            ) VALUES (?, CURDATE(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                deskripsi, foto
+            ) VALUES (?, CURDATE(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([
             $new_id, $nama_pelapor, $no_hp, $lokasi, $floor_name, $area_name,
             $asset_name, $asset_code, $kategori, $damage_type, $priority, $severity_level,
-            $deskripsi, $foto_json, $created_by
+            $deskripsi, $foto_json
         ]);
 
         $success = true;
