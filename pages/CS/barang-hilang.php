@@ -19,11 +19,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $stmt->close();
     } else {
-        $item_description = htmlspecialchars(strip_tags(trim($_POST['item_description'] ?? '')));
-        $contact_number   = htmlspecialchars(strip_tags(trim($_POST['contact_number']   ?? '')));
+        $nama_pelapor      = htmlspecialchars(strip_tags(trim($_POST['nama_pelapor']     ?? '')));
+        $item_description  = htmlspecialchars(strip_tags(trim($_POST['item_description'] ?? '')));
+        $contact_number    = htmlspecialchars(strip_tags(trim($_POST['contact_number']   ?? '')));
 
-        $stmt = $conn->prepare("INSERT INTO lost_reports (item_description, contact_number) VALUES (?, ?)");
-        $stmt->bind_param('ss', $item_description, $contact_number);
+        $stmt = $conn->prepare("INSERT INTO lost_reports (nama_pelapor, item_description, contact_number) VALUES (?, ?, ?)");
+        $stmt->bind_param('sss', $nama_pelapor, $item_description, $contact_number);
 
         if ($stmt->execute()) {
             $alertMsg  = 'Laporan kehilangan berhasil disimpan.';
@@ -55,6 +56,10 @@ ob_start();
 
   <form method="POST" class="space-y-5">
     <div>
+      <label class="block text-label font-medium mb-1.5">Nama Pelapor <span class="text-danger">*</span></label>
+      <input type="text" name="nama_pelapor" required class="cs-input" placeholder="Contoh: Budi Santoso" />
+    </div>
+    <div>
       <label class="block text-label font-medium mb-1.5">Deskripsi Barang Hilang <span class="text-danger">*</span></label>
       <textarea name="item_description" rows="4" required class="cs-input resize-none" placeholder="Contoh: Tas ransel warna biru, berisi laptop..."></textarea>
     </div>
@@ -77,6 +82,7 @@ ob_start();
       <thead>
         <tr class="border-b border-border">
           <th class="text-left text-caption font-semibold text-text/40 uppercase py-2 px-3">No</th>
+          <th class="text-left text-caption font-semibold text-text/40 uppercase py-2 px-3">Nama Pelapor</th>
           <th class="text-left text-caption font-semibold text-text/40 uppercase py-2 px-3">Deskripsi Barang</th>
           <th class="text-left text-caption font-semibold text-text/40 uppercase py-2 px-3">Kontak</th>
           <th class="text-left text-caption font-semibold text-text/40 uppercase py-2 px-3">Status</th>
@@ -88,6 +94,7 @@ ob_start();
         <?php foreach ($reports as $i => $report): ?>
         <tr class="border-b border-border/50 hover:bg-white/3">
           <td class="py-3 px-3"><?= $i + 1 ?></td>
+          <td class="py-3 px-3"><?= $report['nama_pelapor'] ?></td>
           <td class="py-3 px-3 max-w-xs truncate"><?= $report['item_description'] ?></td>
           <td class="py-3 px-3"><?= $report['contact_number'] ?></td>
           <td class="py-3 px-3">
