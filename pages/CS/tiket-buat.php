@@ -15,13 +15,24 @@ $success = false;
 $errors  = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nama_pelapor = trim($_POST['nama_pelapor'] ?? '');
-    $no_hp        = trim($_POST['no_hp'] ?? '') ?: null;
-    $lokasi       = trim($_POST['lokasi'] ?? '');
-    $kategori     = $_POST['kategori'] ?? '';
-    $deskripsi    = trim($_POST['deskripsi'] ?? '');
+    $nama_pelapor   = trim($_POST['nama_pelapor'] ?? '');
+    $no_hp          = trim($_POST['no_hp'] ?? '') ?: null;
+    $lokasi         = trim($_POST['lokasi'] ?? '');
+    $floor_name     = trim($_POST['floor_name'] ?? '') ?: null;
+    $area_name      = trim($_POST['area_name'] ?? '') ?: null;
+    $asset_name     = trim($_POST['asset_name'] ?? '') ?: null;
+    $asset_code     = trim($_POST['asset_code'] ?? '') ?: null;
+    $kategori       = $_POST['kategori'] ?? '';
+    $damage_type    = trim($_POST['damage_type'] ?? '') ?: null;
+    $priority       = $_POST['priority'] ?? 'Medium';
+    $severity_level = (int) ($_POST['severity_level'] ?? 1);
+    $deskripsi      = trim($_POST['deskripsi'] ?? '');
 
-    $allowed_kat  = array_keys($kategori_list);
+    $allowed_kat      = array_keys($kategori_list);
+    $allowed_priority = ['Critical','High','Medium','Low'];
+    if (!in_array($priority, $allowed_priority)) $priority = 'Medium';
+    if ($severity_level < 1) $severity_level = 1;
+    if ($severity_level > 10) $severity_level = 10;
 
     if (!$nama_pelapor)                  $errors[] = 'Nama pelapor wajib diisi.';
     if (!$lokasi)                        $errors[] = 'Lokasi kejadian wajib diisi.';
@@ -51,10 +62,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $created_by = $_SESSION['user_id'] ?? null;
 
         $stmt = $pdo->prepare("
-            INSERT INTO tiket (id, pelapor, no_hp, lokasi, kategori, deskripsi, foto, created_by)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO tiket (
+                id, report_date, pelapor, no_hp, lokasi, floor_name, area_name,
+                asset_name, asset_code, kategori, damage_type, priority, severity_level,
+                deskripsi, foto, created_by
+            ) VALUES (?, CURDATE(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        $stmt->execute([$new_id, $nama_pelapor, $no_hp, $lokasi, $kategori, $deskripsi, $foto_json, $created_by]);
+        $stmt->execute([
+            $new_id, $nama_pelapor, $no_hp, $lokasi, $floor_name, $area_name,
+            $asset_name, $asset_code, $kategori, $damage_type, $priority, $severity_level,
+            $deskripsi, $foto_json, $created_by
+        ]);
 
         $success = true;
     }
@@ -139,6 +157,53 @@ ob_start();
                             </option>
                         <?php endforeach; ?>
                     </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                    <label class="text-label font-medium">Lantai</label>
+                    <input type="text" name="floor_name" class="cs-input" placeholder="Contoh: 2"
+                        value="<?= htmlspecialchars($_POST['floor_name'] ?? '') ?>" />
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-label font-medium">Area</label>
+                    <input type="text" name="area_name" class="cs-input" placeholder="Contoh: ATM Area"
+                        value="<?= htmlspecialchars($_POST['area_name'] ?? '') ?>" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                    <label class="text-label font-medium">Nama Aset</label>
+                    <input type="text" name="asset_name" class="cs-input" placeholder="Contoh: AC, Lift, Toilet"
+                        value="<?= htmlspecialchars($_POST['asset_name'] ?? '') ?>" />
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-label font-medium">Kode Aset</label>
+                    <input type="text" name="asset_code" class="cs-input" placeholder="Contoh: AC-L2-01"
+                        value="<?= htmlspecialchars($_POST['asset_code'] ?? '') ?>" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="space-y-1.5">
+                    <label class="text-label font-medium">Jenis Kerusakan</label>
+                    <input type="text" name="damage_type" class="cs-input" placeholder="Contoh: Mechanical Failure"
+                        value="<?= htmlspecialchars($_POST['damage_type'] ?? '') ?>" />
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-label font-medium">Prioritas</label>
+                    <select name="priority" class="cs-input" style="background-color:#0B376D;color:#F5F7FA;">
+                        <?php foreach (['Critical','High','Medium','Low'] as $p): ?>
+                            <option value="<?= $p ?>" <?= (($_POST['priority'] ?? 'Medium') === $p) ? 'selected' : '' ?>><?= $p ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-label font-medium">Severity (1-10)</label>
+                    <input type="number" name="severity_level" min="1" max="10" class="cs-input"
+                        value="<?= htmlspecialchars($_POST['severity_level'] ?? '1') ?>" />
                 </div>
             </div>
 

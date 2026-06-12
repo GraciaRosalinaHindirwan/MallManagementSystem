@@ -105,6 +105,7 @@ ob_start();
                     <th class="text-left pb-3 pr-4 font-medium">Pelapor</th>
                     <th class="text-left pb-3 pr-4 font-medium">Lokasi</th>
                     <th class="text-left pb-3 pr-4 font-medium">Kategori</th>
+                    <th class="text-left pb-3 pr-4 font-medium">Prioritas</th>
                     <th class="text-left pb-3 pr-4 font-medium">Status</th>
                     <th class="text-left pb-3 pr-4 font-medium">SLA</th>
                     <th class="text-left pb-3 pr-4 font-medium">Waktu</th>
@@ -133,6 +134,17 @@ ob_start();
                         <span class="px-2 py-0.5 rounded-full text-caption font-medium <?= $kat['class'] ?>">
                             <?= $kat['label'] ?>
                         </span>
+                    </td>
+                    <td class="py-3 pr-4">
+                        <?php
+                        $prio_class = match($t['priority']) {
+                            'Critical' => 'bg-danger/15 text-danger',
+                            'High'     => 'bg-warning/15 text-warning',
+                            'Low'      => 'bg-text/10 text-text/50',
+                            default    => 'bg-accent/10 text-accent',
+                        };
+                        ?>
+                        <span class="px-2 py-0.5 rounded-full text-caption font-medium <?= $prio_class ?>"><?= htmlspecialchars($t['priority']) ?></span>
                     </td>
                     <td class="py-3 pr-4">
                         <span class="px-2 py-0.5 rounded-full text-caption font-medium <?= $stat['class'] ?>">

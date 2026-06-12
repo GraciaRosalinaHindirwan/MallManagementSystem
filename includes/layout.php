@@ -96,7 +96,7 @@ $extraScript = $extraScript ?? '';
 
       <p class="text-caption text-text/30 font-semibold uppercase tracking-widest px-4 pt-4 pb-1">Keluhan</p>
       <a href="tiket.php"      class="cs-nav-item <?= $currentMenu === 'tiket' ? 'cs-nav-active' : '' ?>"><i class="bi bi-ticket-perforated w-4"></i> Semua Tiket</a>
-      <a href="form-tiket.php" class="cs-nav-item <?= $currentMenu === 'tiket-buat' ? 'cs-nav-active' : '' ?>"><i class="bi bi-plus-circle w-4"></i> Buat Tiket Baru</a>
+      <a href="tiket-buat.php" class="cs-nav-item <?= $currentMenu === 'tiket-buat' ? 'cs-nav-active' : '' ?>"><i class="bi bi-plus-circle w-4"></i> Buat Tiket Baru</a>
       <a href="sla-breach.php" class="cs-nav-item <?= $currentMenu === 'sla-breach' ? 'cs-nav-active' : '' ?>"><i class="bi bi-exclamation-triangle w-4"></i> SLA Breach</a>
 
       <p class="text-caption text-text/30 font-semibold uppercase tracking-widest px-4 pt-4 pb-1">Barang Hilang</p>

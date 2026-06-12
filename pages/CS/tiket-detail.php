@@ -91,6 +91,33 @@ ob_start();
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border">
                 <div class="space-y-3">
                     <div>
+                        <p class="text-caption text-text/40 mb-0.5">Nama Aset</p>
+                        <p class="text-label text-text/90"><?= $t['asset_name'] ? htmlspecialchars($t['asset_name']) : '<span class="text-text/30">—</span>' ?></p>
+                    </div>
+                    <div>
+                        <p class="text-caption text-text/40 mb-0.5">Kode Aset</p>
+                        <p class="text-label text-text/90"><?= $t['asset_code'] ? htmlspecialchars($t['asset_code']) : '<span class="text-text/30">—</span>' ?></p>
+                    </div>
+                    <div>
+                        <p class="text-caption text-text/40 mb-0.5">Lantai / Area</p>
+                        <p class="text-label text-text/90"><?= htmlspecialchars(($t['floor_name'] ?: '-') . ' / ' . ($t['area_name'] ?: '-')) ?></p>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-caption text-text/40 mb-0.5">Jenis Kerusakan</p>
+                        <p class="text-label text-text/90"><?= $t['damage_type'] ? htmlspecialchars($t['damage_type']) : '<span class="text-text/30">—</span>' ?></p>
+                    </div>
+                    <div>
+                        <p class="text-caption text-text/40 mb-0.5">Prioritas / Severity</p>
+                        <p class="text-label text-text/90"><?= htmlspecialchars($t['priority']) ?> · <?= (int)$t['severity_level'] ?>/10</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border">
+                <div class="space-y-3">
+                    <div>
                         <p class="text-caption text-text/40 mb-0.5">Nama Pelapor</p>
                         <p class="text-label text-text/90"><?= htmlspecialchars($t['pelapor']) ?></p>
                     </div>
