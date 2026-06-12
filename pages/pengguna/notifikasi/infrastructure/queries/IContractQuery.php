@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . "/domain/Contract.php";
+require_once __DIR__ . "/../../domain/Contract.php";
 
 interface IContractQuery
 {

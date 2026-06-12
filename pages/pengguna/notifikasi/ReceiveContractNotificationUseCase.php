@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . "/INotifier.php";
-require_once __DIR__ . "/IUserQuery.php";
-require_once __DIR__ . "/IContractQuery.php";
+require_once __DIR__ . "/infrastructure/notifier/INotifier.php";
+require_once __DIR__ . "/infrastructure/queries/IUserQuery.php";
+require_once __DIR__ . "/infrastructure/queries/IContractQuery.php";
 
 require_once __DIR__ . "/domain/NotificationMessage.php";
 
@@ -27,7 +27,7 @@ class ReceiveContractNotificationUseCase
 
         $this->_notifier->notify(new NotificationMessage(
             subject: "mmisreminder",
-            body: "your contract is due in " . $current_time->diff($contract->due_date)->format("%R%a days, %H hours, %I minutes")
+            body: "due in " . $current_time->diff($contract->due_date)->format("%R%a days, %H hours, %I minutes")
         ), $current_user);
     }
 }

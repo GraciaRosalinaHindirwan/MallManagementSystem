@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . "/../../domain/User.php";
-require_once __DIR__ . "/../../INotificationQuery.php";
+require_once __DIR__ . "/INotificationQuery.php";
 
 class InMemoryNotifictionQuery implements INotificationQuery
 {

@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . "/../../IUserQuery.php";
+require_once __DIR__ . "/IUserQuery.php";
 require_once __DIR__ . "/../../domain/User.php";
 
 class InMemoryUserQuery implements IUserQuery

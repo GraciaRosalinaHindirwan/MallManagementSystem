@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../../INotifier.php";
+require_once __DIR__ . "/INotifier.php";
 
 class ConsoleNotifier implements INotifier
 {

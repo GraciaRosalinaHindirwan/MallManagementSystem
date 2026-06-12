@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . "/../../IContractQuery.php";
+require_once __DIR__ . "/IContractQuery.php";
 require_once __DIR__ . "/../../domain/Contract.php";
 
 class InMemoryContractQuery implements IContractQuery
