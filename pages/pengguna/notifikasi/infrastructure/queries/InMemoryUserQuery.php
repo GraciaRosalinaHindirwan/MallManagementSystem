@@ -23,7 +23,7 @@ class InMemoryUserQuery implements IUserQuery
         return array_shift($values);
     }
 
-    public function get_by_username(string $username)
+    public function get_by_username(string $username): User
     {
         $filtered = array_values(
             array_filter(

@@ -12,7 +12,7 @@ $user = new InMemoryUserQuery([
 ]);
 $notifier = new ConsoleNotifier();
 $contract = new InMemoryContractQuery([
-    new Contract(1, 1)
+    new Contract(1, 1, new DateTime())
 ]);
 
 $usecase = new ReceiveContractNotificationUseCase($notifier, $user, $contract);
