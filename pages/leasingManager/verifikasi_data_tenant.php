@@ -47,159 +47,161 @@ $prospekList = $_SESSION['prospekList'] ?? [
     <title>Verifikasi Data Tenant - Mall ERP</title>
     
     <style>
-        /* @import font Poppins untuk kesan modern & profesional */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-        /* Pengaturan dasar halaman */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f0f4f8; /* Warna latar belakang soft */
-            color: #334155;
-            padding: 40px 20px;
-            display: flex;
-            justify-content: center;
-        }
+body {
+    font-family: var(--font-family, 'Poppins', sans-serif);
+    background: var(--background, #021F42);
+    color: var(--text, #F5F7FA);
+    font-size: var(--body, 16px);
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+}
 
-        /* Kotak pembungkus utama */
-        .container {
-            background: #ffffff;
-            padding: 32px;
-            border-radius: 16px; /* Corner lebih melengkung modern */
-            box-shadow: 0 10px 25px rgba(2, 31, 66, 0.05); /* Soft shadow ala dashboard premium */
-            max-width: 1100px;
-            width: 100%;
-        }
+/* ── Container utama ── */
+.container {
+    background: var(--primary, #0B376D);
+    padding: 32px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 32px rgba(2, 31, 66, 0.4);
+    max-width: 1100px;
+    width: 100%;
+}
 
-        h2 {
-            color: #0f172a;
-            font-weight: 700;
-            font-size: 24px;
-            margin-bottom: 6px;
-        }
+h2 {
+    color: var(--text, #F5F7FA);
+    font-weight: 700;
+    font-size: var(--h2, 24px);
+    margin-bottom: 6px;
+}
 
-        p {
-            color: #64748b;
-            font-size: 14px;
-            margin-bottom: 24px;
-        }
+p {
+    color: rgba(245, 247, 250, 0.5);
+    font-size: var(--label, 14px);
+    margin-bottom: 24px;
+}
 
-        /* Styling Tabel Responsif */
-        .table-responsive {
-            overflow-x: auto; /* Mencegah tabel rusak di layar kecil */
-            margin-top: 20px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
+/* ── Tabel ── */
+.table-responsive {
+    overflow-x: auto;
+    margin-top: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #ffffff;
-            text-align: left;
-        }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: transparent;
+    text-align: left;
+}
 
-        th, td {
-            padding: 16px 20px;
-            font-size: 14px;
-        }
+th, td {
+    padding: 14px 20px;
+    font-size: var(--label, 14px);
+}
 
-        th {
-            background-color: #f8fafc; /* Kontras lembut untuk header */
-            color: #475569;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 0.05em;
-            border-bottom: 2px solid #e2e8f0;
-        }
+th {
+    background-color: var(--primary-dark, #082A53);
+    color: var(--accent, #00D4D8);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: var(--caption, 12px);
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
+}
 
-        td {
-            border-bottom: 1px solid #f1f5f9;
-            color: #334155;
-            vertical-align: middle;
-        }
+td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text, #F5F7FA);
+    vertical-align: middle;
+}
 
-        /* Efek baris ketika di-hover */
-        tbody tr:hover {
-            background-color: #f8fafc;
-        }
+tbody tr:hover {
+    background: rgba(0, 212, 216, 0.04);
+}
 
-        /* Link Dokumen Legal */
-        table a {
-            color: #0284c7;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s ease;
-        }
+/* ── Link dokumen legal ── */
+table a {
+    color: var(--accent, #00D4D8);
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+}
 
-        table a:hover {
-            color: #0369a1;
-            text-decoration: underline;
-        }
+table a:hover {
+    opacity: 0.75;
+    text-decoration: underline;
+}
 
-        /* Styling Tombol Aksi */
-        .btn-group {
-            display: flex;
-            gap: 8px;
-        }
+/* ── Tombol aksi Approve / Reject ── */
+.btn-group {
+    display: flex;
+    gap: 8px;
+}
 
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            font-family: inherit;
-            text-decoration: none;
-            transition: all 0.2s ease-in-out;
-        }
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: var(--caption, 12px);
+    font-weight: 600;
+    font-family: inherit;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+}
 
-        .btn-approve {
-            background-color: #dcfce7;
-            color: #15803d;
-        }
+.btn-approve {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success, #22C55E);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
 
-        .btn-approve:hover {
-            background-color: #15803d;
-            color: #ffffff;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(21, 128, 61, 0.2);
-        }
+.btn-approve:hover {
+    background: var(--success, #22C55E);
+    color: var(--background, #021F42);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
+}
 
-        .btn-reject {
-            background-color: #fee2e2;
-            color: #b91c1c;
-        }
+.btn-reject {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--danger, #EF4444);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
 
-        .btn-reject:hover {
-            background-color: #b91c1c;
-            color: #ffffff;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(185, 28, 28, 0.2);
-        }
+.btn-reject:hover {
+    background: var(--danger, #EF4444);
+    color: var(--text, #F5F7FA);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
 
-        /* Styling Status Badge (Capsule) */
-        .status-pending {
-            display: inline-block;
-            background-color: #fef3c7;
-            color: #d97706;
-            padding: 6px 14px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 600;
-            border: 1px solid rgba(217, 119, 6, 0.2);
-            white-space: nowrap;
-        }
+/* ── Badge status ── */
+.status-pending {
+    display: inline-block;
+    background: rgba(255, 182, 42, 0.15);
+    color: var(--text-accent, #FFB62A);
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: var(--caption, 12px);
+    font-weight: 600;
+    border: 1px solid rgba(255, 182, 42, 0.3);
+    white-space: nowrap;
+}
     </style>
 </head>
 <body>
@@ -230,10 +232,10 @@ $prospekList = $_SESSION['prospekList'] ?? [
                 <?php else: ?>
                     <?php foreach ($prospekList as $tenant): ?>
                         <tr>
-                            <td style="font-weight: 600; color: #475569;">
+                            <td >
                                 P-2026-<?= str_pad($tenant['id'], 3, '0', STR_PAD_LEFT) ?>
                             </td>
-                            <td style="font-weight: 600; color: #0f172a;">
+                            <td >
                                 <?= htmlspecialchars($tenant['nama_toko']) ?>
                             </td>
                             <td><?= htmlspecialchars($tenant['unit']) ?></td>
