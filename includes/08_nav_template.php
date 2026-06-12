@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Template Navbar Modul 08</title>
-    <link rel="stylesheet" href="../public/asset/css/designSystem.css">
+    <link rel="stylesheet" href="/MallManagementSystem/public/asset/css/designSystem.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </head>
@@ -339,7 +339,7 @@
             </button>
         </div>
         <div class="offcanvas-body">
-            <a href="" class="menu-link active">
+            <a href="../pages/manager/08_dashboard.php" class="menu-link active">
                 <svg width="35" height="40" viewBox="0 0 35 30" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11.3947 23.3333H7.59649V11.6667H11.3947V23.3333ZM18.9912 23.3333H15.193V6.66667H18.9912V23.3333ZM26.5877 23.3333H22.7895V16.6667H26.5877V23.3333ZM30.386 26.6667H3.79825V3.33333H30.386V26.8333M30.386 0H3.79825C1.70921 0 0 1.5 0 3.33333V26.6667C0 28.5 1.70921 30 3.79825 30H30.386C32.475 30 34.1842 28.5 34.1842 26.6667V3.33333C34.1842 1.5 32.475 0 30.386 0Z" fill="#FFB62A" />
                 </svg>
@@ -350,11 +350,19 @@
 
     <div class="sub-nav-container">
         <div class="sub-nav">
-            <a href="#" class="sub-nav-item active">Dashboard</a>
-            <a href="#" class="sub-nav-item">Approval</a>
-            <a href="#" class="sub-nav-item">Laporan</a>
-            <a href="#" class="sub-nav-item">Notifikasi</a>
+            <a href="../pages/manager/08_dashboard.php" class="sub-nav-item active">Dashboard</a>
+            <a href="../pages/manager/08_approval.php" class="sub-nav-item">Approval</a>
+            <a href="../pages/manager/08_laporan.php" class="sub-nav-item">Laporan</a>
+            <a href="../pages/manager/08_notifikasi.php" class="sub-nav-item">Notifikasi</a>
         </div>
+    </div>
+
+    <div class="container mt-4">
+        <?php
+        if (isset($content)) {
+            echo $content;
+        }
+        ?>
     </div>
 </body>
 
