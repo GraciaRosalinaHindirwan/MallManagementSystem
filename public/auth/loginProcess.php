@@ -1,4 +1,8 @@
 <?php
+require_once __DIR__.'/../../repositories/UserRepository.php';
+require_once __DIR__.'/../../dto/LoginDto.php';
+require_once __DIR__.'/../../services/authService.php';
+
 session_start();
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST'){
@@ -6,12 +10,10 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST'){
     exit;
 }
 
-//ambil data 
 $username = trim($_POST['username']);
 $password = trim($_POST['password']);
 
-
-// buat captcha
+//validasi captcha 
 $captchaInput = strtoupper(
     trim($_POST['captcha'])
 );
@@ -27,27 +29,53 @@ if (
 
     exit;
 }
+unset($_SESSION['captcha']);
 
-if(!password_verify($password, $user['password'])){
-    $_SESSION['error'] = 'Username atau password salah';
+//validasi input 
+if (
+    empty($username) ||
+    empty($password)
+) {
+    $_SESSION['error'] =
+        'Username dan password wajib diisi';
+
     header('Location: ../index.php');
     exit;
 }
 
-$_SESSION['user_id'] = $user['id'];
+$dto = new LoginDto($username, $password);
+$userRepository = new UserRepository();
+$authService = new AuthService($userRepository);
+
+$user = $authService->login($dto);
+if (!$user) {
+    $_SESSION['error'] =
+        'Username atau password salah';
+
+    header('Location: ../index.php');
+    exit;
+}
+
+$_SESSION['user_id'] = $user->id;
+$_SESSION['username'] = $user->username;
 $_SESSION['last_activity'] = time();
 
-
-if($user['must_change_password'] == 1){
+if ($user->mustChangePassword) {
 
     $_SESSION['warning'] =
-        'Anda wajib mengganti password sebelum menggunakan sistem.';
+        'Silakan ganti password terlebih dahulu';
 
-    header('Location: ../changePassword.php');
+    header(
+        'Location: ../changePassword.php'
+    );
     exit;
 } else{
-    header('Location: ../index.php');
+    header(
+        'Location: ../testing/dashboard.php'
+    );
     exit;
 }
+
+
 
 ?>

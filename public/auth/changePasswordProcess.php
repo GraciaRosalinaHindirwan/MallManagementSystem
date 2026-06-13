@@ -1,19 +1,14 @@
 <?php
 session_start();
+require_once __DIR__.'/../../repositories/UserRepository.php';
+require_once __DIR__.'/../../dto/changePasswordDto.php';
+require_once __DIR__.'/../../services/authService.php';
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST'){
-    header('Location: ../auth/changePassword.php');
+    header('Location: ../../public/changePassword.php');
     exit;
 }
 
-
-if (!isset($_SESSION['user_id'])) {
-    
-    header('Location: ../index.php');
-    exit;
-}
-die('lewat session');
-    
 $newPassword = trim($_POST['new_password']);
 $confirmPassword = trim($_POST['confirm_password']);
 
@@ -22,18 +17,14 @@ if (empty($newPassword) || empty($confirmPassword)) {
     $_SESSION['error'] =
         'Semua field wajib diisi';
 
-    header('Location: changePassword.php');
+    header('Location: ../../public/changePassword.php');
     exit;
 } else if($newPassword !== $confirmPassword){
     $_SESSION['error'] = 'Konfirmasi password tidak cocok';
-    header('Location: ../auth/changePassword.php');
+    header('Location: ../../public/changePassword.php');
     exit;
 }
 
-echo "MASUK VALIDASI";
-die();
-
-//cek aturan password
 if(
     !preg_match(
         '/^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9])(?!.*[+{}]).{8,}$/',
@@ -43,22 +34,31 @@ if(
     $_SESSION['error'] =
         'Password minimal 8 karakter, harus mengandung huruf kapital, angka, dan simbol. Simbol +, {, } tidak diperbolehkan.';
 
-    header('Location: ../auth/changePassword.php');
+    header('Location: ../../public/changePassword.php');
     exit;
 }
 
-$hashedPassword = password_hash(
-    $newPassword,
-    PASSWORD_DEFAULT
+$dto = new changePasswordDto(
+    $_SESSION['user_id'],
+    $newPassword
 );
 
-//update database
+$userRepository = new UserRepository();
+$authService = new AuthService($userRepository);
 
+$result = $authService->changePassword($dto);
+if (!$result) {
+    $_SESSION['error'] =
+        'Gagal mengubah password. Silakan coba lagi.';
 
-$_SESSION['success'] =
-    'Password berhasil diubah';
+    header('Location: ../../public/changePassword.php');
+    exit;
+}
+unset($_SESSION['warning']);
 
-header('Location: ../index.php');
+header(
+    'Location: ../../testing/dashboard.php'
+);
+
 exit;
-
 ?>
