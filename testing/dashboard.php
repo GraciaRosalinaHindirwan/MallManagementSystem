@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/../public/auth/checkSession.php';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

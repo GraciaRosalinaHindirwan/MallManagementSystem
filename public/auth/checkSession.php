@@ -3,7 +3,7 @@ session_start();
 
 if (!isset($_SESSION['user_id'])) {
 
-    header('Location: ../index.php');
+    header('Location: ../public/index.php');
     exit;
 }
 
@@ -19,7 +19,7 @@ if (
 
     unset($_SESSION['user_id']);
 
-    header('Location: ../index.php');
+    header('Location: ../public/index.php');
     exit;
 }
 $_SESSION['last_activity'] = time();

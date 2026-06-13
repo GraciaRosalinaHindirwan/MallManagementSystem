@@ -66,12 +66,12 @@ if ($user->mustChangePassword) {
         'Silakan ganti password terlebih dahulu';
 
     header(
-        'Location: ../changePassword.php'
+        'Location: ../public/changePassword.php'
     );
     exit;
 } else{
     header(
-        'Location: ../testing/dashboard.php'
+        'Location: ../../testing/dashboard.php'
     );
     exit;
 }

@@ -11,7 +11,7 @@ class UserRepository implements UserRepositoryInterface{
                 '1', 
                 'admin',  
                 password_hash('Admin123!', PASSWORD_DEFAULT), 
-                true),
+                false),
             
             new UserDto(
                 '2', 
