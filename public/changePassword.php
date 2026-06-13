@@ -38,7 +38,9 @@ session_start();
                         ['type' => "password",
                         'name' => "new_password",
                         'placeholder' => "",
-                        'label' => "password baru"],
+                        'label' => "password baru",
+                        'minlength' => '8',
+                        'pattern' => '^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9])(?!.*[+{}]).{8,}$'],
 
                         ['type' => "password",
                         'name' => "confirm_password",
@@ -54,6 +56,9 @@ session_start();
                     type = "<?php echo $field['type']; ?>"
                     name = "<?php echo $field['name']; ?>"
                     placeholder = "<?php echo $field['placeholder']; ?>"
+                    <?= isset($field['minlength']) ? 'minlength="'.$field['minlength'].'"' : '' ?>
+                    <?= isset($field['pattern']) ? 'pattern="'.$field['pattern'].'"' : '' ?>
+                    required
                     class="peer w-full bg-transparent border-[1.5px] border-[var(--accent)] rounded-[8px] px-[16px] pt-[20px] pb-[16px] text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"/>
 
                     <label
@@ -69,6 +74,12 @@ session_start();
                     peer-focus:text-cyan-400">
                         <?php echo $field['label']; ?>
                     </label>
+
+                    <?php if($field['name'] == 'new_password'): ?>
+                        <p class="mt-1 text-xs text-[var(--text-secondary)]">
+                            Min. 8 karakter, A-Z, 0-9, simbol (kecuali +, {, })
+                        </p>
+                    <?php endif; ?>
                 </div>
                 <?php endforeach; ?>
                 <button type="submit" class="w-full bg-[var(--secondary)] text-[var(--text)] font-bold py-[12px] rounded-[8px] hover:bg-[var(--secondary-dark)] transition-colors">
