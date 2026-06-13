@@ -1,4 +1,4 @@
-<img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/803ab0db-f2f7-453a-8967-3ea5bab8e22d" /># 🏬 Mall Management System
+# 🏬 Mall Management System
 
 Sistem informasi manajemen mall yang dikembangkan untuk mempermudah pengelolaan tenant, karyawan, fasilitas, keamanan, dan kegiatan operasional mall secara efektif dan efisien.
 
