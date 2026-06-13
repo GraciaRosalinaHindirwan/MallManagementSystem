@@ -1,4 +1,4 @@
-# 🏬 Mall Management System
+<img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/803ab0db-f2f7-453a-8967-3ea5bab8e22d" /># 🏬 Mall Management System
 
 Sistem informasi manajemen mall yang dikembangkan untuk mempermudah pengelolaan tenant, karyawan, fasilitas, keamanan, dan kegiatan operasional mall secara efektif dan efisien.
 
@@ -16,7 +16,7 @@ Sistem informasi manajemen mall yang dikembangkan untuk mempermudah pengelolaan 
 | Backend | PHP Native |
 | Database | MySQL |
 | Frontend | HTML5, CSS3, JavaScript |
-| UI Framework | Bootstrap 5 |
+| UI Framework | Bootstrap 5, tailwind CSS |
 | Web Server | Apache (XAMPP/Laragon) |
 | Version Control | Git & GitHub |
 
@@ -42,26 +42,57 @@ Sistem informasi manajemen mall yang dikembangkan untuk mempermudah pengelolaan 
 MALL/
 │
 ├── config/
+│   └── koneksi.php
 │
-├── include/
+├── dto/
+│   ├── UserDto.php
+│   ├── LoginDto.php
+│   └── ChangePasswordDto.php
+│
+├── repositories/
+│   ├── UserRepositoryInterface.php
+│   └── UserRepository.php
+│
+├── services/
+│   └── AuthService.php
+│
+├── testing/
+│   ├── dashboardTest.php
+│   └── 
+│
+├── includes/
 │   ├── header.php
 │   ├── navbar.php
 │   └── footer.php
 │
 ├── pages/
-│   ├── super-admin/
-│   ├── mall-director/
-│   ├── leasing-manager/
-│   ├── finance/
+│   ├── admin/
+│   ├── approver/
+│   ├── CS/
+│   ├── eventManager/
+│   ├── eventOrganizer/
+│   ├── facilityManager/
+│   ├── facilityStaff/
+│   ├── financeManager/
+│   ├── financeStaff/
 │   ├── hr/
-│   ├── facility-manager/
+│   ├── leasingManager/
+│   ├── manager/
+│   ├── member/
+│   ├── operationalManager/
+│   ├── pegawai/
+│   ├── pengguna/
+│   ├── pengunjung/
 │   ├── technician/
-│   ├── customer-service/
-│   ├── security/
-│   ├── tenant/
-│   └── visitor/
+│   ├── keamanan/
+│   ├── petugasParkir/
+│   ├── pusrchasingStaff/
+│   ├── staff/
+│   ├── teknisi/
+│   └── tenant/
 │
 ├── public/
+│   │
 │   ├── asset/
 │   │   ├── css/
 │   │   ├── images/
@@ -69,10 +100,15 @@ MALL/
 │   │
 │   ├── auth/
 │   │   ├── loginProcess.php
-│   │   └── registerProcess.php
+│   │   ├── registerProcess.php
+│   │   ├── changePasswordProcess.php
+│   │   ├── checkSession.php
+│   │   ├── captcha.php
+│   │   └── logout.php
 │   │
 │   ├── index.php
-│   └── logout.php
+│   ├── changePassword.php
+│   └── register.php
 │
 └── README.md
 ```
