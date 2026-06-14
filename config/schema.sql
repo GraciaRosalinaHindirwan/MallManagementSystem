@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS pegawai (
     tgl_masuk DATE NOT NULL,
     status ENUM('aktif','nonaktif') DEFAULT 'aktif',
     foto VARCHAR(255),
+    spesialisasi VARCHAR(100),
+    sertifikasi VARCHAR(255),
     nama_bank VARCHAR(50),
     no_rekening VARCHAR(30),
     kontak_darurat_nama VARCHAR(100),
@@ -117,9 +119,9 @@ INSERT INTO shift (nama_shift, jam_masuk, jam_keluar, keterangan) VALUES
 ('Siang', '13:00:00', '21:00:00', 'Shift siang reguler'),
 ('Malam', '21:00:00', '07:00:00', 'Shift malam');
 
-INSERT INTO pegawai (nik, nama, jenis_kelamin, agama, pendidikan_terakhir, jabatan, departemen, email, no_hp, tgl_masuk) VALUES
-('EMP001', 'Budi Santoso',   'L', 'Islam',  'S1', 'Staff HR',       'HR', 'budi@mall.com',   '081234567890', '2023-01-10'),
-('EMP002', 'Siti Rahayu',    'P', 'Islam',  'SMA','Kasir',          'CS', 'siti@mall.com',   '081234567891', '2023-02-15'),
-('EMP003', 'Ahmad Fauzi',    'L', 'Islam',  'SMA','Security',       'Security', 'ahmad@mall.com', '081234567892', '2022-11-01'),
-('EMP004', 'Dewi Lestari',   'P', 'Kristen','S1', 'Supervisor',     'Operations', 'dewi@mall.com', '081234567893', '2021-06-20'),
-('EMP005', 'Rizky Pratama',  'L', 'Islam',  'D3', 'Teknisi',        'Facility', 'rizky@mall.com', '081234567894', '2022-03-05');
+INSERT INTO pegawai (nik, nama, jenis_kelamin, agama, pendidikan_terakhir, jabatan, departemen, email, no_hp, tgl_masuk, spesialisasi, sertifikasi) VALUES
+('EMP001', 'Budi Santoso',   'L', 'Islam',  'S1', 'Staff HR',       'HR', 'budi@mall.com',   '081234567890', '2023-01-10', NULL, NULL),
+('EMP002', 'Siti Rahayu',    'P', 'Islam',  'SMA','Kasir',          'CS', 'siti@mall.com',   '081234567891', '2023-02-15', NULL, NULL),
+('EMP003', 'Ahmad Fauzi',    'L', 'Islam',  'SMA','Security',       'Security', 'ahmad@mall.com', '081234567892', '2022-11-01', NULL, NULL),
+('EMP004', 'Dewi Lestari',   'P', 'Kristen','S1', 'Supervisor',     'Operations', 'dewi@mall.com', '081234567893', '2021-06-20', NULL, NULL),
+('EMP005', 'Rizky Pratama',  'L', 'Islam',  'D3', 'Teknisi',        'Facility', 'rizky@mall.com', '081234567894', '2022-03-05', 'Electrical', 'Sertifikat K3 Listrik');
