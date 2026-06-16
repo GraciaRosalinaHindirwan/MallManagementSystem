@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . "/../ReceiveContractNotificationUseCase.php";
+require_once __DIR__ . "/../usecase/ReceiveContractNotificationUseCase.php";
 require_once __DIR__ . "/../infrastructure/notifier/ConsoleNotifier.php";
 require_once __DIR__ . "/../infrastructure/queries/InMemoryUserQuery.php";
 require_once __DIR__ . "/../infrastructure/queries/InMemoryContractQuery.php";

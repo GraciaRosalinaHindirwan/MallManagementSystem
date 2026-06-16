@@ -1,11 +1,11 @@
 <?php
 
-require_once __DIR__ . "/infrastructure/notifier/INotifier.php";
-require_once __DIR__ . "/infrastructure/queries/IUserQuery.php";
-require_once __DIR__ . "/infrastructure/queries/IContractQuery.php";
+require_once __DIR__ . "/../infrastructure/notifier/INotifier.php";
+require_once __DIR__ . "/../infrastructure/queries/IUserQuery.php";
+require_once __DIR__ . "/../infrastructure/queries/IContractQuery.php";
 
-require_once __DIR__ . "/domain/Notification/NotificationLog.php";
-require_once __DIR__ . "/infrastructure/writer/INotificationLogWriter.php";
+require_once __DIR__ . "/../domain/Notification/NotificationLog.php";
+require_once __DIR__ . "/../infrastructure/writer/INotificationLogWriter.php";
 
 class ReceiveContractNotificationUseCase
 {
