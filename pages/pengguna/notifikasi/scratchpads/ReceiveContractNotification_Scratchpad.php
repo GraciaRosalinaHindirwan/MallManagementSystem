@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . "/../usecase/ReceiveContractNotificationUseCase.php";
-require_once __DIR__ . "/../infrastructure/queries/InMemoryUserQuery.php";
+require_once __DIR__ . "/../infrastructure/queries//InMemoryUserQuery.php";
 require_once __DIR__ . "/../infrastructure/queries/InMemoryContractQuery.php";
 require_once __DIR__ . "/../infrastructure/writer/InMemoryNotificationLogWriter.php";
 require_once __DIR__ . "/../infrastructure/writer/InMemoryNotificationWriter.php";
