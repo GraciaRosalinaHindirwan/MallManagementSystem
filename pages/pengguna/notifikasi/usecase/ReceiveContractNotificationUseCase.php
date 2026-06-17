@@ -25,25 +25,26 @@ class ReceiveContractNotificationUseCase
     public function execute()
     {
         $contracts = $this->_contracts->get_all();
+        $users = $this->_user->get_all();
 
-        foreach ($contracts as $contract) {
-            $current_time = new DateTime();
-            $notification_message = new NotificationContent(
-                type: NotificationType::contract_expiry,
-                subject: "mmisreminder",
-                body: "your rental contract is due in " . $current_time->diff($contract->due_date)->format("%R%a days, %H hours, %I minutes"),
-            );
+        foreach ($users as $user) {
+            foreach ($contracts as $contract) {
+                $current_time = new DateTime();
+                $notification_message = new NotificationContent(
+                    type: NotificationType::contract_expiry,
+                    subject: "mmisreminder",
+                    body: "your rental contract is due in " . $current_time->diff($contract->due_date)->format("%R%a days, %H hours, %I minutes"),
+                );
 
-            $user = $this->_user->get_by_id($contract->user_id);
-            if ($user == null)
-                throw new Exception("cannot find user with an id of: " . $contract->user_id);
 
-            $this->_notifier->notify($notification_message, $user);
+                $this->_notifier->notify($notification_message, $user);
 
-            $this->_logger->insert(NotificationLog::pending(
-                new Recipient($user->email, $user->username),
-                $notification_message
-            ));
+
+                $this->_logger->insert(NotificationLog::pending(
+                    new Recipient($user->email, $user->username),
+                    $notification_message
+                ));
+            }
         }
     }
 }
