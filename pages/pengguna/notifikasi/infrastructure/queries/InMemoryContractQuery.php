@@ -35,4 +35,9 @@ class InMemoryContractQuery implements IContractQuery
 
         return array_shift($filtered);
     }
+
+    function get_all(): array
+    {
+        return $this->contracts;
+    }
 }

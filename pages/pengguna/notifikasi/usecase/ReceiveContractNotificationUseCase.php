@@ -22,26 +22,28 @@ class ReceiveContractNotificationUseCase
         $this->_logger = $_logger;
     }
 
-    public function execute(int $user_id)
+    public function execute()
     {
-        $contract = $this->_contracts->get_by_user_id($user_id);
-        $current_user = $this->_user->get_by_id($user_id);
-        $current_time = new DateTime();
+        $contracts = $this->_contracts->get_all();
 
+        foreach ($contracts as $contract) {
+            $current_time = new DateTime();
+            $notification_message = new NotificationContent(
+                type: NotificationType::contract_expiry,
+                subject: "mmisreminder",
+                body: "your rental contract is due in " . $current_time->diff($contract->due_date)->format("%R%a days, %H hours, %I minutes"),
+            );
 
-        $notification_content = new NotificationContent(
-            subject: "mmisreminder",
-            body: "your rental contract is due in " . $current_time->diff($contract->due_date)->format("%R%a days, %H hours, %I minutes"),
-            type: NotificationType::contract_expiry
-        );
+            $user = $this->_user->get_by_id($contract->user_id);
+            if ($user == null)
+                throw new Exception("cannot find user with an id of: " . $contract->user_id);
 
+            $this->_notifier->notify($notification_message, $user);
 
-        $this->_notifier->notify($notification_content, $current_user);
-
-        $this->_logger->insert(NotificationLog::pending(
-            new Recipient($current_user->email, $current_user->username),
-            $notification_content,
-
-        ));
+            $this->_logger->insert(NotificationLog::pending(
+                new Recipient($user->email, $user->username),
+                $notification_message
+            ));
+        }
     }
 }

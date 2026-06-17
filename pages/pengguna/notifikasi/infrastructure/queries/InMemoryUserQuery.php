@@ -12,7 +12,7 @@ class InMemoryUserQuery implements IUserQuery
         $this->users = $users;
     }
 
-    public function get_by_id(int $id): User
+    public function get_by_id(int $id): User | null
     {
         $filtered = array_filter($this->users, function (User $user) use ($id) {
             return $user->id == $id;
@@ -23,7 +23,7 @@ class InMemoryUserQuery implements IUserQuery
         return array_shift($values);
     }
 
-    public function get_by_username(string $username): User
+    public function get_by_username(string $username): User | null
     {
         $filtered = array_values(
             array_filter(
@@ -35,5 +35,10 @@ class InMemoryUserQuery implements IUserQuery
         );
 
         return array_shift($filtered);
+    }
+
+    public function get_all(): array
+    {
+        return $this->users;
     }
 }
