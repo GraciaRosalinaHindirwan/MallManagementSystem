@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . "/INotificationWriter.php";
-require_once __DIR__ . "/../../domain/Notification/Notification.php";
+require_once __DIR__ . "/../INotificationWriter.php";
+require_once __DIR__ . "/../../../domain/Notification/Notification.php";
 
 class InMemoryNotificationWriter implements INotificationWriter
 {
@@ -12,8 +12,8 @@ class InMemoryNotificationWriter implements INotificationWriter
         $this->notifications = $notifications;
     }
 
-    public function insert(NotificationContent $notification)
+    public function insert(Notification $notification)
     {
-        array_push($this->notifications, new Notification(count($this->notifications) + 1, $notification, new DateTime()));
+        array_push($this->notifications, $notification);
     }
 }

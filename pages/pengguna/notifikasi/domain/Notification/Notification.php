@@ -12,4 +12,13 @@ class Notification
         $this->content = $content;
         $this->date_time = $date_time;
     }
+
+    public static function create(NotificationContent $content): Notification
+    {
+        return new Notification(
+            id: 0,
+            content: $content,
+            date_time: new DateTime()
+        );
+    }
 }

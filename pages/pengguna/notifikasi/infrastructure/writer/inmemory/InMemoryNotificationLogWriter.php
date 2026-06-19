@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . "/INotificationLogWriter.php";
-require_once __DIR__ . "/../../domain/Notification/NotificationLog.php";
+require_once __DIR__ . "/../INotificationLogWriter.php";
+require_once __DIR__ . "/../../../domain/Notification/NotificationLog.php";
 
 class InMemoryNotificationLogWriter implements INotificationLogWriter
 {

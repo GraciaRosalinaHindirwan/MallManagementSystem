@@ -1,5 +1,5 @@
 <?php
 interface INotificationWriter
 {
-    public function insert(NotificationContent $notification);
+    public function insert(Notification $notification);
 }

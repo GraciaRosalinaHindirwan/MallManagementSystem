@@ -17,6 +17,6 @@ class WebNotifier implements INotifier
 
     public function notify(NotificationContent $message, User $user)
     {
-        $this->_notification_writer->insert($message);
+        $this->_notification_writer->insert(Notification::create($message));
     }
 }
