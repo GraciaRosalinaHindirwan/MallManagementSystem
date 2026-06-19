@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . "/NotificationContent.php";
+
+
 class Notification
 {
     public int $id;
@@ -13,7 +16,7 @@ class Notification
         $this->date_time = $date_time;
     }
 
-    public static function create(NotificationContent $content): Notification
+    public static function create(int $id, NotificationContent $content): Notification
     {
         return new Notification(
             id: 0,

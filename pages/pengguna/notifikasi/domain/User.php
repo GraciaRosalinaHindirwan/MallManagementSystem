@@ -35,4 +35,20 @@ class User
         $this->failed_login_attempt = $failed_login_attempt;
         $this->is_blocked = $is_blocked;
     }
+
+    // returns user with all fields filled with dummy data
+    public static function create_filled_user(int $id, string $username, string $email): User
+    {
+        return new User(
+            id: 1,
+            fullname: "John Doe",
+            username: "johndoe",
+            email: "",
+            password: "",
+            must_change_password: false,
+            role_page_id: 1,
+            failed_login_attempt: 0,
+            is_blocked: false,
+        );
+    }
 }

@@ -1,6 +1,14 @@
 <?php
 
-enum ContractStatus {}
+enum ContractStatus
+{
+    case Draft;
+    case WaitingApproval;
+    case Active;
+    case Ammended;
+    case Expired;
+    case Terminated;
+}
 
 class Contract
 {

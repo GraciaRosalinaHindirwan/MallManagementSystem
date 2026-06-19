@@ -27,13 +27,15 @@ class ReceiveContractNotificationUseCase
         $contracts = $this->_contracts->get_all();
         $users = $this->_user->get_all();
 
+        /** @var User[] $users */
         foreach ($users as $user) {
+            /** @var Contract[] $contracts */
             foreach ($contracts as $contract) {
                 $current_time = new DateTime();
                 $notification_message = new NotificationContent(
                     type: NotificationType::contract_expiry,
                     subject: "mmisreminder",
-                    body: "your rental contract is due in " . $current_time->diff($contract->due_date)->format("%R%a days, %H hours, %I minutes"),
+                    body: "your rental contract is due in " . $current_time->diff($contract->end_date)->format("%R%a days, %H hours, %I minutes"),
                 );
 
 

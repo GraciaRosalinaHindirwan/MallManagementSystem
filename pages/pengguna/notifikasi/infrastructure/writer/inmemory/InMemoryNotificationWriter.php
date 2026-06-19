@@ -7,9 +7,9 @@ class InMemoryNotificationWriter implements INotificationWriter
 {
     public array $notifications;
 
-    public function __construct(array $notifications)
+    public function __construct(array &$notifications)
     {
-        $this->notifications = $notifications;
+        $this->notifications = &$notifications;
     }
 
     public function insert(Notification $notification)
