@@ -7,14 +7,15 @@ require_once __DIR__ . "/../infrastructure/writer/inmemory/InMemoryNotificationL
 require_once __DIR__ . "/../infrastructure/writer/inmemory/InMemoryNotificationWriter.php";
 require_once __DIR__ . "/../infrastructure/queries/inmemory/InMemoryNotificationQuery.php";
 require_once __DIR__ . "/../infrastructure/notifier/WebNotifier.php";
+require_once __DIR__ . "/../infrastructure/notifier/ConsoleNotifier.php";
 
 require_once __DIR__ . "/../domain/User.php";
 require_once __DIR__ . "/../domain/Contract.php";
 
 $user = new InMemoryUserQuery([
-    User::create_filled_user(1, "johndoe", "", ""),
-    User::create_filled_user(2, "johndoe", "", ""),
-    User::create_filled_user(3, "johndoe", "", "")
+    User::create_default(1, "johndoe1", "johndoe1@gmail.com"),
+    User::create_default(2, "johndoe2", "johndoe2@gmail.com"),
+    User::create_default(3, "johndoe3", "johndoe3@gmail.com")
 ]);
 $contract = new InMemoryContractQuery([
     new Contract(
@@ -53,11 +54,12 @@ $notification = [];
 
 $notification_writer = new InMemoryNotificationWriter($notification);
 $notification_query = new InMemoryNotificationQuery($notification);
-$notifier = new WebNotifier($notification_writer, $notification_query);
+$web_notifier = new WebNotifier($notification_writer, $notification_query);
+$console_notifier = new ConsoleNotifier();
 
 $log_writer = new InMemoryNotificationLogWriter([]);
 
-$usecase = new ReceiveContractNotificationUseCase($notifier, $user, $contract, $log_writer);
-$usecase->execute();
+$usecase = new ReceiveContractNotificationUseCase($console_notifier, $user, $contract, $log_writer);
+$usecase->execute($user->get_by_id(3));
 
 var_dump($notification);
