@@ -470,7 +470,7 @@ include "../includes/navbar.php";
         <div class="drawer-section">
             <div class="drawer-section-title">Photo Evidence</div>
             <div class="card" style="padding:0; overflow:hidden;">
-                <img id="drawerPhoto" src="../Uploads/no-image.jpg" class="w-full h-64 object-cover">
+                <img id="drawerPhoto" src="../pubic/asset/images/no-image.jpg" class="w-full h-64 object-cover">
             </div>
         </div>
 
@@ -603,9 +603,9 @@ include "../includes/navbar.php";
             }
 
             if (data.attachment_file) {
-                document.getElementById('drawerPhoto').src = '../uploads/damage_reports/' + data.attachment_file;
+                document.getElementById('drawerPhoto').src = '../pubic/asset/images/damage_reports/' + data.attachment_file;
             } else {
-                document.getElementById('drawerPhoto').src = '../Uploads/no-image.jpg';
+                document.getElementById('drawerPhoto').src = '../pubic/asset/images/no-image.jpg';
             }
 
             let assignBtn = document.getElementById('assignBtn');
