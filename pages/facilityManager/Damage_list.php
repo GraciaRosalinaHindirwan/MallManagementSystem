@@ -4,7 +4,7 @@
 //     header("Location: Login.php");
 //     exit();
 // }
-
+require_once 'auth/checkSession.php';
 $page_title = "Damage List";
 $page = "damage_list";
 
