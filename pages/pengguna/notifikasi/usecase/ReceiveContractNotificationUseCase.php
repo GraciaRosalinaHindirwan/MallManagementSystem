@@ -22,31 +22,27 @@ class ReceiveContractNotificationUseCase
         $this->_logger = $_logger;
     }
 
-    public function execute()
+    public function execute(User $user)
     {
         $contracts = $this->_contracts->get_all();
-        $users = $this->_user->get_all();
 
-        /** @var User[] $users */
-        foreach ($users as $user) {
-            /** @var Contract[] $contracts */
-            foreach ($contracts as $contract) {
-                $current_time = new DateTime();
-                $notification_message = new NotificationContent(
-                    type: NotificationType::contract_expiry,
-                    subject: "mmisreminder",
-                    body: "your rental contract is due in " . $current_time->diff($contract->end_date)->format("%R%a days, %H hours, %I minutes"),
-                );
+        /** @var Contract[] $contracts */
+        foreach ($contracts as $contract) {
+            $current_time = new DateTime();
+            $notification_message = new NotificationContent(
+                type: NotificationType::contract_expiry,
+                subject: "mmisreminder",
+                body: "your rental contract is due in " . $current_time->diff($contract->end_date)->format("%R%a days, %H hours, %I minutes"),
+            );
 
 
-                $this->_notifier->notify($notification_message, $user);
+            $this->_notifier->notify($notification_message, $user);
 
 
-                $this->_logger->insert(NotificationLog::pending(
-                    new Recipient($user->email, $user->username),
-                    $notification_message
-                ));
-            }
+            $this->_logger->insert(NotificationLog::pending(
+                new Recipient($user->email, $user->username),
+                $notification_message
+            ));
         }
     }
 }

@@ -19,7 +19,7 @@ class Notification
     public static function create(int $id, NotificationContent $content): Notification
     {
         return new Notification(
-            id: 0,
+            id: $id,
             content: $content,
             date_time: new DateTime()
         );

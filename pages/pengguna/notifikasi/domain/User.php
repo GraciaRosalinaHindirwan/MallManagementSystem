@@ -37,13 +37,13 @@ class User
     }
 
     // returns user with all fields filled with dummy data
-    public static function create_filled_user(int $id, string $username, string $email): User
+    public static function create_default(int $id, string $username, string $email): User
     {
         return new User(
-            id: 1,
-            fullname: "John Doe",
-            username: "johndoe",
-            email: "",
+            id: $id,
+            fullname: "",
+            username: $username,
+            email: $email,
             password: "",
             must_change_password: false,
             role_page_id: 1,
