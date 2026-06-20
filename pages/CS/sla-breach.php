@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config/koneksi.php';
+require_once 'auth/checkSession.php';
 
 $pageTitle   = 'SLA Breach — Customer Service';
 $currentMenu = 'sla-breach';

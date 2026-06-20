@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config/koneksi.php';
+require_once 'auth/checkSession.php';
 
 $pageTitle   = 'Detail Tiket — Customer Service';
 $currentMenu = 'tiket';
