@@ -61,7 +61,6 @@ session_start();
                     type = "<?php echo $field['type']; ?>"
                     name = "<?php echo $field['name']; ?>"
                     placeholder = "<?php echo $field['placeholder']; ?>"
-
                     class="peer w-full bg-transparent border-[1.5px] border-[var(--accent)] rounded-[8px] px-[16px] pt-[20px] pb-[16px] text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"/>
 
                     <label
