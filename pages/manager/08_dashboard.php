@@ -2,517 +2,706 @@
 require_once '../../config/08_conn.php';
 
 // =====================================================
-// HITUNG OCCUPANCY RATE (dari dummy_units)
+// 1. HITUNG OCCUPANCY RATE
 // =====================================================
 $sql_units = "SELECT 
                 COUNT(*) as total_units,
                 SUM(CASE WHEN status = 'occupied' THEN 1 ELSE 0 END) as occupied_units
-              FROM dummy_units";
+              FROM `01_units`";
 $result_units = $conn->query($sql_units);
 $units = $result_units->fetch_assoc();
 
-$total_units = $units['total_units'];
-$occupied_units = $units['occupied_units'];
+$total_units = $units['total_units'] ?? 0;
+$occupied_units = $units['occupied_units'] ?? 0;
 $occupancy_rate = ($total_units > 0) ? ($occupied_units / $total_units) * 100 : 0;
 $occupancy_rate = round($occupancy_rate, 2);
 
 // =====================================================
-// HITUNG TOTAL REVENUE (dari dummy_transactions)
+// 2. HITUNG TOTAL REVENUE
 // =====================================================
+$sql_revenue = "SELECT 
+                    SUM(CASE WHEN status = 'Lunas' THEN total_amount ELSE 0 END) as total_revenue,
+                    SUM(CASE WHEN status = 'Belum Bayar' THEN total_amount ELSE 0 END) as unpaid_revenue
+                FROM `06_invoices`";
+$result_revenue = $conn->query($sql_revenue);
+$revenue_data = $result_revenue->fetch_assoc();
+$total_revenue = $revenue_data['total_revenue'] ?? 0;
+$unpaid_revenue = $revenue_data['unpaid_revenue'] ?? 0;
 
 // =====================================================
-// 1. HITUNG TENANT REVENUE (dari dummy_transactions)
+// 3. TENANT PERFORMANCE (Top 5)
 // =====================================================
-$sql_tenant = "SELECT COALESCE(SUM(amount), 0) as total FROM dummy_transactions";
+$sql_tenant = "SELECT 
+                    t.tenant_name,
+                    tc.name as category,
+                    COALESCE(SUM(i.total_amount), 0) as revenue
+                FROM `02_tenants` t
+                LEFT JOIN `01_tenant_categories` tc ON t.id_category = tc.id_tenant_categories
+                LEFT JOIN `06_invoices` i ON t.id_tenant = i.tenant_id AND i.status = 'Lunas'
+                WHERE t.status = 'Active'
+                GROUP BY t.id_tenant
+                ORDER BY revenue DESC
+                LIMIT 5";
+
 $result_tenant = $conn->query($sql_tenant);
-$tenant_revenue = $result_tenant->fetch_assoc()['total'];
-
-// =====================================================
-// 2. HITUNG EVENT REVENUE (dari dummy_events)
-// =====================================================
-$sql_event = "SELECT COALESCE(SUM(revenue), 0) as total FROM dummy_events WHERE status = 'completed'";
-$result_event = $conn->query($sql_event);
-$event_revenue = $result_event->fetch_assoc()['total'];
-
-// =====================================================
-// 3. HITUNG PARKING REVENUE (dari dummy_parking)
-// =====================================================
-$sql_parking = "SELECT COALESCE(SUM(revenue), 0) as total FROM dummy_parking";
-$result_parking = $conn->query($sql_parking);
-$parking_revenue = $result_parking->fetch_assoc()['total'];
-
-// =====================================================
-// 4. HITUNG IKLAN REVENUE (dari dummy_ads)
-// =====================================================
-$sql_ads = "SELECT COALESCE(SUM(revenue), 0) as total FROM dummy_ads";
-$result_ads = $conn->query($sql_ads);
-$ads_revenue = $result_ads->fetch_assoc()['total'];
-
-// =====================================================
-// 5. HITUNG TOTAL SEMUA REVENUE
-// =====================================================
-$total_revenue = $tenant_revenue + $event_revenue + $parking_revenue + $ads_revenue;
-
-// =====================================================
-// 6. HITUNG PERSENTASE MASING-MASING
-// =====================================================
-$tenant_percent = ($total_revenue > 0) ? ($tenant_revenue / $total_revenue) * 100 : 0;
-$event_percent = ($total_revenue > 0) ? ($event_revenue / $total_revenue) * 100 : 0;
-$parking_percent = ($total_revenue > 0) ? ($parking_revenue / $total_revenue) * 100 : 0;
-$ads_percent = ($total_revenue > 0) ? ($ads_revenue / $total_revenue) * 100 : 0;
-
-// =====================================================
-// HITUNG TOP TENANTS (dari dummy_tenants + dummy_transactions)
-// =====================================================
-$sql_top = "SELECT 
-                t.tenant_name,
-                SUM(tr.amount) as total_revenue
-            FROM dummy_tenants t
-            JOIN dummy_transactions tr ON t.tenant_id = tr.tenant_id
-            GROUP BY t.tenant_id
-            ORDER BY total_revenue DESC
-            LIMIT 5";
-$result_top = $conn->query($sql_top);
-
 $top_tenants = [];
-while ($row = $result_top->fetch_assoc()) {
-    $top_tenants[] = $row['tenant_name'] . ' (Rp ' . number_format($row['total_revenue'], 0, ',', '.') . ')';
+$tenant_labels = [];
+$tenant_data = [];
+while ($row = $result_tenant->fetch_assoc()) {
+    $top_tenants[] = $row;
+    $tenant_labels[] = $row['tenant_name'];
+    $tenant_data[] = $row['revenue'];
 }
-$top_tenants_str = implode(', ', $top_tenants);
 
 // =====================================================
-// SIMPAN KE kpi_snapshots (agar tidak hitung ulang terus)
+// 4. EVENT PERFORMANCE
+// =====================================================
+$sql_events = "SELECT 
+                    eb.nama_event,
+                    eb.tanggal_mulai,
+                    COALESCE(SUM(et.pendapatan), 0) as revenue,
+                    COALESCE(SUM(et.terjual), 0) as sold
+                FROM `04_event_booking` eb
+                LEFT JOIN `04_event_tiket` et ON eb.id_booking = et.id_booking
+                WHERE eb.status = 'approved' OR eb.status = 'completed'
+                GROUP BY eb.id_booking
+                ORDER BY eb.tanggal_mulai DESC
+                LIMIT 3";
+
+$result_events = $conn->query($sql_events);
+$events = [];
+while ($row = $result_events->fetch_assoc()) {
+    $events[] = $row;
+}
+
+// Total event stats
+$sql_event_stats = "SELECT 
+                        COUNT(DISTINCT eb.id_booking) as total_events,
+                        COALESCE(SUM(et.pendapatan), 0) as total_revenue,
+                        COALESCE(SUM(et.terjual), 0) as total_participants
+                    FROM `04_event_booking` eb
+                    LEFT JOIN `04_event_tiket` et ON eb.id_booking = et.id_booking
+                    WHERE eb.status = 'approved' OR eb.status = 'completed'";
+
+$result_event_stats = $conn->query($sql_event_stats);
+$event_stats = $result_event_stats->fetch_assoc();
+$total_events = $event_stats['total_events'] ?? 0;
+$total_event_revenue = $event_stats['total_revenue'] ?? 0;
+$total_participants = $event_stats['total_participants'] ?? 0;
+
+// =====================================================
+// 5. MAINTENANCE STATS
+// =====================================================
+$sql_maintenance = "SELECT 
+                        COUNT(*) as total,
+                        SUM(CASE WHEN work_status = 'Completed' THEN 1 ELSE 0 END) as completed,
+                        SUM(CASE WHEN work_status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
+                        SUM(CASE WHEN work_status = 'Assigned' THEN 1 ELSE 0 END) as assigned
+                    FROM `03_work_orders`";
+
+$result_maintenance = $conn->query($sql_maintenance);
+$maintenance_stats = $result_maintenance->fetch_assoc();
+
+// =====================================================
+// 6. SIMPAN KE KPI_SNAPSHOTS
 // =====================================================
 $period_type = 'daily';
 $period_date = date('Y-m-d');
+$top_tenants_str = '';
+foreach ($top_tenants as $index => $tenant) {
+    $top_tenants_str .= ($index + 1) . '.' . $tenant['tenant_name'] . ' (Rp ' . number_format($tenant['revenue'], 0, ',', '.') . '), ';
+}
+$top_tenants_str = rtrim($top_tenants_str, ', ');
 
-// Cek apakah sudah ada snapshot untuk hari ini
-$check_sql = "SELECT snapshot_id FROM kpi_snapshots WHERE period_type = '$period_type' AND period_date = '$period_date'";
+$check_sql = "SELECT snapshot_id FROM `08_kpi_snapshots` WHERE period_type = '$period_type' AND period_date = '$period_date'";
 $check_result = $conn->query($check_sql);
 
 if ($check_result->num_rows == 0) {
-    // Belum ada, insert baru
-    $insert_sql = "INSERT INTO kpi_snapshots 
+    $insert_sql = "INSERT INTO `08_kpi_snapshots` 
                    (period_type, period_date, occupancy_rate, total_revenue, top_tenants) 
                    VALUES 
                    ('$period_type', '$period_date', '$occupancy_rate', '$total_revenue', '$top_tenants_str')";
     $conn->query($insert_sql);
-    $kpi = [
-        'occupancy_rate' => $occupancy_rate,
-        'total_revenue' => $total_revenue
-    ];
-} else {
-    // Sudah ada, ambil dari snapshot (biar cepat)
-    $sql_kpi = "SELECT occupancy_rate, total_revenue, total_visitors 
-                FROM kpi_snapshots 
-                WHERE period_type = '$period_type' 
-                ORDER BY period_date DESC LIMIT 1";
-    $result_kpi = $conn->query($sql_kpi);
-    $kpi = $result_kpi->fetch_assoc();
 }
 
 // =====================================================
-// EVENT PERFORMANCE (dari tabel dummy_events)
+// 7. TAMPILKAN DASHBOARD
 // =====================================================
-$sql_events = "SELECT 
-                event_id,
-                event_name,
-                revenue,
-                participant_count,
-                event_date,
-                status
-               FROM dummy_events 
-               WHERE status = 'completed'
-               ORDER BY event_date DESC";
+$department_name = "BI, Workflow, and Notification";
+$page_title = "Dashboard KPI";
+$user_name = "Manager";
 
-$result_events = $conn->query($sql_events);
+$menu_items = [
+    ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard', 'link' => '08_dashboard.php', 'active_page' => '08_dashboard'],
+    ['icon' => 'fa-solid fa-chart-line', 'label' => 'Laporan', 'link' => '08_laporan.php', 'active_page' => '08_laporan'],
+    ['icon' => 'fa-solid fa-check-circle', 'label' => 'Approval', 'link' => '08_approval.php', 'active_page' => '08_approval'],
+    ['icon' => 'fa-solid fa-bell', 'label' => 'Notifikasi', 'link' => '08_notifikasi.php', 'active_page' => '08_notifikasi'],
+];
 
-// Hitung total pendapatan event
-$sql_total = "SELECT 
-                SUM(revenue) as total_revenue, 
-                SUM(participant_count) as total_participants,
-                AVG(participant_count) as avg_participants,
-                COUNT(*) as total_events
-              FROM dummy_events 
-              WHERE status = 'completed'";
-$result_total = $conn->query($sql_total);
-$total_data = $result_total->fetch_assoc();
-
-// =====================================================
-// TENANT DETAIL (setelah join_date dan unit.tenant_id ditambah)
-// =====================================================
-$sql_tenant_detail = "SELECT 
-    t.tenant_id,
-    t.tenant_name,
-    t.category,
-    t.join_date,
-    DATEDIFF(NOW(), t.join_date) as days_as_tenant,
-    COALESCE(SUM(tr.amount), 0) as total_revenue
-FROM dummy_tenants t
-LEFT JOIN dummy_transactions tr ON t.tenant_id = tr.tenant_id
-GROUP BY t.tenant_id, t.tenant_name, t.category, t.join_date
-ORDER BY total_revenue DESC";
-
-$result_tenant_detail = $conn->query($sql_tenant_detail);
-
-// =====================================================
-// TAMPILKAN DI DASHBOARD
-// =====================================================
 ob_start();
 ?>
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <div class="card text-center p-3 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title text-muted">Occupancy Rate</h5>
-                    <h2 class="display-4"><?php echo $kpi['occupancy_rate']; ?>%</h2>
-                    <p class="text-muted">Terisi: <?php echo $occupied_units; ?> dari <?php echo $total_units; ?> unit</p>
-                </div>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="dashboard-container">
+    <!-- ROW 1: Cards Utama -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fa-solid fa-building"></i></div>
+            <div class="stat-info">
+                <h3><?php echo $occupancy_rate; ?>%</h3>
+                <p>Occupancy Rate</p>
+                <small><?php echo $occupied_units; ?> dari <?php echo $total_units; ?> unit</small>
             </div>
         </div>
-
-        <div class="col-md-6 mb-3">
-            <div class="card text-center p-3 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title text-muted">Total Revenue</h5>
-                    <h2 class="display-4 text-accent">Rp <?php echo number_format($total_revenue, 0, ',', '.'); ?></h2>
-                    <p class="text-muted">Total pendapatan dari semua sumber</p>
-                </div>
+        <div class="stat-card success">
+            <div class="stat-icon"><i class="fa-solid fa-money-bill"></i></div>
+            <div class="stat-info">
+                <h3>Rp <?php echo number_format($total_revenue / 1000000, 1); ?>M</h3>
+                <p>Total Revenue</p>
+                <small>+<?php echo number_format($unpaid_revenue / 1000000, 1); ?>M belum bayar</small>
+            </div>
+        </div>
+        <div class="stat-card warning">
+            <div class="stat-icon"><i class="fa-solid fa-calendar"></i></div>
+            <div class="stat-info">
+                <h3><?php echo $total_events; ?></h3>
+                <p>Event</p>
+                <small><?php echo number_format($total_participants); ?> peserta</small>
+            </div>
+        </div>
+        <div class="stat-card danger">
+            <div class="stat-icon"><i class="fa-solid fa-wrench"></i></div>
+            <div class="stat-info">
+                <h3><?php echo $maintenance_stats['total']; ?></h3>
+                <p>Maintenance</p>
+                <small><?php echo $maintenance_stats['completed']; ?> selesai</small>
             </div>
         </div>
     </div>
 
-    <!-- Card Total Revenue Breakdown -->
-    <div class="card mt-4 p-3 shadow-sm">
-        <h5 class="mb-3 heading-breakdown-revenue">TOTAL REVENUE BREAKDOWN</h5>
-
-        <div class="revenue-breakdown">
-            <!-- Tenant Revenue -->
-            <div class="revenue-item mb-3">
-                <div class="d-flex justify-content-between mb-1">
-                    <span class="total-revenue-detail"><strong>Tenant Revenue</strong></span>
-                    <span class="total-revenue-digit">Rp <?php echo number_format($tenant_revenue, 0, ',', '.'); ?></span>
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar-fill tenant-fill" style="width: <?php echo $tenant_percent; ?>%"></div>
-                </div>
-                <div class="d-flex justify-content-end mt-1">
-                    <small class="text-muted"><?php echo round($tenant_percent, 1); ?>% dari total</small>
+    <!-- ROW 2: Grafik -->
+    <div class="charts-row">
+        <div class="chart-box">
+            <div class="card-chart">
+                <h5 class="card-title">Tenant Performance (Top 5)</h5>
+                <div class="chart-wrapper">
+                    <canvas id="tenantChart"></canvas>
                 </div>
             </div>
-
-            <!-- Event Revenue -->
-            <div class="revenue-item mb-3">
-                <div class="d-flex justify-content-between mb-1">
-                    <span class="total-revenue-detail"><strong>Event Revenue</strong></span>
-                    <span class="total-revenue-digit">Rp <?php echo number_format($event_revenue, 0, ',', '.'); ?></span>
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar-fill event-fill" style="width: <?php echo $event_percent; ?>%"></div>
-                </div>
-                <div class="d-flex justify-content-end mt-1">
-                    <small class="text-muted"><?php echo round($event_percent, 1); ?>% dari total</small>
-                </div>
-            </div>
-
-            <!-- Parking Revenue -->
-            <div class="revenue-item mb-3">
-                <div class="d-flex justify-content-between mb-1">
-                    <span class="total-revenue-detail"><strong>Parking Revenue</strong></span>
-                    <span class="total-revenue-digit">Rp <?php echo number_format($parking_revenue, 0, ',', '.'); ?></span>
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar-fill parking-fill" style="width: <?php echo $parking_percent; ?>%"></div>
-                </div>
-                <div class="d-flex justify-content-end mt-1">
-                    <small class="text-muted"><?php echo round($parking_percent, 1); ?>% dari total</small>
-                </div>
-            </div>
-
-            <!-- Iklan Revenue -->
-            <div class="revenue-item mb-3">
-                <div class="d-flex justify-content-between mb-1">
-                    <span class="total-revenue-detail"><strong>Iklan Revenue</strong></span>
-                    <span class="total-revenue-digit">Rp <?php echo number_format($ads_revenue, 0, ',', '.'); ?></span>
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar-fill ads-fill" style="width: <?php echo $ads_percent; ?>%"></div>
-                </div>
-                <div class="d-flex justify-content-end mt-1">
-                    <small class="text-muted"><?php echo round($ads_percent, 1); ?>% dari total</small>
-                </div>
-            </div>
-
-            <!-- Total Revenue -->
-            <div class="total-revenue mt-3 pt-3 border-top">
-                <div class="d-flex justify-content-between">
-                    <span class="total-revenue-detail"><strong>TOTAL</strong></span>
-                    <span class="total-revenue-digit"><strong>Rp <?php echo number_format($total_revenue, 0, ',', '.'); ?></strong></span>
+        </div>
+        <div class="chart-box">
+            <div class="card-chart">
+                <h5 class="card-title">Revenue Breakdown</h5>
+                <div class="chart-wrapper pie-wrapper">
+                    <canvas id="revenueChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card mt-4 p-3 shadow-sm">
-        <h5 class="card-title">Tenant Performance</h5>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Tenant</th>
-                    <th>Kategori</th>
-                    <th>Lama Jadi Tenant (hari)</th>
-                    <th>Total Revenue</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $no = 1;
-                while ($row = $result_tenant_detail->fetch_assoc()):
-                ?>
-                    <tr>
-                        <td><?php echo $no++; ?></td>
-                        <td><?php echo $row['tenant_name']; ?></td>
-                        <td><?php echo $row['category']; ?></td>
-                        <td><?php echo $row['days_as_tenant']; ?> hari</td>
-                        <td>Rp <?php echo number_format($row['total_revenue'], 0, ',', '.'); ?></td>
-                    </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-    </div>
-
+    <!-- ROW 3: Event & Maintenance (dengan jarak yang jelas) -->
     <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card p-3 shadow-sm">
-                <h5 class="card-title">Top 5 Tenant Berdasarkan Revenue</h5>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Tenant</th>
-                            <th>Revenue</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $no = 1;
-                        $sql_top_detail = "SELECT 
-                                                t.tenant_name,
-                                                SUM(tr.amount) as total_revenue
-                                            FROM dummy_tenants t
-                                            JOIN dummy_transactions tr ON t.tenant_id = tr.tenant_id
-                                            GROUP BY t.tenant_id
-                                            ORDER BY total_revenue DESC
-                                            LIMIT 5";
-                        $result_top_detail = $conn->query($sql_top_detail);
-                        while ($row = $result_top_detail->fetch_assoc()):
-                        ?>
-                            <tr>
-                                <td><?php echo $no++; ?></td>
-                                <td><?php echo $row['tenant_name']; ?></td>
-                                <td>Rp <?php echo number_format($row['total_revenue'], 0, ',', '.'); ?></td>
-                            </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
+        <div class="col-md-6 mb-4">
+            <div class="card-table h-100">
+                <h5 class="card-title"><i class="fa-solid fa-calendar-check"></i> Event Performance</h5>
+                <?php if (count($events) > 0): ?>
+                    <div class="event-list">
+                        <?php foreach ($events as $event): ?>
+                            <div class="event-item">
+                                <div class="event-info">
+                                    <strong><?php echo $event['nama_event']; ?></strong>
+                                    <span class="event-date"><?php echo date('d M Y', strtotime($event['tanggal_mulai'])); ?></span>
+                                </div>
+                                <div class="event-stats">
+                                    <span class="event-revenue">Rp <?php echo number_format($event['revenue'] / 1000000, 1); ?>M</span>
+                                    <span class="event-sold"><?php echo number_format($event['sold']); ?> tiket</span>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <p class="text-muted text-center py-3">Belum ada data event</p>
+                <?php endif; ?>
             </div>
         </div>
-    </div>
 
-    <div class="card mt-4 mb-4 p-3 shadow-sm">
-        <h5 class="mb-3 card-title">Event Performance</h5>
-
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Nama Event</th>
-                        <th>Tanggal</th>
-                        <th>Pendapatan</th>
-                        <th>Peserta</th>
-                        <th>Rata-rata per Peserta</th>
-                    </tr>
-                </thead>
-                <tbody>
+        <div class="col-md-6 mb-4">
+            <div class="card-table h-100">
+                <h5 class="card-title"><i class="fa-solid fa-clipboard-list"></i> Maintenance Overview</h5>
+                <div class="maintenance-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Tickets</span>
+                        <span class="stat-value"><?php echo $maintenance_stats['total']; ?></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Completed</span>
+                        <span class="stat-value text-success"><?php echo $maintenance_stats['completed']; ?></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">In Progress</span>
+                        <span class="stat-value text-warning"><?php echo $maintenance_stats['in_progress']; ?></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Assigned</span>
+                        <span class="stat-value text-primary"><?php echo $maintenance_stats['assigned']; ?></span>
+                    </div>
+                </div>
+                <div class="progress mt-3">
                     <?php
-                    $no = 1;
-                    if ($result_events->num_rows > 0):
-                        while ($event = $result_events->fetch_assoc()):
-                            $avg_per_participant = ($event['participant_count'] > 0)
-                                ? $event['revenue'] / $event['participant_count']
-                                : 0;
+                    $completion_rate = ($maintenance_stats['total'] > 0)
+                        ? round(($maintenance_stats['completed'] / $maintenance_stats['total']) * 100, 1)
+                        : 0;
                     ?>
-                            <tr>
-                                <td><?php echo $no++; ?></td>
-                                <td><strong><?php echo htmlspecialchars($event['event_name']); ?></strong></td>
-                                <td><?php echo date('d M Y', strtotime($event['event_date'])); ?></td>
-                                <td>Rp <?php echo number_format($event['revenue'], 0, ',', '.'); ?></td>
-                                <td><?php echo number_format($event['participant_count']); ?> orang</td>
-                                <td>Rp <?php echo number_format($avg_per_participant, 0, ',', '.'); ?></td>
-                            </tr>
-                        <?php
-                        endwhile;
-                    else:
-                        ?>
-                        <tr>
-                            <td colspan="6" class="text-center">Belum ada data event</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Ringkasan Event -->
-        <div class="row mt-3">
-            <div class="col-md-3">
-                <div class="bg-light p-2 rounded text-center">
-                    <small class="text-muted">Total Event</small>
-                    <h5 class="mb-0"><?php echo $total_data['total_events']; ?> event</h5>
+                    <div class="progress-bar bg-success" style="width: <?php echo $completion_rate; ?>%;">
+                        <?php echo $completion_rate; ?>%
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="bg-light p-2 rounded text-center">
-                    <small class="text-muted">Total Pendapatan</small>
-                    <h5 class="mb-0">Rp <?php echo number_format($total_data['total_revenue'] / 1000000, 1); ?> M</h5>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="bg-light p-2 rounded text-center">
-                    <small class="text-muted">Total Peserta</small>
-                    <h5 class="mb-0"><?php echo number_format($total_data['total_participants'] / 1000, 1); ?> rb</h5>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="bg-light p-2 rounded text-center">
-                    <small class="text-muted">Rata-rata Peserta</small>
-                    <h5 class="mb-0"><?php echo number_format($total_data['avg_participants'], 0); ?> org</h5>
-                </div>
+                <small class="text-muted">Completion Rate</small>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    .display-4 {
-        font-size: 2.5rem;
-        font-weight: 600;
-        color: var(--text-accent, #FFB62A);
-    }
+    /* =============================================
+   DASHBOARD STYLES - DESIGN SYSTEM
+   ============================================= */
 
-    .card {
-        background-color: var(--background, #021F42);
-        border-radius: 12px;
-        border: none;
-    }
-
-    .card-title {
-        color: var(--text, #F5F7FA);
-    }
-
-    .text-muted {
-        color: #a0a0a0 !important;
-    }
-
-    .table {
-        color: var(--text, #F5F7FA);
-    }
-
-    .table-striped>tbody>tr:nth-of-type(odd)>* {
-        background-color: var(--text);
-    }
-
-    .card-title {
-        color: var(--text);
-        margin-bottom: 20px;
-    }
-
-    .revenue-breakdown {
+    .dashboard-container {
         padding: 0 5px;
     }
 
-    .progress-bar-container {
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        height: 30px;
-        overflow: hidden;
+    /* ---- STATS GRID ---- */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 24px;
     }
 
-    .progress-bar-fill {
-        height: 100%;
-        border-radius: 10px;
+    .stat-card {
+        background: var(--primary, #0B376D);
+        border-radius: 12px;
+        padding: 16px 20px;
         display: flex;
         align-items: center;
-        justify-content: flex-end;
-        padding-right: 10px;
-        color: white;
-        font-size: 12px;
-        font-weight: bold;
-        transition: width 0.5s ease;
+        gap: 14px;
+        border-left: 4px solid var(--text-accent, #FFB62A);
+        transition: transform 0.2s ease;
     }
 
-    .tenant-fill {
-        background: linear-gradient(90deg, #FFB62A, #FFD966);
+    .stat-card:hover {
+        transform: translateY(-4px);
     }
 
-    .event-fill {
-        background: linear-gradient(90deg, #22C55E, #4ADE80);
+    .stat-card.success {
+        border-left-color: var(--success, #22C55E);
     }
 
-    .parking-fill {
-        background: linear-gradient(90deg, #0B376D, #167E80);
+    .stat-card.warning {
+        border-left-color: var(--text-accent, #FFB62A);
     }
 
-    .ads-fill {
-        background: linear-gradient(90deg, #EF4444, #F87171);
+    .stat-card.danger {
+        border-left-color: var(--danger, #EF4444);
     }
 
-    .total-revenue {
-        border-top-color: rgba(255, 255, 255, 0.2) !important;
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: rgba(255, 182, 42, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: var(--text-accent, #FFB62A);
+        flex-shrink: 0;
     }
 
-    .text-accent {
+    .stat-card.success .stat-icon {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--success, #22C55E);
+    }
+
+    .stat-card.warning .stat-icon {
+        background: rgba(255, 182, 42, 0.15);
         color: var(--text-accent, #FFB62A);
     }
 
-    .revenue-item {
-        animation: fadeInUp 0.4s ease-out;
+    .stat-card.danger .stat-icon {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger, #EF4444);
     }
 
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .stat-info h3 {
+        font-size: var(--h2, 24px);
+        font-weight: 700;
+        margin: 0;
+        color: var(--text, #F5F7FA);
     }
 
-    .heading-breakdown-revenue {
-        color: var(--text-accent);
-        margin-bottom: 16px;
-        font-size: var(--h2);
+    .stat-info p {
+        font-size: var(--label, 14px);
+        margin: 0;
+        color: rgba(245, 247, 250, 0.6);
+    }
+
+    .stat-info small {
+        font-size: var(--caption, 12px);
+        color: rgba(245, 247, 250, 0.4);
+    }
+
+    /* ---- CHARTS ROW ---- */
+    .charts-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .chart-box {
+        min-width: 0;
+    }
+
+    .card-chart {
+        background: var(--primary, #0B376D);
+        border-radius: 12px;
+        padding: 16px 20px;
+        height: 100%;
+    }
+
+    .card-title {
+        font-size: var(--label, 14px);
         font-weight: 600;
+        color: var(--text, #F5F7FA);
+        margin-bottom: 12px;
     }
 
-    .total-revenue-detail {
-        color: var(--text);
-        font-size: var(--h3);
+    .card-title i {
+        margin-right: 6px;
+        color: var(--text-accent, #FFB62A);
     }
 
-    .total-revenue-digit {
-        color: var(--text-accent);
-        font-size: var(--h3);
+    .chart-wrapper {
+        position: relative;
+        width: 100%;
+        max-height: 180px;
+    }
+
+    .chart-wrapper canvas {
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 180px;
+    }
+
+    .pie-wrapper {
+        max-height: 150px;
+    }
+
+    .pie-wrapper canvas {
+        max-height: 150px;
+    }
+
+    /* ---- CARD TABLE ---- */
+    .card-table {
+        background: var(--primary, #0B376D);
+        border-radius: 12px;
+        padding: 16px 20px;
+        height: 100%;
+    }
+
+    /* ---- EVENT LIST ---- */
+    .event-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .event-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        transition: background 0.2s;
+    }
+
+    .event-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .event-info strong {
+        color: var(--text, #F5F7FA);
+        font-size: var(--label, 14px);
+    }
+
+    .event-date {
+        font-size: var(--caption, 12px);
+        color: rgba(245, 247, 250, 0.5);
+    }
+
+    .event-revenue {
+        font-size: var(--label, 14px);
+        font-weight: 600;
+        color: var(--text-accent, #FFB62A);
+        display: block;
+    }
+
+    .event-sold {
+        font-size: var(--caption, 12px);
+        color: rgba(245, 247, 250, 0.5);
+    }
+
+    /* ---- MAINTENANCE STATS ---- */
+    .maintenance-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 6px;
+    }
+
+    .stat-label {
+        font-size: var(--caption, 12px);
+        color: rgba(245, 247, 250, 0.6);
+    }
+
+    .stat-value {
+        font-size: var(--label, 14px);
+        font-weight: 600;
+        color: var(--text, #F5F7FA);
+    }
+
+    .stat-value.text-success {
+        color: var(--success, #22C55E);
+    }
+
+    .stat-value.text-warning {
+        color: var(--text-accent, #FFB62A);
+    }
+
+    .stat-value.text-primary {
+        color: var(--accent, #00D4D8);
+    }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 992px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .charts-row {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .charts-row {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .chart-wrapper {
+            max-height: 200px;
+        }
+
+        .pie-wrapper {
+            max-height: 180px;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .stat-card {
+            padding: 12px 16px;
+        }
+
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+        }
+
+        .stat-info h3 {
+            font-size: var(--subheading, 20px);
+        }
+
+        .card-chart,
+        .card-table {
+            padding: 12px 16px;
+        }
+
+        .event-item {
+            flex-direction: column;
+            text-align: center;
+            gap: 4px;
+        }
+
+        .event-stats {
+            text-align: center;
+        }
+
+        .chart-wrapper {
+            max-height: 150px;
+        }
+
+        .pie-wrapper {
+            max-height: 140px;
+        }
+
+        .maintenance-stats {
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .maintenance-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-card {
+            flex-direction: column;
+            text-align: center;
+            padding: 12px;
+        }
+
+        .stat-info small {
+            display: none;
+        }
     }
 </style>
 
+<script>
+    // =============================================
+    // CHART: TENANT PERFORMANCE (Bar Chart)
+    // =============================================
+    const ctx1 = document.getElementById('tenantChart').getContext('2d');
+    const tenantLabels = <?php echo json_encode($tenant_labels); ?>;
+    const tenantData = <?php echo json_encode($tenant_data); ?>;
+
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: tenantLabels,
+            datasets: [{
+                label: 'Revenue (Rp)',
+                data: tenantData,
+                backgroundColor: [
+                    '#FFB62A', // text-accent
+                    '#22C55E', // success
+                    '#00D4D8', // accent
+                    '#167E80', // secondary
+                    '#EF4444' // danger
+                ],
+                borderRadius: 6,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: 'rgba(245,247,250,0.5)',
+                        font: {
+                            size: 10
+                        },
+                        callback: function(value) {
+                            if (value >= 1000000) return 'Rp' + (value / 1000000).toFixed(1) + 'M';
+                            return 'Rp' + value;
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(255,255,255,0.05)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: 'rgba(245,247,250,0.5)',
+                        font: {
+                            size: 10
+                        }
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+
+    // =============================================
+    // CHART: REVENUE BREAKDOWN (Doughnut)
+    // =============================================
+    const ctx2 = document.getElementById('revenueChart').getContext('2d');
+    const eventRevenue = <?php echo $total_event_revenue; ?>;
+    const tenantRevenue = <?php echo $total_revenue; ?>;
+
+    new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: ['Tenant Revenue', 'Event Revenue'],
+            datasets: [{
+                data: [tenantRevenue, eventRevenue],
+                backgroundColor: [
+                    '#FFB62A', // text-accent
+                    '#22C55E' // success
+                ],
+                borderColor: ['#021F42', '#021F42'], // background
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: 'rgba(245,247,250,0.6)',
+                        font: {
+                            size: 10
+                        },
+                        padding: 12,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                    }
+                }
+            },
+            cutout: '65%',
+        }
+    });
+</script>
+
 <?php
 $content = ob_get_clean();
-require_once '../../includes/08_nav_template.php';
+require_once dirname(__DIR__, 2) . '/includes/08_nav_template.php';
 ?>
