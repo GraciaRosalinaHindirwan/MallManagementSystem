@@ -1,5 +1,5 @@
 <?php
-require_once '../../config/08_conn.php';
+require_once '../../config/konek.php';
 
 // =====================================================
 // 1. HITUNG OCCUPANCY RATE

@@ -1,5 +1,5 @@
 <?php
-require_once '../../config/08_conn.php';
+require_once '../../config/konek.php';
 require_once '../../vendor/autoload.php';
 
 use Dompdf\Dompdf;

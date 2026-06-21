@@ -1,5 +1,5 @@
 <?php
-require_once '../../config/08_conn.php';
+require_once '../../config/konek.php';
 
 $period_type = $_GET['period'] ?? 'daily';
 $period_date = $_GET['date'] ?? date('Y-m-d');
@@ -8,97 +8,7 @@ if ($period_type == 'weekly' && !isset($_GET['date'])) {
     $period_date = date('Y-m-d', strtotime('monday this week'));
 }
 
-// =====================================================
-// FUNGSI HITUNG KPI (copy dari 08_laporan_pdf.php)
-// =====================================================
-function calculateKPIDirect($conn, $period_type, $period_date)
-{
-    switch ($period_type) {
-        case 'daily':
-            $start_date = $period_date;
-            $end_date = $period_date;
-            break;
-        case 'weekly':
-            $start_date = $period_date;
-            $end_date = date('Y-m-d', strtotime($period_date . ' +6 days'));
-            break;
-        case 'monthly':
-            $start_date = date('Y-m-01', strtotime($period_date));
-            $end_date = date('Y-m-t', strtotime($period_date));
-            break;
-        case 'annual':
-            $start_date = date('Y-01-01', strtotime($period_date));
-            $end_date = date('Y-12-31', strtotime($period_date));
-            break;
-        default:
-            $start_date = $period_date;
-            $end_date = $period_date;
-    }
-
-    // Tenant Revenue
-    $sql_tenant = "SELECT COALESCE(SUM(amount), 0) as total FROM dummy_transactions 
-                   WHERE transaction_date BETWEEN '$start_date' AND '$end_date'";
-    $result = $conn->query($sql_tenant);
-    $tenant_revenue = $result->fetch_assoc()['total'];
-
-    // Event Revenue
-    $sql_event = "SELECT COALESCE(SUM(revenue), 0) as total FROM dummy_events 
-                  WHERE event_date BETWEEN '$start_date' AND '$end_date' AND status = 'completed'";
-    $result = $conn->query($sql_event);
-    $event_revenue = $result->fetch_assoc()['total'];
-
-    // Parking Revenue
-    $sql_parking = "SELECT COALESCE(SUM(revenue), 0) as total FROM dummy_parking 
-                    WHERE transaction_date BETWEEN '$start_date' AND '$end_date'";
-    $result = $conn->query($sql_parking);
-    $parking_revenue = $result->fetch_assoc()['total'];
-
-    // Iklan Revenue
-    $sql_ads = "SELECT COALESCE(SUM(revenue), 0) as total FROM dummy_ads 
-                WHERE transaction_date BETWEEN '$start_date' AND '$end_date'";
-    $result = $conn->query($sql_ads);
-    $ads_revenue = $result->fetch_assoc()['total'];
-
-    // Occupancy
-    $sql_occ = "SELECT 
-                    COUNT(*) as total_units,
-                    SUM(CASE WHEN status = 'occupied' THEN 1 ELSE 0 END) as occupied_units
-                FROM dummy_units";
-    $result = $conn->query($sql_occ);
-    $units = $result->fetch_assoc();
-    $occupancy_rate = ($units['total_units'] > 0) ? ($units['occupied_units'] / $units['total_units']) * 100 : 0;
-
-    return [
-        'period_type' => $period_type,
-        'period_date' => $period_date,
-        'occupancy_rate' => round($occupancy_rate, 2),
-        'total_revenue' => $tenant_revenue + $event_revenue + $parking_revenue + $ads_revenue,
-        'tenant_revenue' => $tenant_revenue,
-        'event_revenue' => $event_revenue,
-        'parking_revenue' => $parking_revenue,
-        'ads_revenue' => $ads_revenue,
-        'total_units' => $units['total_units'],
-        'occupied_units' => $units['occupied_units']
-    ];
-}
-
-// =====================================================
-// AMBIL DATA
-// =====================================================
-$sql = "SELECT * FROM kpi_snapshots 
-        WHERE period_type = '$period_type' 
-        AND period_date = '$period_date'";
-$result = $conn->query($sql);
-$data = $result->fetch_assoc();
-
-if (!$data) {
-    $data = calculateKPIDirect($conn, $period_type, $period_date);
-}
-
-// =====================================================
-// FUNGSI FORMAT JUDUL
-// =====================================================
-function formatPeriodTitle($period_type, $period_date)
+function formatPeriodTitlePrint($period_type, $period_date)
 {
     switch ($period_type) {
         case 'daily':
@@ -116,18 +26,35 @@ function formatPeriodTitle($period_type, $period_date)
     }
 }
 
-// =====================================================
-// AMBIL TOP TENANT
-// =====================================================
-$sql_top = "SELECT t.tenant_name, SUM(tr.amount) as total
-            FROM dummy_tenants t
-            JOIN dummy_transactions tr ON t.tenant_id = tr.tenant_id
-            GROUP BY t.tenant_id
-            ORDER BY total DESC LIMIT 5";
-$result_top = $conn->query($sql_top);
-$top_tenants = [];
-while ($row = $result_top->fetch_assoc()) {
-    $top_tenants[] = $row;
+// PERBAIKAN: Ganti kpi_snapshots menjadi 08_kpi_snapshots
+$sql = "SELECT * FROM `08_kpi_snapshots` WHERE period_type = '$period_type' AND period_date = '$period_date'";
+$result = $conn->query($sql);
+$data = $result->fetch_assoc();
+
+// Jika data tidak ditemukan, hitung ulang
+if (!$data) {
+    // Hitung occupancy
+    $sql_units = "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'occupied' THEN 1 ELSE 0 END) as occupied FROM `01_units`";
+    $result_units = $conn->query($sql_units);
+    $units = $result_units->fetch_assoc();
+    $occupancy_rate = ($units['total'] > 0) ? round(($units['occupied'] / $units['total']) * 100, 2) : 0;
+
+    // Hitung revenue
+    $sql_rev = "SELECT SUM(total_amount) as total FROM `06_invoices` WHERE status = 'Lunas'";
+    $result_rev = $conn->query($sql_rev);
+    $rev = $result_rev->fetch_assoc();
+    $total_revenue = $rev['total'] ?? 0;
+
+    $data = [
+        'occupancy_rate' => $occupancy_rate,
+        'total_revenue' => $total_revenue,
+        'tenant_revenue' => $total_revenue,
+        'event_revenue' => 0,
+        'parking_revenue' => 0,
+        'ads_revenue' => 0,
+        'total_units' => $units['total'],
+        'occupied_units' => $units['occupied']
+    ];
 }
 ?>
 <!DOCTYPE html>
@@ -222,10 +149,9 @@ while ($row = $result_top->fetch_assoc()) {
         <div class="header">
             <h2>MALL MANAGEMENT SYSTEM</h2>
             <h3>LAPORAN <?php echo strtoupper($period_type); ?></h3>
-            <p><?php echo formatPeriodTitle($period_type, $period_date); ?></p>
+            <p><?php echo formatPeriodTitlePrint($period_type, $period_date); ?></p>
         </div>
 
-        <!-- Revenue Section -->
         <h5>REVENUE BREAKDOWN</h5>
         <table>
             <tr>
@@ -250,7 +176,6 @@ while ($row = $result_top->fetch_assoc()) {
             </tr>
         </table>
 
-        <!-- Operational Section -->
         <h5>OPERASIONAL</h5>
         <table>
             <tr>
@@ -260,7 +185,6 @@ while ($row = $result_top->fetch_assoc()) {
             </tr>
         </table>
 
-        <!-- Top Tenant Section -->
         <h5>TOP 5 TENANT</h5>
         <table>
             <thead>
@@ -271,24 +195,30 @@ while ($row = $result_top->fetch_assoc()) {
                 </tr>
             </thead>
             <tbody>
-                <?php $no = 1;
-                foreach ($top_tenants as $tenant): ?>
+                <?php
+                $sql_top = "SELECT t.tenant_name, COALESCE(SUM(i.total_amount), 0) as total
+                        FROM `02_tenants` t
+                        LEFT JOIN `06_invoices` i ON t.id_tenant = i.tenant_id AND i.status = 'Lunas'
+                        WHERE t.status = 'Active'
+                        GROUP BY t.id_tenant
+                        ORDER BY total DESC LIMIT 5";
+                $result_top = $conn->query($sql_top);
+                $no = 1;
+                while ($row = $result_top->fetch_assoc()):
+                ?>
                     <tr>
                         <td><?php echo $no++; ?></td>
-                        <td><?php echo $tenant['tenant_name']; ?></td>
-                        <td class="text-end">Rp <?php echo number_format($tenant['total'], 0, ',', '.'); ?></td>
+                        <td><?php echo $row['tenant_name']; ?></td>
+                        <td class="text-end">Rp <?php echo number_format($row['total'], 0, ',', '.'); ?></td>
                     </tr>
-                <?php endforeach; ?>
+                <?php endwhile; ?>
             </tbody>
         </table>
 
         <div class="footer">
             <p>Digenerate pada: <?php echo date('d-m-Y H:i:s'); ?></p>
-            <p>Mall Management System - Laporan Resmi</p>
         </div>
-
         <div class="text-center mt-4 no-print">
-            <button onclick="window.print()" class="btn btn-primary"><a href="08_laporan_pdf.php?period=<?php echo $period_type; ?>&date=<?php echo $period_date; ?>" target="_blank" class="text-white text-decoration-none">Simpan PDF</a></button>
             <button onclick="window.close()" class="btn btn-secondary">Tutup</button>
         </div>
     </div>

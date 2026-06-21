@@ -1,5 +1,5 @@
 <?php
-require_once '../../config/08_conn.php';
+require_once '../../config/konek.php';
 
 $period_type = $_GET['period'] ?? 'daily';
 $period_date = $_GET['date'] ?? date('Y-m-d');
