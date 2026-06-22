@@ -1,54 +1,48 @@
 <?php
-// data sementara
-$prospekList = [
-    [
-        'id'         => 1,
-        'nama_toko'  => 'Kopi Nusantara',
-        'kategori'   => 'F&B',
-        'pic'        => 'Budi Santoso',
-        'kontak'     => '081234567890',
-        'unit'       => 'LG-12',
-        'status'     => 'Prospek',
-        'tgl_daftar' => '2025-06-01',
-    ],
-    [
-        'id'         => 2,
-        'nama_toko'  => 'Sepatu Keren',
-        'kategori'   => 'Fashion',
-        'pic'        => 'Ani Wijaya',
-        'kontak'     => '082198765432',
-        'unit'       => '1F-05',
-        'status'     => 'Prospek',
-        'tgl_daftar' => '2025-06-03',
-    ],
-    [
-        'id'         => 3,
-        'nama_toko'  => 'Gadget World',
-        'kategori'   => 'Electronics',
-        'pic'        => 'Rudi Hartono',
-        'kontak'     => '085611223344',
-        'unit'       => '2F-08',
-        'status'     => 'Prospek',
-        'tgl_daftar' => '2025-06-05',
-    ], 
-];
+session_start();
+require_once "../../public/auth/checkSession.php";
+require_once "../../config/konek.php"; 
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $prospekList[] = [
-        'id'        => count($prospekList) + 1,
-        'nama_toko' => $_POST['nama_toko'],
-        'kategori'  => $_POST['kategori'],
-        'pic'       => $_POST['nama_pic'],
-        'kontak'    => $_POST['kontak'],
-        'unit'      => $_POST['unit_diminati'],
-        'status'    => 'Prospek',
-        'tgl_daftar'=> date("Y-m-d"),
-    ];
-    // insert ke db
+$page_title  = 'Pendaftaran Prospek';                  
+$active_page = 'prospek';                              
+$user_name   = $_SESSION['nama_lengkap'] ?? 'Guest';   
+$role        = $_SESSION['role_user'] ?? 'tenant';     
+
+require_once "../../includes/navbarM02.php"; 
+
+$query  = "SELECT * FROM `02_tenant_prospects` ORDER BY id_prospect DESC";
+$prospekList = mysqli_query($conn, $query);
+
+if (!$prospekList) {
+    die("Gagal mengambil data: " . mysqli_error($conn));
 }
 
-$kategoriOptions = ['F&B', 'Fashion', 'Electronics', 'Health & Beauty', 'Services', 'Entertainment', 'Other'];
-$unitOptions     = ['LG-01','LG-12','LG-15','1F-05','1F-10','2F-08','2F-14','3F-02'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $newProspek = [
+        'brand_name'     => $_POST['nama_toko'],
+        'id_category'    => $_POST['kategori'],
+        'pic_name'       => $_POST['nama_pic'],
+        'phone'          => $_POST['kontak'],
+        'email'          => $_POST['email'],
+        'notes'          => $_POST['catatan'],
+        'unit'           => $_POST['unit_diminati'],
+        'status'         => 'Prospect',
+        'register_date'  => date("Y-m-d"),
+    ];
+    $query = "INSERT INTO `02_tenant_prospects` (brand_name, id_category, pic_name, phone, email, notes, status, register_date) 
+              VALUES 
+              ('$newProspek[brand_name]', '$newProspek[id_category]', '$newProspek[pic_name]', '$newProspek[phone]', '$newProspek[email]', '$newProspek[notes]', '$newProspek[status]', '$newProspek[register_date]')";
+
+    // Eksekusi query
+    if (mysqli_query($conn, $query)) {
+        echo "<script>alert('Data berhasil disimpan!'); window.location='index.php';</script>";
+    } else {
+        echo "Gagal menyimpan data: " . mysqli_error($conn);
+    }
+}
+
+$kategoriOptions = mysqli_query($conn, "SELECT name FROM `01_tenant_categories`");
+$unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE status = 'available'");
 ?>
 
 <!DOCTYPE html>
