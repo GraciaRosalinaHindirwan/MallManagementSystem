@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 
 class NotificationLogTest extends TestCase
 {
-
     private mysqli $db;
 
     #[Override]

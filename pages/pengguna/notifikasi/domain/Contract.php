@@ -1,14 +1,7 @@
 <?php
 
-enum ContractStatus
-{
-    case Draft;
-    case WaitingApproval;
-    case Active;
-    case Ammended;
-    case Expired;
-    case Terminated;
-}
+
+require_once __DIR__ . "/ContractStatus.php";
 
 class Contract
 {

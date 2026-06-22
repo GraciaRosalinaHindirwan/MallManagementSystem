@@ -27,17 +27,21 @@ class MysqlContractQuery implements IContractQuery
             unit_id: $result["id_unit"],
             start_date: new DateTime($result["start_date"]),
             end_date: new DateTime($result["end_date"]),
-            contract_status: Contract::contract_status_from_string($result["contract_status"]),
+            contract_status: ContractStatus::from_string($result["contract_status"]),
             legal_document_url: $result["legal_document_url"],
         );
     }
 
+
+    /** @return Contract[] */
     public function get_all(): array
     {
         $stmt = $this->db->prepare("SELECT * FROM 02_contracts");
         $stmt->execute();
 
-        $result = $stmt->get_result()->fetch_all();
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        if ($result == null) return [];
 
         $all = [];
         foreach ($result as $c) {
@@ -48,8 +52,8 @@ class MysqlContractQuery implements IContractQuery
                 unit_id: $c["id_unit"],
                 start_date: new DateTime($c["start_date"]),
                 end_date: new DateTime($c["end_date"]),
-                contract_status: Contract::contract_status_from_string($c["contract_status"]),
-                legal_document_url: $c["legal_document_url"],
+                contract_status: ContractStatus::from_string($c["contract_status"]),
+                legal_document_url: isset($c["legal_document_url"]) ? $c["legal_document_url"] : "no document",
             ));
         }
 
