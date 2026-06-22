@@ -9,17 +9,13 @@ require_once __DIR__ . "/../infrastructure/writer/INotificationLogWriter.php";
 
 class ReceiveContractNotificationUseCase
 {
-    private IUserQuery $_user;
     private INotifier $_notifier;
     private IContractQuery $_contracts;
-    private INotificationLogWriter $_logger;
 
-    public function __construct(INotifier $_notifier, IUserQuery $_user, IContractQuery $_contracts, INotificationLogWriter $_logger)
+    public function __construct(INotifier $_notifier, IContractQuery $_contracts)
     {
         $this->_notifier = $_notifier;
-        $this->_user = $_user;
         $this->_contracts = $_contracts;
-        $this->_logger = $_logger;
     }
 
     public function execute(User $user)
@@ -42,12 +38,6 @@ class ReceiveContractNotificationUseCase
 
 
             $this->_notifier->notify($notification_message, $user);
-
-
-            $this->_logger->insert(NotificationLog::pending(
-                new Recipient($user->email, $user->username),
-                $notification_message
-            ));
         }
     }
 }

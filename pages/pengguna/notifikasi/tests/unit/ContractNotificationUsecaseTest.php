@@ -28,8 +28,13 @@ class ContractNotificationUseCaseTest extends TestCase
     {
         $this->_notification_writer = new InMemoryNotificationWriter($this->_notifications);
         $this->_notification_query = new InMemoryNotificationQuery($this->_notifications);
+        $this->_notification_log_writer = new InMemoryNotificationLogWriter($this->_notification_logs);
 
-        $this->_notifier = new WebNotifier($this->_notification_writer, $this->_notification_query);
+        $this->_notifier = new WebNotifier(
+            $this->_notification_writer,
+            $this->_notification_query,
+            $this->_notification_log_writer
+        );
 
         $this->_user_query = new InMemoryUserQuery([
             User::create_default(1, "user1", "user1@gmail.com"),
@@ -42,13 +47,10 @@ class ContractNotificationUseCaseTest extends TestCase
             Contract::create_default(3, 3, 3, 3, new DateTime("+30 days")),
         ]);
 
-        $this->_notification_log_writer = new InMemoryNotificationLogWriter($this->_notification_logs);
 
         $this->_usecase = new ReceiveContractNotificationUseCase(
             $this->_notifier,
-            $this->_user_query,
             $this->_contracts,
-            $this->_notification_log_writer
         );
     }
 

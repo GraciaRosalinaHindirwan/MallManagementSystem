@@ -1,6 +1,5 @@
 <?php
 
-
 require_once __DIR__ . "/ContractStatus.php";
 
 class Contract
