@@ -1,6 +1,7 @@
 <?php
+require_once __DIR__ . '/../../auth/checkSession.php';
 session_start();
-require_once '../../config/database.php';
+require_once __DIR__ . '/../../config/database.php';
 
 if (!isset($conn)) $conn = null;
 
@@ -10,12 +11,12 @@ function sanitize(string $val): string {
 
 $floors = [];
 if ($conn) {
-    $res    = $conn->query("SELECT * FROM floors ORDER BY id_floor ASC");
+    $res    = $conn->query("SELECT * FROM `01_floors` ORDER BY id_floors ASC");
     $floors = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
 }
 
-$filterFloor = isset($_GET['floor']) ? (int)$_GET['floor']           : 0;
-$filterJenis = isset($_GET['jenis']) ? sanitize($_GET['jenis'])       : '';
+$filterFloor = isset($_GET['floor']) ? (int)$_GET['floor']     : 0;
+$filterJenis = isset($_GET['jenis']) ? sanitize($_GET['jenis']) : '';
 
 $facilities = [];
 if ($conn) {
@@ -35,11 +36,11 @@ if ($conn) {
     }
 
     $whereStr = implode(' AND ', $where);
-    $sql = "SELECT f.*, fl.nama_lantai, fl.kode_lantai
-            FROM facilities f
-            LEFT JOIN floors fl ON f.id_floor = fl.id_floor
+    $sql = "SELECT f.*, fl.floor_number
+            FROM `05_facilities` f
+            LEFT JOIN `01_floors` fl ON f.id_floor = fl.id_floors
             WHERE $whereStr
-            ORDER BY fl.id_floor ASC, f.jenis ASC, f.nama_fasilitas ASC";
+            ORDER BY fl.id_floors ASC, f.jenis ASC, f.nama_fasilitas ASC";
 
     if (!empty($params)) {
         $stmt = $conn->prepare($sql);
@@ -54,20 +55,20 @@ if ($conn) {
     }
 }
 
-$jenisList  = ['Toilet','ATM','Mushola','Lift','Eskalator','Parkir','Lainnya'];
+$jenisList = ['Toilet','ATM','Mushola','Lift','Eskalator','Parkir','Lainnya'];
 $jenisCount = [];
 $jenisIcon  = [
-    'Toilet'    => 'bi-door-open',
-    'ATM'       => 'bi-credit-card-2-front',
-    'Mushola'   => 'bi-moon',
-    'Lift'      => 'bi-arrow-up-square',
-    'Eskalator' => 'bi-arrow-up-right-square',
-    'Parkir'    => 'bi-p-square',
-    'Lainnya'   => 'bi-three-dots',
+    'Toilet'    => 'fa-restroom',
+    'ATM'       => 'fa-credit-card',
+    'Mushola'   => 'fa-moon',
+    'Lift'      => 'fa-elevator',
+    'Eskalator' => 'fa-stairs',
+    'Parkir'    => 'fa-square-parking',
+    'Lainnya'   => 'fa-ellipsis',
 ];
 
 if ($conn) {
-    $res = $conn->query("SELECT jenis, COUNT(*) as total FROM facilities GROUP BY jenis");
+    $res = $conn->query("SELECT jenis, COUNT(*) as total FROM `05_facilities` GROUP BY jenis");
     if ($res) {
         while ($row = $res->fetch_assoc()) {
             $jenisCount[$row['jenis']] = (int)$row['total'];
@@ -77,92 +78,99 @@ if ($conn) {
 
 $grouped = [];
 foreach ($facilities as $fac) {
-    $key = $fac['nama_lantai'] ?? 'Tidak Diketahui';
+    $key = 'Lantai ' . ($fac['floor_number'] ?? 'Tidak Diketahui');
     $grouped[$key][] = $fac;
 }
 
 ob_start();
 ?>
 
-<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+<!-- Ringkasan Jenis Fasilitas -->
+<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:12px; margin-bottom:20px;">
     <?php foreach ($jenisList as $jenis): ?>
-    <?php $count = $jenisCount[$jenis] ?? 0; ?>
+    <?php $count = $jenisCount[$jenis] ?? 0; $isActive = $filterJenis === $jenis; ?>
     <a href="?jenis=<?= urlencode($jenis) ?>&floor=<?= $filterFloor ?>"
-       class="cs-card flex flex-col items-center text-center gap-1 hover:border-accent/50 transition-all cursor-pointer <?= $filterJenis === $jenis ? 'border-accent bg-accent/5' : '' ?>">
-        <i class="bi <?= $jenisIcon[$jenis] ?> text-2xl <?= $filterJenis === $jenis ? 'text-accent' : 'text-text/50' ?>"></i>
-        <p class="text-label font-semibold <?= $filterJenis === $jenis ? 'text-accent' : '' ?>"><?= $count ?></p>
-        <p class="text-caption text-text/50"><?= $jenis ?></p>
+       style="background:<?= $isActive ? 'rgba(0,212,216,0.1)' : 'rgba(255,255,255,0.05)' ?>; border:1px solid <?= $isActive ? 'rgba(0,212,216,0.5)' : 'rgba(255,255,255,0.1)' ?>; border-radius:12px; padding:16px 12px; text-align:center; text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:6px; transition:all 0.2s;"
+       onmouseover="this.style.borderColor='rgba(0,212,216,0.4)'"
+       onmouseout="this.style.borderColor='<?= $isActive ? 'rgba(0,212,216,0.5)' : 'rgba(255,255,255,0.1)' ?>'">
+        <i class="fa-solid <?= $jenisIcon[$jenis] ?>" style="font-size:22px; color:<?= $isActive ? 'var(--accent,#00D4D8)' : 'rgba(245,247,250,0.4)' ?>;"></i>
+        <p style="font-size:18px; font-weight:700; color:<?= $isActive ? 'var(--accent,#00D4D8)' : 'var(--text)' ?>;"><?= $count ?></p>
+        <p style="font-size:12px; color:rgba(245,247,250,0.5);"><?= $jenis ?></p>
     </a>
     <?php endforeach; ?>
 </div>
 
-<div class="cs-card">
-    <form method="GET" action="" class="flex flex-wrap items-center gap-3">
-        <select name="floor" class="cs-input !w-44 cursor-pointer">
+<!-- Filter -->
+<div class="card" style="margin-bottom:20px;">
+    <form method="GET" action="" style="display:flex; flex-wrap:wrap; align-items:center; gap:12px;">
+        <select name="floor" style="padding:10px 14px; background:var(--primary-dark,#082A53); border:1px solid rgba(255,255,255,0.12); border-radius:8px; color:var(--text); font-size:14px; outline:none;">
             <option value="0">Semua Lantai</option>
             <?php foreach ($floors as $fl): ?>
-            <option value="<?= $fl['id_floor'] ?>" <?= $filterFloor === (int)$fl['id_floor'] ? 'selected' : '' ?>>
-                <?= sanitize($fl['nama_lantai']) ?>
+            <option value="<?= $fl['id_floors'] ?>" <?= $filterFloor === (int)$fl['id_floors'] ? 'selected' : '' ?>>
+                Lantai <?= sanitize($fl['floor_number']) ?>
             </option>
             <?php endforeach; ?>
         </select>
-        <select name="jenis" class="cs-input !w-44 cursor-pointer">
+        <select name="jenis" style="padding:10px 14px; background:var(--primary-dark,#082A53); border:1px solid rgba(255,255,255,0.12); border-radius:8px; color:var(--text); font-size:14px; outline:none;">
             <option value="">Semua Jenis</option>
             <?php foreach ($jenisList as $j): ?>
             <option value="<?= $j ?>" <?= $filterJenis === $j ? 'selected' : '' ?>><?= $j ?></option>
             <?php endforeach; ?>
         </select>
-        <button type="submit" class="cs-btn bg-accent text-background hover:brightness-110">
-            <i class="bi bi-funnel"></i> Filter
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-filter"></i> Filter
         </button>
-        <a href="fasilitas.php" class="cs-btn bg-transparent border border-border text-text/60 hover:bg-white/5">
-            <i class="bi bi-arrow-counterclockwise"></i> Reset
+        <a href="fasilitas.php" class="btn" style="background:transparent; border:1px solid rgba(255,255,255,0.2); color:rgba(245,247,250,0.6);">
+            <i class="fa-solid fa-rotate-left"></i> Reset
         </a>
-        <span class="text-caption text-text/40 ml-auto"><?= count($facilities) ?> fasilitas ditemukan</span>
+        <span style="font-size:13px; color:rgba(245,247,250,0.4); margin-left:auto;"><?= count($facilities) ?> fasilitas ditemukan</span>
     </form>
 </div>
 
+<!-- Hasil -->
 <?php if (empty($facilities)): ?>
-<div class="cs-card flex flex-col items-center justify-center py-16 text-text/30">
-    <i class="bi bi-geo-alt text-5xl mb-3"></i>
-    <p class="text-body">Tidak ada fasilitas ditemukan</p>
-    <p class="text-caption mt-1">Coba ubah filter lantai atau jenis fasilitas</p>
+<div class="card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:64px 0; color:rgba(245,247,250,0.3);">
+    <i class="fa-solid fa-location-dot" style="font-size:48px; margin-bottom:12px;"></i>
+    <p style="font-size:16px;">Tidak ada fasilitas ditemukan</p>
+    <p style="font-size:13px; margin-top:4px;">Coba ubah filter lantai atau jenis fasilitas</p>
 </div>
 <?php else: ?>
 
 <?php foreach ($grouped as $lantai => $facList): ?>
-<div class="cs-card">
-    <div class="flex items-center gap-3 mb-4">
-        <div class="w-8 h-8 rounded-md bg-accent/10 flex items-center justify-center">
-            <i class="bi bi-layers text-accent"></i>
+<div class="card" style="margin-bottom:16px;">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+        <div style="width:32px; height:32px; border-radius:8px; background:rgba(0,212,216,0.1); display:flex; align-items:center; justify-content:center;">
+            <i class="fa-solid fa-layer-group" style="color:var(--accent,#00D4D8);"></i>
         </div>
-        <h2 class="text-body font-semibold"><?= sanitize($lantai) ?></h2>
-        <span class="text-caption text-text/40"><?= count($facList) ?> fasilitas</span>
+        <h2 style="font-size:15px; font-weight:600;"><?= sanitize($lantai) ?></h2>
+        <span style="font-size:13px; color:rgba(245,247,250,0.4);"><?= count($facList) ?> fasilitas</span>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px;">
         <?php foreach ($facList as $fac): ?>
         <?php
             $statusColor = match($fac['status']) {
-                'Tersedia'        => 'text-success bg-success/10 border-success/20',
-                'Tidak Tersedia'  => 'text-danger bg-danger/10 border-danger/20',
-                'Maintenance'     => 'text-warning bg-warning/10 border-warning/20',
-                default           => 'text-text/50 bg-white/5 border-border'
+                'Tersedia'       => 'color:#4ade80; background:rgba(74,222,128,0.1); border-color:rgba(74,222,128,0.2)',
+                'Tidak Tersedia' => 'color:#f87171; background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.2)',
+                'Maintenance'    => 'color:#fbbf24; background:rgba(251,191,36,0.1); border-color:rgba(251,191,36,0.2)',
+                default          => 'color:rgba(245,247,250,0.5); background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.1)'
             };
         ?>
-        <div class="bg-white/5 border border-border/50 rounded-lg p-4 hover:border-accent/40 transition-all">
-            <div class="flex items-start justify-between mb-2">
-                <div class="flex items-center gap-2">
-                    <i class="bi <?= $jenisIcon[$fac['jenis']] ?? 'bi-geo-alt' ?> text-accent"></i>
-                    <p class="text-label font-medium"><?= sanitize($fac['nama_fasilitas']) ?></p>
+        <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:16px; transition:all 0.2s;"
+             onmouseover="this.style.borderColor='rgba(0,212,216,0.4)'"
+             onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
+            <div style="display:flex; align-items:start; justify-content:space-between; margin-bottom:8px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid <?= $jenisIcon[$fac['jenis']] ?? 'fa-location-dot' ?>" style="color:var(--accent,#00D4D8);"></i>
+                    <p style="font-size:14px; font-weight:600;"><?= sanitize($fac['nama_fasilitas']) ?></p>
                 </div>
-                <span class="text-caption px-2 py-0.5 rounded-full border <?= $statusColor ?> flex-shrink-0 ml-2">
+                <span style="font-size:12px; padding:2px 8px; border-radius:20px; border:1px solid; flex-shrink:0; margin-left:8px; <?= $statusColor ?>">
                     <?= sanitize($fac['status']) ?>
                 </span>
             </div>
-            <div class="flex items-start gap-2 mt-2">
-                <i class="bi bi-geo-alt text-text/30 text-caption mt-0.5 flex-shrink-0"></i>
-                <p class="text-caption text-text/50"><?= sanitize($fac['lokasi_detail'] ?? '-') ?></p>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+                <i class="fa-solid fa-location-dot" style="color:rgba(245,247,250,0.3); font-size:12px;"></i>
+                <p style="font-size:13px; color:rgba(245,247,250,0.5);"><?= sanitize($fac['lokasi_detail'] ?? '-') ?></p>
             </div>
         </div>
         <?php endforeach; ?>
@@ -173,10 +181,7 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-
 $extraScript = '';
-
-$pageTitle   = 'Fasilitas Umum — Mall ERP CS';
-$currentMenu = 'fasilitas';
-
-require_once '../../includes/layout_cs.php';
+$page_title  = 'Fasilitas Umum';
+$current_page = 'fasilitas';
+require_once __DIR__ . '/../../includes/navbarM05.php';
