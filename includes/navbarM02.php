@@ -2,7 +2,7 @@
 $page_title  = $page_title  ?? 'Dashboard';
 $active_page = $active_page ?? '';
 $user_name   = $user_name   ?? 'Guest';
-$role        = $role        ?? 'Guest';
+$role        = $role        ?? 'tenant';
 
 $menu = [
     [
@@ -500,8 +500,10 @@ foreach ($menu as $section) {
         <!-- Footer -->
         <div class="m02-sidebar-footer">
             <a href="/MallManagementSystem/public/logout.php" class="m02-logout" data-label="Logout">
-                <i class="fa-solid fa-right-from-bracket"></i>Logout</span>
-            </a>
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span class="m02-logout-label">Logout</span>
+
+            </a>        
         </div>
     </aside>
 
