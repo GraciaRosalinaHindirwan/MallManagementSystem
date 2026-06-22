@@ -16,6 +16,7 @@ class NotificationLog
     public NotificationChannel $channel;
     public DeliveryResult $delivery_result;
     public DateTime $created_at;
+    public int $user_id;
 
     private function __construct(
         int $id,
@@ -24,7 +25,8 @@ class NotificationLog
         NotificationContent $notification_content,
         NotificationChannel $channel,
         DeliveryResult $delivery_result,
-        DateTime $created_at
+        DateTime $created_at,
+        int $user_id
     ) {
         $this->id = $id;
         $this->notification_id = $notification_id;
@@ -33,12 +35,14 @@ class NotificationLog
         $this->channel = $channel;
         $this->delivery_result = $delivery_result;
         $this->created_at = $created_at;
+        $this->user_id = $user_id;
     }
     public static function pending(
         Recipient $recipient,
         NotificationContent $content,
         NotificationChannel $channel = NotificationChannel::inapp,
         ?string $notificationId = null,
+        int $user_id,
     ): self {
         return new self(
             id: 0,
@@ -50,6 +54,7 @@ class NotificationLog
             delivery_result: new DeliveryResult(
                 status: NotificationStatus::pending,
             ),
+            user_id: $user_id,
         );
     }
     public function mark_as_sent(?DateTime $sentAt = null): void
