@@ -1,7 +1,7 @@
 <?php
 require_once '../../config/konek.php';
 require_once '../../vendor/autoload.php';
-// require_once __DIR__ . '/../../public/auth/checkSession.php';
+require_once __DIR__ . '/../../public/auth/checkSession.php';
 
 use Dompdf\Dompdf;
 use Dompdf\Options;

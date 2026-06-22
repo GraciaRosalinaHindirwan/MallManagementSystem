@@ -1,6 +1,6 @@
 <?php
 require_once '../../config/konek.php';
-// require_once __DIR__ . '/../../public/auth/checkSession.php';
+require_once __DIR__ . '/../../public/auth/checkSession.php';
 
 $nama_bulan = [
     'January' => 'Januari',
