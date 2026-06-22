@@ -1,5 +1,6 @@
 <?php
-require_once 'auth/checkSession.php';
+require_once __DIR__ . '/../../config/koneksi.php';
+// require_once __DIR__ . '/../../auth/checkSession.php';
 
 $pageTitle   = 'SLA Breach — Customer Service';
 $currentMenu = 'sla-breach';
@@ -20,7 +21,7 @@ $breach_list = $pdo->query("
     SELECT *,
         TIMESTAMPDIFF(MINUTE, created_at, NOW()) AS umur_menit,
         TIMESTAMPDIFF(MINUTE, created_at, NOW()) - sla_menit AS lewat_menit
-    FROM tiket
+    FROM `05_tiket`
     WHERE status != 'resolved'
       AND TIMESTAMPDIFF(MINUTE, created_at, NOW()) > sla_menit
     ORDER BY lewat_menit DESC
@@ -155,5 +156,5 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-include __DIR__ . '/../../includes/layout.php';
+include __DIR__ . '/../../includes/layout_cs.php';
 ?>

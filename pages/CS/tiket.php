@@ -1,5 +1,6 @@
 <?php
-require_once 'auth/checkSession.php';
+require_once __DIR__ . '/../../config/koneksi.php';
+// require_once __DIR__ . '/../../auth/checkSession.php';
 
 $pageTitle   = 'Semua Tiket — Customer Service';
 $currentMenu = 'tiket';
@@ -20,7 +21,7 @@ $kategori_label = [
 $tiket_list = $pdo->query("
     SELECT *,
         TIMESTAMPDIFF(MINUTE, created_at, NOW()) AS umur_menit
-    FROM tiket
+    FROM `05_tiket`
     ORDER BY created_at DESC
 ")->fetchAll();
 
@@ -192,5 +193,5 @@ document.getElementById('filter-kategori').addEventListener('change', filterTike
 
 <?php
 $content = ob_get_clean();
-include __DIR__ . '/../../includes/layout.php';
+include __DIR__ . '/../../includes/layout_cs.php';
 ?>

@@ -1,5 +1,6 @@
 <?php
-require_once 'auth/checkSession.php';
+require_once __DIR__ . '/../../config/koneksi.php';
+// require_once __DIR__ . '/../../auth/checkSession.php';
 
 $pageTitle   = 'Detail Tiket — Customer Service';
 $currentMenu = 'tiket';
@@ -14,7 +15,7 @@ if (!$id) {
 $stmt = $pdo->prepare("
     SELECT *,
         TIMESTAMPDIFF(MINUTE, created_at, NOW()) AS umur_menit
-    FROM tiket
+    FROM `05_tiket`
     WHERE id = ?
 ");
 $stmt->execute([$id]);
@@ -26,11 +27,9 @@ if (!$t) {
 }
 
 $log_list = $pdo->prepare("
-    SELECT tl.*, pc.nama AS nama_petugas
-    FROM tiket_log tl
-    LEFT JOIN petugas_cs pc ON tl.updated_by = pc.id
-    WHERE tl.tiket_id = ?
-    ORDER BY tl.updated_at ASC
+    SELECT * FROM `05_tiket_log`
+    WHERE tiket_id = ?
+    ORDER BY updated_at ASC
 ");
 $log_list->execute([$id]);
 $logs = $log_list->fetchAll();
@@ -190,7 +189,6 @@ ob_start();
                         <?php endif; ?>
                         <p class="text-caption text-text/30">
                             <?= date('d M Y, H:i', strtotime($log['updated_at'])) ?>
-                            <?= $log['nama_petugas'] ? '· ' . htmlspecialchars($log['nama_petugas']) : '' ?>
                         </p>
                     </div>
                 </div>
@@ -260,5 +258,5 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-include __DIR__ . '/../../includes/layout.php';
+include __DIR__ . '/../../includes/layout_cs.php';
 ?>

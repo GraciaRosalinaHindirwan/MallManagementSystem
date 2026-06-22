@@ -1,5 +1,6 @@
 <?php
-require_once 'auth/checkSession.php';
+require_once __DIR__ . '/../../config/koneksi.php';
+// require_once __DIR__ . '/../../auth/checkSession.php';
 
 $id         = $_POST['id'] ?? '';
 $status_baru = $_POST['status_baru'] ?? '';
@@ -11,7 +12,7 @@ if (!$id || !in_array($status_baru, $allowed)) {
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT status FROM tiket WHERE id = ?");
+$stmt = $pdo->prepare("SELECT status FROM `05_tiket` WHERE id = ?");
 $stmt->execute([$id]);
 $tiket = $stmt->fetch();
 
@@ -20,15 +21,13 @@ if (!$tiket) {
     exit;
 }
 
-$updated_by = $_SESSION['user_id'] ?? null;
-
-$pdo->prepare("UPDATE tiket SET status = ? WHERE id = ?")
+$pdo->prepare("UPDATE `05_tiket` SET status = ? WHERE id = ?")
     ->execute([$status_baru, $id]);
 
 $pdo->prepare("
-    INSERT INTO tiket_log (tiket_id, status_lama, status_baru, catatan, updated_by)
-    VALUES (?, ?, ?, ?, ?)
-")->execute([$id, $tiket['status'], $status_baru, $catatan, $updated_by]);
+    INSERT INTO `05_tiket_log` (tiket_id, status_lama, status_baru, catatan)
+    VALUES (?, ?, ?, ?)
+")->execute([$id, $tiket['status'], $status_baru, $catatan]);
 
 header('Location: tiket-detail.php?id=' . urlencode($id));
 exit;

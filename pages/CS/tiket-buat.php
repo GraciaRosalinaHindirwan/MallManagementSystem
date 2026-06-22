@@ -1,5 +1,6 @@
 <?php
-require_once 'auth/checkSession.php';
+require_once __DIR__ . '/../../config/koneksi.php';
+// require_once __DIR__ . '/../../auth/checkSession.php';
 
 $pageTitle   = 'Buat Tiket Baru — Customer Service';
 $currentMenu = 'tiket-buat';
@@ -40,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$deskripsi)                     $errors[] = 'Deskripsi masalah wajib diisi.';
 
     if (empty($errors)) {
-        $stmt = $pdo->query("SELECT COUNT(*) FROM tiket");
+        $stmt = $pdo->query("SELECT COUNT(*) FROM `05_tiket`");
         $count = (int) $stmt->fetchColumn();
         $new_id = 'TKT-' . str_pad($count + 1, 3, '0', STR_PAD_LEFT);
 
@@ -60,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $foto_json = !empty($foto_paths) ? json_encode($foto_paths) : null;
         $stmt = $pdo->prepare("
-            INSERT INTO tiket (
+            INSERT INTO `05_tiket` (
                 id, report_date, pelapor, no_hp, lokasi, floor_name, area_name,
                 asset_name, asset_code, kategori, damage_type, priority, severity_level,
                 deskripsi, foto
@@ -320,5 +321,5 @@ document.getElementById('foto-input').addEventListener('change', function () {
 
 <?php
 $content = ob_get_clean();
-include __DIR__ . '/../../includes/layout.php';
+include __DIR__ . '/../../includes/layout_cs.php';
 ?>
