@@ -29,6 +29,11 @@ class ReceiveContractNotificationUseCase
         /** @var Contract[] $contracts */
         foreach ($contracts as $contract) {
             $current_time = new DateTime();
+
+            if (!$contract->will_expire_in_days(7)) {
+                continue;
+            }
+
             $notification_message = new NotificationContent(
                 type: NotificationType::contract_expiry,
                 subject: "mmisreminder",

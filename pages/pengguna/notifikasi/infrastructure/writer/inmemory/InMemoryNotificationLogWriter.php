@@ -6,9 +6,9 @@ class InMemoryNotificationLogWriter implements INotificationLogWriter
 {
     public array $logs;
 
-    public function __construct(array $logs)
+    public function __construct(array &$logs)
     {
-        $this->logs = $logs;
+        $this->logs = &$logs;
     }
 
     public function get_logs()
