@@ -1,6 +1,21 @@
 <?php
 require_once '../../config/konek.php';
-require_once __DIR__ . '/../../public/auth/checkSession.php';
+// require_once __DIR__ . '/../../public/auth/checkSession.php';
+
+$nama_bulan = [
+    'January' => 'Januari',
+    'February' => 'Februari',
+    'March' => 'Maret',
+    'April' => 'April',
+    'May' => 'Mei',
+    'June' => 'Juni',
+    'July' => 'Juli',
+    'August' => 'Agustus',
+    'September' => 'September',
+    'October' => 'Oktober',
+    'November' => 'November',
+    'December' => 'Desember'
+];
 
 $active_tab = $_GET['tab'] ?? 'daily';
 
@@ -55,7 +70,11 @@ ob_start();
                                     $nama_laporan = "Laporan Minggu ke-" . date('W', strtotime($row['period_date'])) . " (" . date('Y', strtotime($row['period_date'])) . ")";
                                     break;
                                 case 'monthly':
-                                    $nama_laporan = "Laporan Bulan " . date('F Y', strtotime($row['period_date']));
+                                    $bulanInggris = date('F', strtotime($row['period_date']));
+                                    $bulanIndo = $nama_bulan[$bulanInggris] ?? $bulanInggris;
+                                    $tahun = date('Y', strtotime($row['period_date']));
+                                    $nama_laporan = "Laporan Bulan " . $bulanIndo . " " . $tahun;
+                                    break;
                                     break;
                                 case 'annual':
                                     $nama_laporan = "Laporan Tahun " . date('Y', strtotime($row['period_date']));
@@ -67,7 +86,7 @@ ob_start();
                             <tr>
                                 <td data-label="Periode Laporan"><?php echo $nama_laporan; ?></td>
                                 <td data-label="Buka">
-                                    <a href="08_laporan_print.php?period=<?php echo $active_tab; ?>&date=<?php echo $row['period_date']; ?>" class="btn-action btn-buka" target="_blank">
+                                    <a href="08_laporan_open.php?period=<?php echo $active_tab; ?>&date=<?php echo $row['period_date']; ?>" class="btn-action btn-buka" target="_blank">
                                         <i class="fa-solid fa-eye"></i> Buka
                                     </a>
                                 </td>
