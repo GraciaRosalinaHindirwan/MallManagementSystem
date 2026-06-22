@@ -16,14 +16,14 @@ if (!defined('BASE_URL')) {
 
 // Default values (bisa di-override oleh halaman)
 $department_name = $department_name ?? 'BI, Workflow & Notification';
-$page_title = $page_title ?? 'Dashboard';
+$page_title = $page_title ?? 'Dashboard KPI';
 $user_name = $user_name ?? 'Manager';
 
 // Menu default modul 8 (bisa di-override)
 $menu_items = $menu_items ?? [
     [
         'icon' => 'fa-solid fa-chart-line',
-        'label' => 'Dashboard',
+        'label' => 'Dashboard KPI',
         'link' => '08_dashboard.php',
         'active_page' => 'dashboard'
     ],
