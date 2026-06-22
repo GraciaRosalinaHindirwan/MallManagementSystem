@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once "../../public/auth/checkSession.php";
+// require_once "../../public/auth/checkSession.php";
 require_once "../../config/konek.php"; 
 
 $page_title  = 'Pendaftaran Prospek';                  
@@ -20,18 +20,38 @@ if (!$prospekList) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newProspek = [
         'brand_name'     => $_POST['nama_toko'],
-        'id_category'    => $_POST['kategori'],
+        'id_category'    => match ($_POST['kategori']) {
+            'F&B' => 1,
+            'Retail' => 2,
+            'Entertainment' => 3,
+            'Service' => 4,
+            'Health & Beauty' => 5,
+            'Education' => 6,
+            'Gaming' => 7,
+            default => null,
+        },
         'pic_name'       => $_POST['nama_pic'],
         'phone'          => $_POST['kontak'],
         'email'          => $_POST['email'],
         'notes'          => $_POST['catatan'],
-        'unit'           => $_POST['unit_diminati'],
+        'unit'           => match ($_POST['unit_diminati']) {
+            'LG-01' => 1, 'LG-02' => 2, 'LG-03' => 3,
+            'LT1-01' => 4, 'LT1-02' => 5, 'LT1-03' => 8, 'LT1-04' => 10,
+            'LT2-01' => 6, 'LT2-02' => 7, 'LT2-03' => 9,
+            'KG-LG-01' => 11, 'KG-LG-02' => 12,
+            'KG-LT1-01' => 13, 'KG-LT1-02' => 14, 
+            'KG-LT2-01' => 15, 'KG-LT2-02' => 16,
+            'KG-BLT-01' => 17, 'KG-BLT-02' => 18,
+            'PIK-LG-01' => 19, 'PIK-LG-02' => 20,
+            'PIK-LT1-01' => 21, 'PIK-LT1-02' => 22,
+            default => null,
+        },
         'status'         => 'Prospect',
         'register_date'  => date("Y-m-d"),
     ];
-    $query = "INSERT INTO `02_tenant_prospects` (brand_name, id_category, pic_name, phone, email, notes, status, register_date) 
+    $query = "INSERT INTO `02_tenant_prospects` (brand_name, id_category, pic_name, phone, email, notes, interested_unit, status, register_date) 
               VALUES 
-              ('$newProspek[brand_name]', '$newProspek[id_category]', '$newProspek[pic_name]', '$newProspek[phone]', '$newProspek[email]', '$newProspek[notes]', '$newProspek[status]', '$newProspek[register_date]')";
+              ('$newProspek[brand_name]', '$newProspek[id_category]', '$newProspek[pic_name]', '$newProspek[phone]', '$newProspek[email]', '$newProspek[notes]', '$newProspek[unit]', '$newProspek[status]', '$newProspek[register_date]')";
 
     // Eksekusi query
     if (mysqli_query($conn, $query)) {
@@ -399,9 +419,9 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
                     <label class="form-label" for="kategori">Kategori Bisnis <span class="required">*</span></label>
                     <select id="kategori" name="kategori" class="form-input" required>
                         <option value="" disabled selected>Pilih kategori...</option>
-                        <?php foreach ($kategoriOptions as $kat): ?>
-                            <option value="<?= $kat ?>"><?= $kat ?></option>
-                        <?php endforeach; ?>
+                        <?php while ($kat = mysqli_fetch_assoc($kategoriOptions)): ?>
+                            <option value="<?= $kat['name'] ?>"><?= $kat['name'] ?></option>
+                        <?php endwhile; ?>
                     </select>
                 </div>
  
@@ -427,9 +447,9 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
                     <label class="form-label" for="unit_diminati">Unit yang Diminati</label>
                     <select id="unit_diminati" name="unit_diminati" class="form-input">
                         <option value="" selected>Belum ditentukan</option>
-                        <?php foreach ($unitOptions as $unit): ?>
-                            <option value="<?= $unit ?>"><?= $unit ?></option>
-                        <?php endforeach; ?>
+                        <?php while ($unit = mysqli_fetch_assoc($unitOptions)): ?>
+                            <option value="<?= $unit['unit_code'] ?>"><?= $unit['unit_code'] ?></option>
+                        <?php endwhile; ?>
                     </select>
                 </div>
  
@@ -456,15 +476,15 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
     <div class="stats-row">
         <div class="stat-card">
             <span class="stat-label">Total Prospek</span>
-            <span class="stat-value"><?= count($prospekList) ?></span>
+            <span class="stat-value"><?= mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM `02_tenant_prospects`"))[0] ?></span>
         </div>
         <div class="stat-card">
             <span class="stat-label">Bulan Ini</span>
-            <span class="stat-value">3</span>
+            <span class="stat-value"><?= mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM `02_tenant_prospects` WHERE MONTH(register_Date) = MONTH(CURDATE()) AND YEAR(register_Date) = YEAR(CURDATE())"))[0] ?></span>
         </div>
         <div class="stat-card">
             <span class="stat-label">Menunggu Verifikasi</span>
-            <span class="stat-value">3</span>
+            <span class="stat-value"><?= mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM `02_tenant_prospects` WHERE status = 'Prospect'"))[0] ?></span>
         </div>
     </div>
  
@@ -501,28 +521,37 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
                             </td>
                         </tr>
                     <?php else: ?>
-                        <?php foreach ($prospekList as $i => $p): ?>
+                        <?php 
+                            $query = "SELECT p.*, c.name AS category_name, u.unit_code AS unit
+                                      FROM `02_tenant_prospects` p
+                                      LEFT JOIN `01_tenant_categories` c ON p.id_category = c.id_tenant_categories
+                                      LEFT JOIN `01_units` u ON p.interested_unit = u.id_units
+                                      ORDER BY p.register_Date DESC";
+                            $i = mysqli_query($conn, $query);
+                            $j = 0;
+                            while ($p = mysqli_fetch_assoc($i)):
+                            ?>
                             <tr>
-                                <td><?= $i + 1 ?></td>
-                                <td class="td-bold"><?= htmlspecialchars($p['nama_toko']) ?></td>
-                                <td><?= htmlspecialchars($p['kategori']) ?></td>
-                                <td><?= htmlspecialchars($p['pic']) ?></td>
-                                <td><?= htmlspecialchars($p['kontak']) ?></td>
+                                <td><?= $j = $j + 1 ?></td>
+                                <td class="td-bold"><?= htmlspecialchars($p['brand_name']) ?></td>
+                                <td><?= htmlspecialchars($p['category_name']) ?></td>
+                                <td><?= htmlspecialchars($p['pic_name']) ?></td>
+                                <td><?= htmlspecialchars($p['phone']) ?></td>
                                 <td><?= htmlspecialchars($p['unit']) ?></td>
-                                <td><?= htmlspecialchars($p['tgl_daftar']) ?></td>
+                                <td><?= htmlspecialchars($p['register_date']) ?></td>
                                 <td><span class="badge badge--prospek"><?= $p['status'] ?></span></td>
                                 <td>
                                     <div class="action-group">
-                                        <a href="detail-prospek.php?id=<?= $p['id'] ?>" class="btn-action btn-action--view" title="Detail">
+                                        <a href="detail-prospek.php?id=<?= $p['id_prospect'] ?>" class="btn-action btn-action--view" title="Detail">
                                             Detail
                                         </a>
-                                        <a href="edit-prospek.php?id=<?= $p['id'] ?>" class="btn-action btn-action--edit" title="Edit">
+                                        <a href="edit-prospek.php?id=<?= $p['id_prospect'] ?>" class="btn-action btn-action--edit" title="Edit">
                                             Edit
                                         </a>
                                     </div>
                                 </td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php endwhile; ?>
                     <?php endif; ?>
                 </tbody>
             </table>
