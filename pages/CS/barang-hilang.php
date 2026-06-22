@@ -8,7 +8,7 @@ $alertType = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && $_POST['action'] === 'kembalikan') {
         $id = (int) $_POST['id'];
-        $stmt = $conn->prepare("UPDATE lost_reports SET status = 'Dikembalikan' WHERE id = ?");
+        $stmt = $conn->prepare("UPDATE 05_lost_reports SET status = 'Dikembalikan' WHERE id = ?");
         $stmt->bind_param('i', $id);
         if ($stmt->execute()) {
             $alertMsg  = 'Status berhasil diubah menjadi Dikembalikan.';
@@ -19,11 +19,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $stmt->close();
     } else {
-        $nama_pelapor      = htmlspecialchars(strip_tags(trim($_POST['nama_pelapor']     ?? '')));
-        $item_description  = htmlspecialchars(strip_tags(trim($_POST['item_description'] ?? '')));
-        $contact_number    = htmlspecialchars(strip_tags(trim($_POST['contact_number']   ?? '')));
+        $nama_pelapor     = htmlspecialchars(strip_tags(trim($_POST['nama_pelapor']     ?? '')));
+        $item_description = htmlspecialchars(strip_tags(trim($_POST['item_description'] ?? '')));
+        $contact_number   = htmlspecialchars(strip_tags(trim($_POST['contact_number']   ?? '')));
 
-        $stmt = $conn->prepare("INSERT INTO lost_reports (nama_pelapor, item_description, contact_number) VALUES (?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO 05_lost_reports (nama_pelapor, item_description, contact_number) VALUES (?, ?, ?)");
         $stmt->bind_param('sss', $nama_pelapor, $item_description, $contact_number);
 
         if ($stmt->execute()) {
@@ -37,94 +37,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$result  = $conn->query("SELECT * FROM lost_reports ORDER BY reported_at DESC");
+$result  = $conn->query("SELECT * FROM 05_lost_reports ORDER BY reported_at DESC");
 $reports = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+
+$page_title = 'Laporan Kehilangan';
 
 ob_start();
 ?>
 
 <?php if ($alertMsg): ?>
-<div class="flex items-center gap-3 px-4 py-3 rounded-md border-l-4 <?= $alertType === 'success' ? 'bg-success/10 border-success text-success' : 'bg-danger/10 border-danger text-danger' ?>">
-  <i class="bi bi-<?= $alertType === 'success' ? 'check-circle' : 'exclamation-circle' ?> text-lg"></i>
-  <p class="text-label"><?= $alertMsg ?></p>
+<div class="card" style="border-left: 4px solid <?= $alertType === 'success' ? '#22C55E' : '#EF4444' ?>; margin-bottom: 16px;">
+    <p style="color: <?= $alertType === 'success' ? '#22C55E' : '#EF4444' ?>; margin: 0;">
+        <?= $alertMsg ?>
+    </p>
 </div>
 <?php endif; ?>
 
-<div class="cs-card">
-  <h2 class="text-body font-semibold mb-1">Input Laporan Kehilangan</h2>
-  <p class="text-caption text-text/50 mb-5">Catat laporan kehilangan barang dari pengunjung.</p>
+<div class="card">
+    <h2 class="card-title">Input Laporan Kehilangan</h2>
+    <p style="color: rgba(245,247,250,0.5); font-size: 13px; margin-bottom: 20px;">Catat laporan kehilangan barang dari pengunjung.</p>
 
-  <form method="POST" class="space-y-5">
-    <div>
-      <label class="block text-label font-medium mb-1.5">Nama Pelapor <span class="text-danger">*</span></label>
-      <input type="text" name="nama_pelapor" required class="cs-input" placeholder="Contoh: Budi Santoso" />
-    </div>
-    <div>
-      <label class="block text-label font-medium mb-1.5">Deskripsi Barang Hilang <span class="text-danger">*</span></label>
-      <textarea name="item_description" rows="4" required class="cs-input resize-none" placeholder="Contoh: Tas ransel warna biru, berisi laptop..."></textarea>
-    </div>
-    <div>
-      <label class="block text-label font-medium mb-1.5">Nomor Kontak Pelapor <span class="text-danger">*</span></label>
-      <input type="text" name="contact_number" required class="cs-input" placeholder="Contoh: 08123456789" />
-    </div>
-    <div>
-      <button type="submit" class="cs-btn bg-accent text-background hover:brightness-110">
-        <i class="bi bi-plus-circle"></i> Simpan
-      </button>
-    </div>
-  </form>
+    <form method="POST">
+        <div class="form-group">
+            <label>Nama Pelapor <span style="color:#EF4444">*</span></label>
+            <input type="text" name="nama_pelapor" required placeholder="Contoh: Budi Santoso" />
+        </div>
+        <div class="form-group">
+            <label>Deskripsi Barang Hilang <span style="color:#EF4444">*</span></label>
+            <textarea name="item_description" rows="4" required placeholder="Contoh: Tas ransel warna biru, berisi laptop..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>Nomor Kontak Pelapor <span style="color:#EF4444">*</span></label>
+            <input type="text" name="contact_number" required placeholder="Contoh: 08123456789" />
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-plus-circle"></i> Simpan
+        </button>
+    </form>
 </div>
 
-<div class="cs-card">
-  <h2 class="text-body font-semibold mb-4">Daftar Laporan Kehilangan</h2>
-  <div class="overflow-x-auto">
-    <table class="w-full text-label border-collapse">
-      <thead>
-        <tr class="border-b border-border">
-          <th class="text-left text-caption font-semibold text-text/40 uppercase py-2 px-3">No</th>
-          <th class="text-left text-caption font-semibold text-text/40 uppercase py-2 px-3">Nama Pelapor</th>
-          <th class="text-left text-caption font-semibold text-text/40 uppercase py-2 px-3">Deskripsi Barang</th>
-          <th class="text-left text-caption font-semibold text-text/40 uppercase py-2 px-3">Kontak</th>
-          <th class="text-left text-caption font-semibold text-text/40 uppercase py-2 px-3">Status</th>
-          <th class="text-left text-caption font-semibold text-text/40 uppercase py-2 px-3">Tanggal</th>
-          <th class="text-left text-caption font-semibold text-text/40 uppercase py-2 px-3">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($reports as $i => $report): ?>
-        <tr class="border-b border-border/50 hover:bg-white/3">
-          <td class="py-3 px-3"><?= $i + 1 ?></td>
-          <td class="py-3 px-3"><?= $report['nama_pelapor'] ?></td>
-          <td class="py-3 px-3 max-w-xs truncate"><?= $report['item_description'] ?></td>
-          <td class="py-3 px-3"><?= $report['contact_number'] ?></td>
-          <td class="py-3 px-3">
-            <span class="px-2 py-1 rounded-full text-caption font-semibold <?= $report['status'] === 'Dikembalikan' ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning' ?>">
-              <?= $report['status'] ?>
-            </span>
-          </td>
-          <td class="py-3 px-3 text-text/50"><?= date('d/m/Y', strtotime($report['reported_at'])) ?></td>
-          <td class="py-3 px-3">
-            <?php if ($report['status'] !== 'Dikembalikan'): ?>
-            <form method="POST">
-              <input type="hidden" name="id" value="<?= $report['id'] ?>">
-              <button type="submit" name="action" value="kembalikan" class="cs-btn bg-success/20 text-success border border-success/30 hover:bg-success/30 text-caption !px-3 !py-1">
-                <i class="bi bi-check-circle"></i> Dikembalikan
-              </button>
-            </form>
-            <?php else: ?>
-            <span class="text-caption text-text/30">Selesai</span>
-            <?php endif; ?>
-          </td>
-        </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
-  </div>
+<div class="card">
+    <h2 class="card-title">Daftar Laporan Kehilangan</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama Pelapor</th>
+                    <th>Deskripsi Barang</th>
+                    <th>Kontak</th>
+                    <th>Status</th>
+                    <th>Tanggal</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($reports as $i => $report): ?>
+                <tr>
+                    <td><?= $i + 1 ?></td>
+                    <td><?= $report['nama_pelapor'] ?></td>
+                    <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><?= $report['item_description'] ?></td>
+                    <td><?= $report['contact_number'] ?></td>
+                    <td>
+                        <span class="badge <?= $report['status'] === 'Dikembalikan' ? 'badge-success' : 'badge-warning' ?>">
+                            <?= $report['status'] ?>
+                        </span>
+                    </td>
+                    <td><?= date('d/m/Y', strtotime($report['reported_at'])) ?></td>
+                    <td>
+                        <?php if ($report['status'] !== 'Dikembalikan'): ?>
+                        <form method="POST" style="margin:0;">
+                            <input type="hidden" name="id" value="<?= $report['id'] ?>">
+                            <button type="submit" name="action" value="kembalikan" class="btn" style="background:rgba(34,197,94,0.2); color:#22C55E; border:1px solid rgba(34,197,94,0.3); padding:4px 12px; font-size:12px;">
+                                <i class="fa-solid fa-check-circle"></i> Dikembalikan
+                            </button>
+                        </form>
+                        <?php else: ?>
+                        <span style="color:rgba(245,247,250,0.3); font-size:12px;">Selesai</span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+                <?php if (empty($reports)): ?>
+                <tr>
+                    <td colspan="7" style="text-align:center; color:rgba(245,247,250,0.3); padding:24px;">Belum ada laporan kehilangan.</td>
+                </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <?php
-$content     = ob_get_clean();
-$pageTitle   = 'Laporan Kehilangan — Mall ERP CS';
-$currentMenu = 'barang-hilang';
-require_once '../../includes/layout_cs.php';
+$content = ob_get_clean();
+require_once '../../includes/navbarM05.php';
 ?>
