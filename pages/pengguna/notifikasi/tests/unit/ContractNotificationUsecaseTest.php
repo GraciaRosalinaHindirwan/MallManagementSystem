@@ -1,12 +1,12 @@
 <?php
 
-require_once __DIR__ . "/../infrastructure/queries/inmemory/InMemoryUserQuery.php";
-require_once __DIR__ . "/../infrastructure/notifier/WebNotifier.php";
-require_once __DIR__ . "/../infrastructure/queries/inmemory/InMemoryContractQuery.php";
-require_once __DIR__ . "/../infrastructure/writer/inmemory/InMemoryNotificationWriter.php";
-require_once __DIR__ . "/../infrastructure/queries/inmemory/InMemoryNotificationQuery.php";
-require_once __DIR__ . "/../infrastructure/writer/inmemory/InMemoryNotificationLogWriter.php";
-require_once __DIR__ . "/../usecase/ReceiveContractNotificationUseCase.php";
+require_once __DIR__ . "/../../infrastructure/queries/inmemory/InMemoryUserQuery.php";
+require_once __DIR__ . "/../../infrastructure/notifier/WebNotifier.php";
+require_once __DIR__ . "/../../infrastructure/queries/inmemory/InMemoryContractQuery.php";
+require_once __DIR__ . "/../../infrastructure/writer/inmemory/InMemoryNotificationWriter.php";
+require_once __DIR__ . "/../../infrastructure/queries/inmemory/InMemoryNotificationQuery.php";
+require_once __DIR__ . "/../../infrastructure/writer/inmemory/InMemoryNotificationLogWriter.php";
+require_once __DIR__ . "/../../usecase/ReceiveContractNotificationUseCase.php";
 
 
 use PHPUnit\Framework\TestCase;
