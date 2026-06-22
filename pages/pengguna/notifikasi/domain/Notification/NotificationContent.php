@@ -4,9 +4,9 @@ require_once __DIR__ . "/NotificationType.php";
 
 class NotificationContent
 {
-    public readonly NotificationType $type;
-    public readonly string $subject;
-    public readonly string $body;
+    public NotificationType $type;
+    public string $subject;
+    public string $body;
 
     public function __construct(string $subject, string $body, NotificationType $type)
     {

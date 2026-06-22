@@ -7,13 +7,12 @@ class Notification
 {
     public int $id;
     public NotificationContent $content;
-    public DateTime $date_time;
+    public bool $is_active = true;
 
-    public function __construct(int $id, NotificationContent $content, DateTime $date_time)
+    public function __construct(int $id, NotificationContent $content)
     {
         $this->id = $id;
         $this->content = $content;
-        $this->date_time = $date_time;
     }
 
     public static function create(int $id, NotificationContent $content): Notification
@@ -21,7 +20,11 @@ class Notification
         return new Notification(
             id: $id,
             content: $content,
-            date_time: new DateTime()
         );
+    }
+
+    public function deactivate()
+    {
+        $this->is_active = false;
     }
 }
