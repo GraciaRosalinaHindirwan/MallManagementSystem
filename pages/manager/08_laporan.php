@@ -1,10 +1,9 @@
 <?php
 require_once '../../config/konek.php';
+require_once __DIR__ . '/../../public/auth/checkSession.php';
 
-// Ambil parameter tab yang aktif
 $active_tab = $_GET['tab'] ?? 'daily';
 
-// Definisi variabel untuk navbar
 $department_name = "BI, Workflow, and Notification";
 $page_title = "Laporan Periodik";
 $user_name = "Manager";
@@ -20,7 +19,6 @@ ob_start();
 ?>
 
 <div class="laporan-container">
-    <!-- Filter Periode -->
     <div class="filter-wrapper">
         <div class="filter-group">
             <a href="?tab=daily" class="btn-filter <?php echo $active_tab == 'daily' ? 'active' : ''; ?>">Harian</a>
@@ -30,7 +28,6 @@ ob_start();
         </div>
     </div>
 
-    <!-- Daftar Laporan -->
     <div class="table-wrapper">
         <div class="table-responsive">
             <table class="table-custom">
@@ -40,6 +37,7 @@ ob_start();
                         <th>Buka</th>
                         <th>PDF</th>
                         <th>CSV</th>
+                        <th>Excel</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,6 +79,11 @@ ob_start();
                                 <td data-label="CSV">
                                     <a href="08_laporan_csv.php?period=<?php echo $active_tab; ?>&date=<?php echo $row['period_date']; ?>" class="btn-action btn-csv">
                                         <i class="fa-solid fa-file-csv"></i> CSV
+                                    </a>
+                                </td>
+                                <td data-label="Excel">
+                                    <a href="08_laporan_excel.php?period=<?php echo $active_tab; ?>&date=<?php echo $row['period_date']; ?>" class="btn-action btn-excel">
+                                        <i class="fa-solid fa-file-excel"></i> Excel
                                     </a>
                                 </td>
                             </tr>
@@ -268,6 +271,18 @@ ob_start();
 
     .btn-csv:hover {
         background: var(--success, #22C55E);
+        color: var(--text);
+        transform: translateY(-1px);
+    }
+
+    .btn-excel {
+        background: rgba(33, 115, 70, 0.12);
+        color: var(--success);
+        border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+
+    .btn-excel:hover {
+        background: #217346;
         color: white;
         transform: translateY(-1px);
     }
