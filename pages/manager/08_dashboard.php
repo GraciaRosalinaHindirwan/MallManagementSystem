@@ -1,8 +1,9 @@
 <?php
 require_once '../../config/konek.php';
+// require_once __DIR__ . '/../../public/auth/checkSession.php';
 
 // =====================================================
-// 1. HITUNG OCCUPANCY RATE
+// 1. OCCUPANCY RATE (REAL-TIME)
 // =====================================================
 $sql_units = "SELECT 
                 COUNT(*) as total_units,
@@ -17,80 +18,98 @@ $occupancy_rate = ($total_units > 0) ? ($occupied_units / $total_units) * 100 : 
 $occupancy_rate = round($occupancy_rate, 2);
 
 // =====================================================
-// 2. HITUNG TOTAL REVENUE
+// 2. REVENUE HARI INI (REAL-TIME)
 // =====================================================
-$sql_revenue = "SELECT 
-                    SUM(CASE WHEN status = 'Lunas' THEN total_amount ELSE 0 END) as total_revenue,
-                    SUM(CASE WHEN status = 'Belum Bayar' THEN total_amount ELSE 0 END) as unpaid_revenue
-                FROM `06_invoices`";
-$result_revenue = $conn->query($sql_revenue);
-$revenue_data = $result_revenue->fetch_assoc();
-$total_revenue = $revenue_data['total_revenue'] ?? 0;
-$unpaid_revenue = $revenue_data['unpaid_revenue'] ?? 0;
+$sql_revenue_today = "SELECT COALESCE(SUM(total_amount), 0) as total 
+                      FROM `06_invoices` 
+                      WHERE status = 'Lunas' 
+                      AND DATE(created_at) = CURDATE()";
+$result_revenue_today = $conn->query($sql_revenue_today);
+$revenue_today = $result_revenue_today->fetch_assoc()['total'];
 
 // =====================================================
-// 3. TENANT PERFORMANCE (Top 5)
+// 3. REVENUE BULAN INI (REAL-TIME) - Untuk Breakdown
 // =====================================================
-$sql_tenant = "SELECT 
-                    t.tenant_name,
-                    tc.name as category,
-                    COALESCE(SUM(i.total_amount), 0) as revenue
-                FROM `02_tenants` t
-                LEFT JOIN `01_tenant_categories` tc ON t.id_category = tc.id_tenant_categories
-                LEFT JOIN `06_invoices` i ON t.id_tenant = i.tenant_id AND i.status = 'Lunas'
-                WHERE t.status = 'Active'
-                GROUP BY t.id_tenant
-                ORDER BY revenue DESC
-                LIMIT 5";
+$year = date('Y');
 
-$result_tenant = $conn->query($sql_tenant);
-$top_tenants = [];
-$tenant_labels = [];
-$tenant_data = [];
-while ($row = $result_tenant->fetch_assoc()) {
-    $top_tenants[] = $row;
-    $tenant_labels[] = $row['tenant_name'];
-    $tenant_data[] = $row['revenue'];
-}
+// 3a. TENANT REVENUE (Bulan Ini)
+$sql_tenant_revenue = "SELECT COALESCE(SUM(total_amount), 0) as total 
+                       FROM `06_invoices` 
+                       WHERE status = 'Lunas' 
+                       AND MONTH(created_at) = MONTH(CURDATE())
+                       AND YEAR(created_at) = '$year'";
+$result_tenant_revenue = $conn->query($sql_tenant_revenue);
+$tenant_revenue = $result_tenant_revenue->fetch_assoc()['total'];
+
+// 3b. EVENT REVENUE (Bulan Ini)
+$sql_event_revenue = "SELECT 
+                        COALESCE((SELECT SUM(et.pendapatan) 
+                                  FROM `04_event_tiket` et
+                                  JOIN `04_event_booking` eb ON et.id_booking = eb.id_booking
+                                  WHERE MONTH(eb.tanggal_selesai) = MONTH(CURDATE())
+                                  AND YEAR(eb.tanggal_selesai) = '$year'), 0) +
+                        COALESCE((SELECT SUM(sp.nilai) 
+                                  FROM `04_event_sponsorship` sp
+                                  JOIN `04_event_booking` eb ON sp.id_booking = eb.id_booking
+                                  WHERE sp.status_bayar = 'paid' 
+                                  AND MONTH(eb.tanggal_selesai) = MONTH(CURDATE())
+                                  AND YEAR(eb.tanggal_selesai) = '$year'), 0) as total";
+$result_event_revenue = $conn->query($sql_event_revenue);
+$event_revenue = $result_event_revenue->fetch_assoc()['total'];
+
+// 3c. PARKING REVENUE (Bulan Ini)
+$sql_parking_revenue = "SELECT COALESCE(SUM(total_revenue), 0) as total 
+                        FROM `06_daily_parking_summary`
+                        WHERE MONTH(created_at) = MONTH(CURDATE())
+                        AND YEAR(created_at) = '$year'";
+$result_parking_revenue = $conn->query($sql_parking_revenue);
+$parking_revenue = $result_parking_revenue->fetch_assoc()['total'];
+
+// 3d. IKLAN REVENUE (Bulan Ini)
+$sql_ads_revenue = "SELECT COALESCE(SUM(monthly_fee), 0) as total 
+                    FROM `06_ad_contracts` 
+                    WHERE billing_status = 'paid' 
+                    AND MONTH(created_at) = MONTH(CURDATE())
+                    AND YEAR(created_at) = '$year'";
+$result_ads_revenue = $conn->query($sql_ads_revenue);
+$ads_revenue = $result_ads_revenue->fetch_assoc()['total'];
+
+// 3e. TOTAL REVENUE BULAN INI
+$total_revenue_month = $tenant_revenue + $event_revenue + $parking_revenue + $ads_revenue;
 
 // =====================================================
-// 4. EVENT PERFORMANCE
+// 4. EVENT HARI INI (REAL-TIME)
 // =====================================================
-$sql_events = "SELECT 
-                    eb.nama_event,
-                    eb.tanggal_mulai,
-                    COALESCE(SUM(et.pendapatan), 0) as revenue,
-                    COALESCE(SUM(et.terjual), 0) as sold
-                FROM `04_event_booking` eb
-                LEFT JOIN `04_event_tiket` et ON eb.id_booking = et.id_booking
-                WHERE eb.status = 'approved' OR eb.status = 'completed'
-                GROUP BY eb.id_booking
-                ORDER BY eb.tanggal_mulai DESC
-                LIMIT 3";
-
-$result_events = $conn->query($sql_events);
-$events = [];
-while ($row = $result_events->fetch_assoc()) {
-    $events[] = $row;
-}
-
-// Total event stats
-$sql_event_stats = "SELECT 
-                        COUNT(DISTINCT eb.id_booking) as total_events,
-                        COALESCE(SUM(et.pendapatan), 0) as total_revenue,
-                        COALESCE(SUM(et.terjual), 0) as total_participants
+$sql_events_today = "SELECT 
+                        eb.nama_event,
+                        eb.tanggal_mulai,
+                        eb.tanggal_selesai,
+                        COALESCE(SUM(et.pendapatan), 0) as revenue,
+                        COALESCE(SUM(et.terjual), 0) as sold
                     FROM `04_event_booking` eb
                     LEFT JOIN `04_event_tiket` et ON eb.id_booking = et.id_booking
-                    WHERE eb.status = 'approved' OR eb.status = 'completed'";
+                    WHERE (eb.status = 'approved' OR eb.status = 'completed')
+                    AND CURDATE() BETWEEN eb.tanggal_mulai AND eb.tanggal_selesai
+                    GROUP BY eb.id_booking
+                    ORDER BY eb.tanggal_mulai DESC
+                    LIMIT 3";
 
-$result_event_stats = $conn->query($sql_event_stats);
-$event_stats = $result_event_stats->fetch_assoc();
-$total_events = $event_stats['total_events'] ?? 0;
-$total_event_revenue = $event_stats['total_revenue'] ?? 0;
-$total_participants = $event_stats['total_participants'] ?? 0;
+$result_events_today = $conn->query($sql_events_today);
+$events_today = [];
+while ($row = $result_events_today->fetch_assoc()) {
+    $events_today[] = $row;
+}
+
+// Total Event Hari Ini
+$sql_event_count_today = "SELECT COUNT(*) as total 
+                          FROM `04_event_booking` 
+                          WHERE (status = 'approved' OR status = 'completed')
+                          AND CURDATE() BETWEEN tanggal_mulai AND tanggal_selesai";
+$result_event_count = $conn->query($sql_event_count_today);
+$total_events_today = $result_event_count->fetch_assoc()['total'] ?? 0;
 
 // =====================================================
-// 5. MAINTENANCE STATS
+// 5. MAINTENANCE (REAL-TIME)
 // =====================================================
 $sql_maintenance = "SELECT 
                         COUNT(*) as total,
@@ -98,30 +117,34 @@ $sql_maintenance = "SELECT
                         SUM(CASE WHEN work_status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
                         SUM(CASE WHEN work_status = 'Assigned' THEN 1 ELSE 0 END) as assigned
                     FROM `03_work_orders`";
-
 $result_maintenance = $conn->query($sql_maintenance);
 $maintenance_stats = $result_maintenance->fetch_assoc();
 
 // =====================================================
-// 6. SIMPAN KE KPI_SNAPSHOTS
+// 6. TOP 5 TENANT (BULAN INI)
 // =====================================================
-$period_type = 'daily';
-$period_date = date('Y-m-d');
-$top_tenants_str = '';
-foreach ($top_tenants as $index => $tenant) {
-    $top_tenants_str .= ($index + 1) . '.' . $tenant['tenant_name'] . ' (Rp ' . number_format($tenant['revenue'], 0, ',', '.') . '), ';
-}
-$top_tenants_str = rtrim($top_tenants_str, ', ');
+$sql_top_tenant = "SELECT 
+                        t.tenant_name,
+                        tc.name as category,
+                        COALESCE(SUM(i.total_amount), 0) as revenue
+                    FROM `02_tenants` t
+                    LEFT JOIN `01_tenant_categories` tc ON t.id_category = tc.id_tenant_categories
+                    LEFT JOIN `06_invoices` i ON t.id_tenant = i.tenant_id AND i.status = 'Lunas'
+                    WHERE t.status = 'Active'
+                    AND MONTH(i.created_at) = MONTH(CURDATE())
+                    AND YEAR(i.created_at) = '$year'
+                    GROUP BY t.id_tenant
+                    ORDER BY revenue DESC
+                    LIMIT 5";
 
-$check_sql = "SELECT snapshot_id FROM `08_kpi_snapshots` WHERE period_type = '$period_type' AND period_date = '$period_date'";
-$check_result = $conn->query($check_sql);
-
-if ($check_result->num_rows == 0) {
-    $insert_sql = "INSERT INTO `08_kpi_snapshots` 
-                   (period_type, period_date, occupancy_rate, total_revenue, top_tenants) 
-                   VALUES 
-                   ('$period_type', '$period_date', '$occupancy_rate', '$total_revenue', '$top_tenants_str')";
-    $conn->query($insert_sql);
+$result_top_tenant = $conn->query($sql_top_tenant);
+$top_tenants = [];
+$tenant_labels = [];
+$tenant_data = [];
+while ($row = $result_top_tenant->fetch_assoc()) {
+    $top_tenants[] = $row;
+    $tenant_labels[] = $row['tenant_name'];
+    $tenant_data[] = $row['revenue'];
 }
 
 // =====================================================
@@ -132,7 +155,7 @@ $page_title = "Dashboard KPI";
 $user_name = "Manager";
 
 $menu_items = [
-    ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard', 'link' => '08_dashboard.php', 'active_page' => '08_dashboard'],
+    ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard KPI', 'link' => '08_dashboard.php', 'active_page' => '08_dashboard'],
     ['icon' => 'fa-solid fa-chart-line', 'label' => 'Laporan', 'link' => '08_laporan.php', 'active_page' => '08_laporan'],
     ['icon' => 'fa-solid fa-check-circle', 'label' => 'Approval', 'link' => '08_approval.php', 'active_page' => '08_approval'],
     ['icon' => 'fa-solid fa-bell', 'label' => 'Notifikasi', 'link' => '08_notifikasi.php', 'active_page' => '08_notifikasi'],
@@ -152,23 +175,23 @@ ob_start();
             <div class="stat-info">
                 <h3><?php echo $occupancy_rate; ?>%</h3>
                 <p>Occupancy Rate</p>
-                <small><?php echo $occupied_units; ?> dari <?php echo $total_units; ?> unit</small>
+                <small><?php echo $occupied_units; ?> dari <?php echo $total_units; ?> unit terisi</small>
             </div>
         </div>
         <div class="stat-card success">
             <div class="stat-icon"><i class="fa-solid fa-money-bill"></i></div>
             <div class="stat-info">
-                <h3>Rp <?php echo number_format($total_revenue / 1000000, 1); ?>M</h3>
-                <p>Total Revenue</p>
-                <small>+<?php echo number_format($unpaid_revenue / 1000000, 1); ?>M belum bayar</small>
+                <h3>Rp <?php echo number_format($revenue_today / 1000000, 1); ?>M</h3>
+                <p>Revenue Hari Ini</p>
+                <small>Update <?php echo date('H:i'); ?></small>
             </div>
         </div>
         <div class="stat-card warning">
             <div class="stat-icon"><i class="fa-solid fa-calendar"></i></div>
             <div class="stat-info">
-                <h3><?php echo $total_events; ?></h3>
-                <p>Event</p>
-                <small><?php echo number_format($total_participants); ?> peserta</small>
+                <h3><?php echo $total_events_today; ?></h3>
+                <p>Event Hari Ini</p>
+                <small>Event berlangsung</small>
             </div>
         </div>
         <div class="stat-card danger">
@@ -185,7 +208,7 @@ ob_start();
     <div class="charts-row">
         <div class="chart-box">
             <div class="card-chart">
-                <h5 class="card-title">Tenant Performance (Top 5)</h5>
+                <h5 class="card-title">Tenant Performance (Top 5 - Bulan Ini)</h5>
                 <div class="chart-wrapper">
                     <canvas id="tenantChart"></canvas>
                 </div>
@@ -193,7 +216,7 @@ ob_start();
         </div>
         <div class="chart-box">
             <div class="card-chart">
-                <h5 class="card-title">Revenue Breakdown</h5>
+                <h5 class="card-title">Revenue Breakdown (Bulan Ini)</h5>
                 <div class="chart-wrapper pie-wrapper">
                     <canvas id="revenueChart"></canvas>
                 </div>
@@ -201,14 +224,14 @@ ob_start();
         </div>
     </div>
 
-    <!-- ROW 3: Event & Maintenance (dengan jarak yang jelas) -->
+    <!-- ROW 3: Event & Maintenance -->
     <div class="row mt-4">
         <div class="col-md-6 mb-4">
             <div class="card-table h-100">
-                <h5 class="card-title"><i class="fa-solid fa-calendar-check"></i> Event Performance</h5>
-                <?php if (count($events) > 0): ?>
+                <h5 class="card-title"><i class="fa-solid fa-calendar-check"></i> Event Hari Ini</h5>
+                <?php if (count($events_today) > 0): ?>
                     <div class="event-list">
-                        <?php foreach ($events as $event): ?>
+                        <?php foreach ($events_today as $event): ?>
                             <div class="event-item">
                                 <div class="event-info">
                                     <strong><?php echo $event['nama_event']; ?></strong>
@@ -222,7 +245,7 @@ ob_start();
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <p class="text-muted text-center py-3">Belum ada data event</p>
+                    <p class="text-muted text-center py-3">Tidak ada event hari ini</p>
                 <?php endif; ?>
             </div>
         </div>
@@ -662,8 +685,8 @@ ob_start();
     // CHART: REVENUE BREAKDOWN (Doughnut)
     // =============================================
     const ctx2 = document.getElementById('revenueChart').getContext('2d');
-    const eventRevenue = <?php echo $total_event_revenue; ?>;
-    const tenantRevenue = <?php echo $total_revenue; ?>;
+    const tenantRevenue = <?php echo $tenant_revenue; ?>;
+    const eventRevenue = <?php echo $event_revenue; ?>;
 
     new Chart(ctx2, {
         type: 'doughnut',
