@@ -1,6 +1,14 @@
 <?php
 require_once '../../config/konek.php';
+require_once '../../vendor/autoload.php';
 // require_once __DIR__ . '/../../public/auth/checkSession.php';
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Font;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 $nama_bulan = [
     'January' => 'Januari',
@@ -17,10 +25,17 @@ $nama_bulan = [
     'December' => 'Desember'
 ];
 
-// =====================================================
-// FUNGSI NAMA FILE CSV
-// =====================================================
-function generateFileNameCSV($period_type, $period_date, $nama_bulan)
+function formatTanggalIndo($tanggal, $nama_bulan)
+{
+    $timestamp = strtotime($tanggal);
+    $hari = date('d', $timestamp);
+    $bulanInggris = date('F', $timestamp);
+    $bulanIndo = $nama_bulan[$bulanInggris] ?? $bulanInggris;
+    $tahun = date('Y', $timestamp);
+    return "$hari $bulanIndo $tahun";
+}
+
+function generateFileName($period_type, $period_date, $nama_bulan)
 {
     $timestamp = strtotime($period_date);
 
@@ -55,7 +70,7 @@ function generateFileNameCSV($period_type, $period_date, $nama_bulan)
             $date_part = $period_date;
     }
 
-    return "Laporan_{$label}_{$date_part}.csv";
+    return "Laporan_{$label}_{$date_part}.xlsx";
 }
 
 function calculateKPIDirect($conn, $period_type, $period_date)
@@ -233,16 +248,6 @@ if ($period_type == 'weekly' && !isset($_GET['date'])) {
     $period_date = date('Y-m-d', strtotime('monday this week'));
 }
 
-// =====================================================
-// FORMAT TANGGAL INDONESIA UNTUK JUDUL
-// =====================================================
-$timestamp = strtotime($period_date);
-$hari = date('d', $timestamp);
-$bulanInggris = date('F', $timestamp);
-$bulanIndo = $nama_bulan[$bulanInggris] ?? $bulanInggris;
-$tahun = date('Y', $timestamp);
-$tanggal_indonesia = "$hari $bulanIndo $tahun";
-
 // Tentukan judul laporan berdasarkan tipe periode
 $judul_laporan = [
     'daily' => 'LAPORAN HARIAN',
@@ -294,44 +299,8 @@ if ($isActive) {
 }
 
 // =====================================================
-// GENERATE CSV
+// AMBIL TOP TENANT (FILTER PER PERIODE)
 // =====================================================
-header('Content-Type: text/csv');
-$filenameCSV = generateFileNameCSV($period_type, $period_date, $nama_bulan);
-header('Content-Disposition: attachment; filename="' . $filenameCSV . '"');
-
-$output = fopen('php://output', 'w');
-
-// =====================================================
-// 1. JUDUL & PERIODE
-// =====================================================
-fputcsv($output, [$judul_laporan]);
-fputcsv($output, ['Periode', $tanggal_indonesia]);
-fputcsv($output, []);
-
-// =====================================================
-// 2. RINCIAN PENDAPATAN
-// =====================================================
-fputcsv($output, ['RINCIAN PENDAPATAN']);
-fputcsv($output, ['Pendapatan Tenant', 'Rp ' . number_format($data['tenant_revenue'] ?? 0, 0, ',', '.')]);
-fputcsv($output, ['Pendapatan Event', 'Rp ' . number_format($data['event_revenue'] ?? 0, 0, ',', '.')]);
-fputcsv($output, ['Pendapatan Parkir', 'Rp ' . number_format($data['parking_revenue'] ?? 0, 0, ',', '.')]);
-fputcsv($output, ['Pendapatan Iklan', 'Rp ' . number_format($data['ads_revenue'] ?? 0, 0, ',', '.')]);
-fputcsv($output, ['TOTAL PENDAPATAN', 'Rp ' . number_format($data['total_revenue'] ?? 0, 0, ',', '.')]);
-fputcsv($output, []);
-
-// =====================================================
-// 3. OPERASIONAL
-// =====================================================
-fputcsv($output, ['OPERASIONAL']);
-fputcsv($output, ['Tingkat Hunian', $data['occupancy_rate'] . '%']);
-fputcsv($output, ['Unit Terisi', ($data['occupied_units'] ?? 0) . ' dari ' . ($data['total_units'] ?? 0)]);
-fputcsv($output, []);
-
-// =====================================================
-// 4. AMBIL TOP TENANT (FILTER PER PERIODE)
-// =====================================================
-// Tentukan rentang tanggal untuk top tenant
 switch ($period_type) {
     case 'daily':
         $start_date = $period_date;
@@ -378,25 +347,116 @@ if ($result_top->num_rows == 0) {
 }
 
 // =====================================================
-// 5. TOP 5 TENANT
+// TAMBAHKAN INI - KONVERSI DATA KE ARRAY
 // =====================================================
-fputcsv($output, ['TOP 5 TENANT']);
-fputcsv($output, ['#', 'Tenant', 'Total Pendapatan']);
-
-$no = 1;
+$top_tenants = [];
 while ($row = $result_top->fetch_assoc()) {
-    fputcsv($output, [
-        $no++,
-        $row['tenant_name'],
-        'Rp ' . number_format($row['total'], 0, ',', '.')
-    ]);
+    $top_tenants[] = $row;
 }
 
 // =====================================================
-// 6. FOOTER
+// BUAT EXCEL (.xlsx)
 // =====================================================
-fputcsv($output, []);
-fputcsv($output, ['Dibuat pada: ' . date('d-m-Y H:i:s')]);
+$spreadsheet = new Spreadsheet();
+$sheet = $spreadsheet->getActiveSheet();
 
-fclose($output);
+// ----- JUDUL -----
+$sheet->setCellValue('A1', 'MALL MANAGEMENT SYSTEM');
+$sheet->mergeCells('A1:C1');
+$sheet->getStyle('A1')->getFont()->setSize(16)->setBold(true);
+$sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+$sheet->setCellValue('A2', $judul_laporan);
+$sheet->mergeCells('A2:C2');
+$sheet->getStyle('A2')->getFont()->setSize(14)->setBold(true);
+$sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+$sheet->setCellValue('A3', 'Periode: ' . formatTanggalIndo($period_date, $nama_bulan));
+$sheet->mergeCells('A3:C3');
+$sheet->getStyle('A3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+// ----- REVENUE BREAKDOWN (BAHASA INDONESIA) -----
+$row = 5;
+$sheet->setCellValue("A$row", 'RINCIAN PENDAPATAN');
+$sheet->mergeCells("A$row:C$row");
+$sheet->getStyle("A$row")->getFont()->setBold(true)->setSize(12);
+
+$row = 6;
+$sheet->setCellValue("A$row", 'Pendapatan Tenant');
+$sheet->setCellValue("B$row", 'Rp ' . number_format($data['tenant_revenue'] ?? 0, 0, ',', '.'));
+$sheet->setCellValue("C$row", '');
+
+$row = 7;
+$sheet->setCellValue("A$row", 'Pendapatan Event');
+$sheet->setCellValue("B$row", 'Rp ' . number_format($data['event_revenue'] ?? 0, 0, ',', '.'));
+
+$row = 8;
+$sheet->setCellValue("A$row", 'Pendapatan Parkir');
+$sheet->setCellValue("B$row", 'Rp ' . number_format($data['parking_revenue'] ?? 0, 0, ',', '.'));
+
+$row = 9;
+$sheet->setCellValue("A$row", 'Pendapatan Iklan');
+$sheet->setCellValue("B$row", 'Rp ' . number_format($data['ads_revenue'] ?? 0, 0, ',', '.'));
+
+$row = 10;
+$sheet->setCellValue("A$row", 'TOTAL PENDAPATAN');
+$sheet->setCellValue("B$row", 'Rp ' . number_format($data['total_revenue'] ?? 0, 0, ',', '.'));
+$sheet->getStyle("A$row:B$row")->getFont()->setBold(true);
+$sheet->getStyle("A$row:B$row")->getFill()
+    ->setFillType(Fill::FILL_SOLID)
+    ->getStartColor()->setARGB('FFFFC107');
+
+// ----- OPERASIONAL -----
+$row = 12;
+$sheet->setCellValue("A$row", 'OPERASIONAL');
+$sheet->mergeCells("A$row:C$row");
+$sheet->getStyle("A$row")->getFont()->setBold(true)->setSize(12);
+
+$row = 13;
+$sheet->setCellValue("A$row", 'Tingkat Hunian');
+$sheet->setCellValue("B$row", $data['occupancy_rate'] . '%');
+$sheet->setCellValue("C$row", 'Terisi ' . ($data['occupied_units'] ?? 0) . ' dari ' . ($data['total_units'] ?? 0) . ' unit');
+
+// ----- TOP 5 TENANT -----
+$row = 15;
+$sheet->setCellValue("A$row", 'TOP 5 TENANT');
+$sheet->mergeCells("A$row:C$row");
+$sheet->getStyle("A$row")->getFont()->setBold(true)->setSize(12);
+
+$row = 16;
+$sheet->setCellValue("A$row", '#');
+$sheet->setCellValue("B$row", 'Tenant');
+$sheet->setCellValue("C$row", 'Total Pendapatan');
+$sheet->getStyle("A$row:C$row")->getFont()->setBold(true);
+$sheet->getStyle("A$row:C$row")->getFill()
+    ->setFillType(Fill::FILL_SOLID)
+    ->getStartColor()->setARGB('FFE0E0E0');
+
+$no = 1;
+foreach ($top_tenants as $tenant) {
+    $row++;
+    $sheet->setCellValue("A$row", $no++);
+    $sheet->setCellValue("B$row", $tenant['tenant_name']);
+    $sheet->setCellValue("C$row", 'Rp ' . number_format($tenant['total'], 0, ',', '.'));
+}
+
+// ----- FOOTER -----
+$row++;
+$row++;
+$sheet->setCellValue("A$row", 'Dibuat pada: ' . date('d-m-Y H:i:s'));
+$sheet->mergeCells("A$row:C$row");
+$sheet->getStyle("A$row")->getFont()->setSize(10);
+$sheet->getStyle("A$row")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+// ----- AUTO SIZE -----
+foreach (range('A', 'C') as $col) {
+    $sheet->getColumnDimension($col)->setAutoSize(true);
+}
+
+// ----- OUTPUT -----
+$writer = new Xlsx($spreadsheet);
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+$filename = generateFileName($period_type, $period_date, $nama_bulan);
+header('Content-Disposition: attachment; filename="' . $filename . '"');
+$writer->save('php://output');
 exit;

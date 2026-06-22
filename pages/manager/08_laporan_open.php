@@ -17,47 +17,6 @@ $nama_bulan = [
     'December' => 'Desember'
 ];
 
-// =====================================================
-// FUNGSI NAMA FILE CSV
-// =====================================================
-function generateFileNameCSV($period_type, $period_date, $nama_bulan)
-{
-    $timestamp = strtotime($period_date);
-
-    switch ($period_type) {
-        case 'daily':
-            $hari = date('d', $timestamp);
-            $bulan = $nama_bulan[date('F', $timestamp)] ?? date('F', $timestamp);
-            $tahun = date('Y', $timestamp);
-            $label = 'Harian';
-            $date_part = "$hari $bulan $tahun";
-            break;
-        case 'weekly':
-            $hari = date('d', $timestamp);
-            $bulan = $nama_bulan[date('F', $timestamp)] ?? date('F', $timestamp);
-            $tahun = date('Y', $timestamp);
-            $label = 'Mingguan';
-            $date_part = "$hari $bulan $tahun";
-            break;
-        case 'monthly':
-            $bulan = $nama_bulan[date('F', $timestamp)] ?? date('F', $timestamp);
-            $tahun = date('Y', $timestamp);
-            $label = 'Bulanan';
-            $date_part = "$bulan $tahun";
-            break;
-        case 'annual':
-            $tahun = date('Y', $timestamp);
-            $label = 'Tahunan';
-            $date_part = $tahun;
-            break;
-        default:
-            $label = ucfirst($period_type);
-            $date_part = $period_date;
-    }
-
-    return "Laporan_{$label}_{$date_part}.csv";
-}
-
 function calculateKPIDirect($conn, $period_type, $period_date)
 {
     // Tentukan rentang tanggal
@@ -199,7 +158,7 @@ function calculateKPIDirect($conn, $period_type, $period_date)
 }
 
 // =====================================================
-// LOGIKA SNAPSHOT:
+// LOGIKA SNAPSHOT
 // =====================================================
 function isPeriodActive($period_type, $period_date)
 {
@@ -228,28 +187,9 @@ function isPeriodActive($period_type, $period_date)
 $period_type = $_GET['period'] ?? 'daily';
 $period_date = $_GET['date'] ?? date('Y-m-d');
 
-// Penyesuaian untuk weekly
 if ($period_type == 'weekly' && !isset($_GET['date'])) {
     $period_date = date('Y-m-d', strtotime('monday this week'));
 }
-
-// =====================================================
-// FORMAT TANGGAL INDONESIA UNTUK JUDUL
-// =====================================================
-$timestamp = strtotime($period_date);
-$hari = date('d', $timestamp);
-$bulanInggris = date('F', $timestamp);
-$bulanIndo = $nama_bulan[$bulanInggris] ?? $bulanInggris;
-$tahun = date('Y', $timestamp);
-$tanggal_indonesia = "$hari $bulanIndo $tahun";
-
-// Tentukan judul laporan berdasarkan tipe periode
-$judul_laporan = [
-    'daily' => 'LAPORAN HARIAN',
-    'weekly' => 'LAPORAN MINGGUAN',
-    'monthly' => 'LAPORAN BULANAN',
-    'annual' => 'LAPORAN TAHUNAN'
-][$period_type] ?? strtoupper($period_type);
 
 // =====================================================
 // AMBIL DATA (HYBRID: REAL-TIME ATAU SNAPSHOT)
@@ -258,7 +198,7 @@ $data = null;
 $isActive = isPeriodActive($period_type, $period_date);
 
 if ($isActive) {
-    // Periode aktif (masih berjalan) → hitung real-time
+    // Periode aktif → hitung real-time
     $data = calculateKPIDirect($conn, $period_type, $period_date);
 } else {
     // Periode sudah lewat → cari di snapshot
@@ -294,42 +234,41 @@ if ($isActive) {
 }
 
 // =====================================================
-// GENERATE CSV
+// FORMAT JUDUL (BAHASA INDONESIA)
 // =====================================================
-header('Content-Type: text/csv');
-$filenameCSV = generateFileNameCSV($period_type, $period_date, $nama_bulan);
-header('Content-Disposition: attachment; filename="' . $filenameCSV . '"');
+function formatPeriodTitlePrint($period_type, $period_date, $nama_bulan)
+{
+    switch ($period_type) {
+        case 'daily':
+            $hari = date('d', strtotime($period_date));
+            $bulanInggris = date('F', strtotime($period_date));
+            $bulanIndo = $nama_bulan[$bulanInggris] ?? $bulanInggris;
+            $tahun = date('Y', strtotime($period_date));
+            return "$hari $bulanIndo $tahun";
+        case 'weekly':
+            $start = date('d', strtotime($period_date));
+            $bulanStart = $nama_bulan[date('F', strtotime($period_date))] ?? date('F', strtotime($period_date));
+            $tahunStart = date('Y', strtotime($period_date));
 
-$output = fopen('php://output', 'w');
+            $end = date('d', strtotime($period_date . ' +6 days'));
+            $bulanEnd = $nama_bulan[date('F', strtotime($period_date . ' +6 days'))] ?? date('F', strtotime($period_date . ' +6 days'));
+            $tahunEnd = date('Y', strtotime($period_date . ' +6 days'));
+
+            return "Minggu ke-" . date('W', strtotime($period_date)) . " ($start $bulanStart $tahunStart - $end $bulanEnd $tahunEnd)";
+        case 'monthly':
+            $bulanInggris = date('F', strtotime($period_date));
+            $bulanIndo = $nama_bulan[$bulanInggris] ?? $bulanInggris;
+            $tahun = date('Y', strtotime($period_date));
+            return "$bulanIndo $tahun";
+        case 'annual':
+            return 'Tahun ' . $period_date;
+        default:
+            return $period_date;
+    }
+}
 
 // =====================================================
-// 1. JUDUL & PERIODE
-// =====================================================
-fputcsv($output, [$judul_laporan]);
-fputcsv($output, ['Periode', $tanggal_indonesia]);
-fputcsv($output, []);
-
-// =====================================================
-// 2. RINCIAN PENDAPATAN
-// =====================================================
-fputcsv($output, ['RINCIAN PENDAPATAN']);
-fputcsv($output, ['Pendapatan Tenant', 'Rp ' . number_format($data['tenant_revenue'] ?? 0, 0, ',', '.')]);
-fputcsv($output, ['Pendapatan Event', 'Rp ' . number_format($data['event_revenue'] ?? 0, 0, ',', '.')]);
-fputcsv($output, ['Pendapatan Parkir', 'Rp ' . number_format($data['parking_revenue'] ?? 0, 0, ',', '.')]);
-fputcsv($output, ['Pendapatan Iklan', 'Rp ' . number_format($data['ads_revenue'] ?? 0, 0, ',', '.')]);
-fputcsv($output, ['TOTAL PENDAPATAN', 'Rp ' . number_format($data['total_revenue'] ?? 0, 0, ',', '.')]);
-fputcsv($output, []);
-
-// =====================================================
-// 3. OPERASIONAL
-// =====================================================
-fputcsv($output, ['OPERASIONAL']);
-fputcsv($output, ['Tingkat Hunian', $data['occupancy_rate'] . '%']);
-fputcsv($output, ['Unit Terisi', ($data['occupied_units'] ?? 0) . ' dari ' . ($data['total_units'] ?? 0)]);
-fputcsv($output, []);
-
-// =====================================================
-// 4. AMBIL TOP TENANT (FILTER PER PERIODE)
+// AMBIL TOP TENANT (FILTER PER PERIODE)
 // =====================================================
 // Tentukan rentang tanggal untuk top tenant
 switch ($period_type) {
@@ -376,27 +315,176 @@ if ($result_top->num_rows == 0) {
                  ORDER BY total DESC LIMIT 5";
     $result_top = $conn->query($sql_top2);
 }
+?>
 
-// =====================================================
-// 5. TOP 5 TENANT
-// =====================================================
-fputcsv($output, ['TOP 5 TENANT']);
-fputcsv($output, ['#', 'Tenant', 'Total Pendapatan']);
+<!DOCTYPE html>
+<html>
 
-$no = 1;
-while ($row = $result_top->fetch_assoc()) {
-    fputcsv($output, [
-        $no++,
-        $row['tenant_name'],
-        'Rp ' . number_format($row['total'], 0, ',', '.')
-    ]);
-}
+<head>
+    <meta charset="UTF-8">
+    <title>Laporan <?php echo strtoupper($period_type); ?> - Mall Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+        }
 
-// =====================================================
-// 6. FOOTER
-// =====================================================
-fputcsv($output, []);
-fputcsv($output, ['Dibuat pada: ' . date('d-m-Y H:i:s')]);
+        .laporan-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
 
-fclose($output);
-exit;
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+        }
+
+        .header h2 {
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            margin: 0;
+            color: #666;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .text-end {
+            text-align: right;
+        }
+
+        .total-row {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                margin: 0;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="laporan-container">
+        <div class="header">
+            <h2>MALL MANAGEMENT SYSTEM</h2>
+            <h3>
+                <?php
+                $judul_laporan = [
+                    'daily' => 'LAPORAN HARIAN',
+                    'weekly' => 'LAPORAN MINGGUAN',
+                    'monthly' => 'LAPORAN BULANAN',
+                    'annual' => 'LAPORAN TAHUNAN'
+                ][$period_type] ?? strtoupper($period_type);
+                echo $judul_laporan;
+                ?>
+            </h3>
+            <p><?php echo formatPeriodTitlePrint($period_type, $period_date, $nama_bulan); ?></p>
+        </div>
+
+        <h5>RINCIAN PENDAPATAN</h5>
+        <table>
+            <tr>
+                <td width="70%"><strong>Pendapatan Tenant</strong></td>
+                <td class="text-end">Rp <?php echo number_format($data['tenant_revenue'] ?? 0, 0, ',', '.'); ?></td>
+            </tr>
+            <tr>
+                <td><strong>Pendapatan Event</strong></td>
+                <td class="text-end">Rp <?php echo number_format($data['event_revenue'] ?? 0, 0, ',', '.'); ?></td>
+            </tr>
+            <tr>
+                <td><strong>Pendapatan Parkir</strong></td>
+                <td class="text-end">Rp <?php echo number_format($data['parking_revenue'] ?? 0, 0, ',', '.'); ?></td>
+            </tr>
+            <tr>
+                <td><strong>Pendapatan Iklan</strong></td>
+                <td class="text-end">Rp <?php echo number_format($data['ads_revenue'] ?? 0, 0, ',', '.'); ?></td>
+            </tr>
+            <tr class="total-row">
+                <td><strong>TOTAL PENDAPATAN</strong></td>
+                <td class="text-end"><strong>Rp <?php echo number_format($data['total_revenue'] ?? 0, 0, ',', '.'); ?></strong></td>
+            </tr>
+        </table>
+
+        <h5>OPERASIONAL</h5>
+        <table>
+            <tr>
+                <td width="50%"><strong>Tingkat Hunian</strong></td>
+                <td><?php echo $data['occupancy_rate'] ?? 0; ?>%</td>
+                <td>Terisi <?php echo $data['occupied_units'] ?? 0; ?> dari <?php echo $data['total_units'] ?? 0; ?> unit</td>
+            </tr>
+        </table>
+
+        <h5>TOP 5 TENANT</h5>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tenant</th>
+                    <th class="text-end">Total Pendapatan</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $no = 1;
+                while ($row = $result_top->fetch_assoc()):
+                ?>
+                    <tr>
+                        <td><?php echo $no++; ?></td>
+                        <td><?php echo $row['tenant_name']; ?></td>
+                        <td class="text-end">Rp <?php echo number_format($row['total'], 0, ',', '.'); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+
+        <div class="footer">
+            <p>Dibuat pada: <?php echo date('d-m-Y H:i:s'); ?></p>
+        </div>
+        <div class="text-center mt-4 no-print">
+            <button onclick="window.close()" class="btn btn-secondary">Tutup</button>
+        </div>
+    </div>
+</body>
+
+</html>
