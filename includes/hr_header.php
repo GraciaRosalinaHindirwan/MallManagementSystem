@@ -25,6 +25,7 @@ $user_name  = $user_name  ?? 'HR Admin';
     <title><?= htmlspecialchars($page_title) ?> — Mall Management System</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/public/asset/css/designSystem.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/public/asset/css/template.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/asset/css/hr.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -46,7 +47,7 @@ $user_name  = $user_name  ?? 'HR Admin';
                 <i class="fa-solid fa-gauge"></i> Dashboard
             </a>
             <a href="<?= BASE_URL ?>/pages/HR/pegawai/index.php"
-               class="nav-item <?= (in_array($current_page, ['index','tambah','edit']) && strpos($_SERVER['PHP_SELF'], 'pegawai') !== false) ? 'active' : '' ?>">
+               class="nav-item <?= (in_array($current_page, ['index','tambah','edit','detail']) && strpos($_SERVER['PHP_SELF'], 'pegawai') !== false) ? 'active' : '' ?>">
                 <i class="fa-solid fa-users"></i> Data Pegawai
             </a>
             <a href="<?= BASE_URL ?>/pages/HR/shift/index.php"
@@ -93,10 +94,10 @@ $user_name  = $user_name  ?? 'HR Admin';
 
         <script>
             (function () {
-                const menuToggle  = document.getElementById('menuToggle');
-                const sidebar     = document.getElementById('sidebar');
+                const menuToggle   = document.getElementById('menuToggle');
+                const sidebar      = document.getElementById('sidebar');
                 const sidebarClose = document.getElementById('sidebarClose');
-                const body        = document.body;
+                const body         = document.body;
 
                 if (!menuToggle || !sidebar) return;
 
