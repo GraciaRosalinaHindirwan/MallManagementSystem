@@ -195,6 +195,7 @@ $page_title = $page_title ?? 'Customer Service ';
             });
         })();
     </script>
+    <?php if (isset($extraScript)) echo $extraScript; ?>
 </body>
 
 </html>

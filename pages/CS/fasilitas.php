@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../auth/checkSession.php';
+// require_once __DIR__ . '/../../auth/checkSession.php';
 session_start();
 require_once __DIR__ . '/../../config/database.php';
 
@@ -9,13 +9,12 @@ function sanitize(string $val): string {
     return htmlspecialchars(strip_tags(trim($val)), ENT_QUOTES, 'UTF-8');
 }
 
-$floors = [];
-if ($conn) {
-    $res    = $conn->query("SELECT * FROM `01_floors` ORDER BY id_floors ASC");
-    $floors = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
-}
+// $floors = [];
+// if ($conn) {
+//     $res    = $conn->query("SELECT * FROM `01_floors` ORDER BY id_floors ASC");
+//     $floors = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+// }
 
-$filterFloor = isset($_GET['floor']) ? (int)$_GET['floor']     : 0;
 $filterJenis = isset($_GET['jenis']) ? sanitize($_GET['jenis']) : '';
 
 $facilities = [];
@@ -24,23 +23,15 @@ if ($conn) {
     $params = [];
     $types  = '';
 
-    if ($filterFloor > 0) {
-        $where[]  = "f.id_floor = ?";
-        $params[] = $filterFloor;
-        $types   .= 'i';
-    }
     if ($filterJenis !== '') {
-        $where[]  = "f.jenis = ?";
+        $where[]  = "category = ?";
         $params[] = $filterJenis;
         $types   .= 's';
     }
 
-    $whereStr = implode(' AND ', $where);
-    $sql = "SELECT f.*, fl.floor_number
-            FROM `05_facilities` f
-            LEFT JOIN `01_floors` fl ON f.id_floor = fl.id_floors
-            WHERE $whereStr
-            ORDER BY fl.id_floors ASC, f.jenis ASC, f.nama_fasilitas ASC";
+    $sql = "SELECT *
+        FROM `03_assets`
+        ORDER BY category ASC, name ASC";
 
     if (!empty($params)) {
         $stmt = $conn->prepare($sql);
@@ -68,17 +59,16 @@ $jenisIcon  = [
 ];
 
 if ($conn) {
-    $res = $conn->query("SELECT jenis, COUNT(*) as total FROM `05_facilities` GROUP BY jenis");
-    if ($res) {
-        while ($row = $res->fetch_assoc()) {
-            $jenisCount[$row['jenis']] = (int)$row['total'];
-        }
-    }
+    $res = $conn->query("SELECT category, COUNT(*) as total FROM `03_assets` GROUP BY category");
+
+while ($row = $res->fetch_assoc()) {
+    $jenisCount[$row['category']] = (int)$row['total'];
 }
+    }
 
 $grouped = [];
 foreach ($facilities as $fac) {
-    $key = 'Lantai ' . ($fac['floor_number'] ?? 'Tidak Diketahui');
+    $key = $fac['category'];
     $grouped[$key][] = $fac;
 }
 
@@ -89,7 +79,7 @@ ob_start();
 <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:12px; margin-bottom:20px;">
     <?php foreach ($jenisList as $jenis): ?>
     <?php $count = $jenisCount[$jenis] ?? 0; $isActive = $filterJenis === $jenis; ?>
-    <a href="?jenis=<?= urlencode($jenis) ?>&floor=<?= $filterFloor ?>"
+    <a href="?jenis=<?= urlencode($jenis) ?>"
        style="background:<?= $isActive ? 'rgba(0,212,216,0.1)' : 'rgba(255,255,255,0.05)' ?>; border:1px solid <?= $isActive ? 'rgba(0,212,216,0.5)' : 'rgba(255,255,255,0.1)' ?>; border-radius:12px; padding:16px 12px; text-align:center; text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:6px; transition:all 0.2s;"
        onmouseover="this.style.borderColor='rgba(0,212,216,0.4)'"
        onmouseout="this.style.borderColor='<?= $isActive ? 'rgba(0,212,216,0.5)' : 'rgba(255,255,255,0.1)' ?>'">
@@ -103,14 +93,6 @@ ob_start();
 <!-- Filter -->
 <div class="card" style="margin-bottom:20px;">
     <form method="GET" action="" style="display:flex; flex-wrap:wrap; align-items:center; gap:12px;">
-        <select name="floor" style="padding:10px 14px; background:var(--primary-dark,#082A53); border:1px solid rgba(255,255,255,0.12); border-radius:8px; color:var(--text); font-size:14px; outline:none;">
-            <option value="0">Semua Lantai</option>
-            <?php foreach ($floors as $fl): ?>
-            <option value="<?= $fl['id_floors'] ?>" <?= $filterFloor === (int)$fl['id_floors'] ? 'selected' : '' ?>>
-                Lantai <?= sanitize($fl['floor_number']) ?>
-            </option>
-            <?php endforeach; ?>
-        </select>
         <select name="jenis" style="padding:10px 14px; background:var(--primary-dark,#082A53); border:1px solid rgba(255,255,255,0.12); border-radius:8px; color:var(--text); font-size:14px; outline:none;">
             <option value="">Semua Jenis</option>
             <?php foreach ($jenisList as $j): ?>
@@ -161,8 +143,8 @@ ob_start();
              onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
             <div style="display:flex; align-items:start; justify-content:space-between; margin-bottom:8px;">
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <i class="fa-solid <?= $jenisIcon[$fac['jenis']] ?? 'fa-location-dot' ?>" style="color:var(--accent,#00D4D8);"></i>
-                    <p style="font-size:14px; font-weight:600;"><?= sanitize($fac['nama_fasilitas']) ?></p>
+                  <i class="fa-solid <?= $jenisIcon[$fac['category']] ?? 'fa-location-dot' ?>" style="color:var(--accent,#00D4D8);"></i>
+                    <p style="font-size:14px; font-weight:600;"><?= sanitize($fac['name']) ?></p>
                 </div>
                 <span style="font-size:12px; padding:2px 8px; border-radius:20px; border:1px solid; flex-shrink:0; margin-left:8px; <?= $statusColor ?>">
                     <?= sanitize($fac['status']) ?>
@@ -170,7 +152,7 @@ ob_start();
             </div>
             <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
                 <i class="fa-solid fa-location-dot" style="color:rgba(245,247,250,0.3); font-size:12px;"></i>
-                <p style="font-size:13px; color:rgba(245,247,250,0.5);"><?= sanitize($fac['lokasi_detail'] ?? '-') ?></p>
+                <p style="font-size:13px; color:rgba(245,247,250,0.5);"><?= sanitize($fac['current_location'] ?? '-') ?></p>
             </div>
         </div>
         <?php endforeach; ?>
