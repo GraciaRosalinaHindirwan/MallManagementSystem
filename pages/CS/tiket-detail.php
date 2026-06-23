@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../../config/koneksi.php';
-// require_once __DIR__ . '/../../auth/checkSession.php';
 
 $pageTitle   = 'Detail Tiket — Customer Service';
 $currentMenu = 'tiket';
@@ -35,20 +34,22 @@ $log_stmt->execute([$id]);
 $logs = $log_stmt->fetchAll();
 
 $status_label = [
-    'open'        => ['label' => 'Open',     'class' => 'bg-danger/15 text-danger',   'dot' => 'bg-danger'],
-    'in_progress' => ['label' => 'Diproses', 'class' => 'bg-warning/15 text-warning', 'dot' => 'bg-warning'],
-    'resolved'    => ['label' => 'Selesai',  'class' => 'bg-success/15 text-success', 'dot' => 'bg-success'],
+    'open'        => ['label' => 'Open', 'class' => 'bg-danger/15 text-danger'],
+    'in_progress' => ['label' => 'Diproses', 'class' => 'bg-warning/15 text-warning'],
+    'resolved'    => ['label' => 'Selesai', 'class' => 'bg-success/15 text-success'],
 ];
 
 $kategori_label = [
     'facility' => ['label' => 'Facility', 'class' => 'bg-accent/10 text-accent'],
     'security' => ['label' => 'Security', 'class' => 'bg-warning/10 text-warning'],
     'cleaning' => ['label' => 'Cleaning', 'class' => 'bg-success/10 text-success'],
-    'other'    => ['label' => 'Lainnya',  'class' => 'bg-text/10 text-text/60'],
+    'other'    => ['label' => 'Lainnya', 'class' => 'bg-white/10 text-white/60'],
 ];
 
-$breach     = $t['umur_menit'] > $t['sla_menit'] && $t['status'] !== 'resolved';
-$sisa       = $t['sla_menit'] - $t['umur_menit'];
+$breach = $t['umur_menit'] > $t['sla_menit'] && $t['status'] !== 'resolved';
+
+$sisa = $t['sla_menit'] - $t['umur_menit'];
+
 $persen_sla = $t['sla_menit'] > 0
     ? min(100, round(($t['umur_menit'] / $t['sla_menit']) * 100))
     : 0;
@@ -61,7 +62,8 @@ $stat = $status_label[$t['status']] ?? $status_label['open'];
 ob_start();
 ?>
 
-<!-- CSS + Tailwind WAJIB DI SINI (biar gak ilang lagi) -->
+<link rel="stylesheet" href="/public/asset/designSystem.css">
+<link rel="stylesheet" href="/public/asset/templateM05.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -77,14 +79,13 @@ tailwind.config = {
         text: "#F5F7FA",
         danger: "#EF4444",
         warning: "#F59E0B",
-        success: "#22C55E",
+        success: "#22C55E"
       }
     }
   }
 }
 </script>
 
-<!-- PAGE -->
 <div class="flex items-center gap-2 text-caption text-text/40 mb-2">
     <a href="tiket.php" class="hover:text-accent">Semua Tiket</a>
     <i class="bi bi-chevron-right text-xs"></i>
@@ -93,54 +94,61 @@ tailwind.config = {
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    <!-- LEFT -->
     <div class="lg:col-span-2 space-y-4">
 
-        <div class="bg-white/5 border border-border rounded-xl p-5 space-y-4">
+        <div class="cs-card space-y-4">
 
-            <div class="flex justify-between flex-wrap gap-3">
-                <div class="flex gap-2 flex-wrap">
-                    <span class="font-mono text-accent font-semibold">
-                        <?= htmlspecialchars($t['id']) ?>
+            <div class="flex gap-2 flex-wrap">
+                <span class="font-mono text-accent font-semibold">
+                    <?= htmlspecialchars($t['id']) ?>
+                </span>
+
+                <span class="px-2 py-0.5 rounded-full text-caption <?= $kat['class'] ?>">
+                    <?= $kat['label'] ?>
+                </span>
+
+                <span class="px-2 py-0.5 rounded-full text-caption <?= $stat['class'] ?>">
+                    <?= $stat['label'] ?>
+                </span>
+
+                <?php if ($breach): ?>
+                    <span class="px-2 py-0.5 rounded-full text-caption bg-danger/15 text-danger">
+                        SLA Breach
                     </span>
-
-                    <span class="px-2 py-0.5 rounded-full text-caption <?= $kat['class'] ?>">
-                        <?= $kat['label'] ?>
-                    </span>
-
-                    <span class="px-2 py-0.5 rounded-full text-caption <?= $stat['class'] ?>">
-                        <?= $stat['label'] ?>
-                    </span>
-
-                    <?php if ($breach): ?>
-                        <span class="px-2 py-0.5 rounded-full text-caption bg-danger/15 text-danger">
-                            SLA Breach
-                        </span>
-                    <?php endif; ?>
-                </div>
-
-                <a href="tiket.php"
-                   class="px-4 py-1.5 bg-white/5 rounded-lg text-caption">
-                    Kembali
-                </a>
+                <?php endif; ?>
             </div>
 
             <p class="text-caption text-text/40">
                 <?= date('d M Y H:i', strtotime($t['created_at'])) ?>
             </p>
 
-            <div class="border-t border-border pt-3 text-label space-y-2">
-                <p><?= htmlspecialchars($t['deskripsi']) ?></p>
+            <div class="border-t border-border pt-3">
+                <p class="text-label"><?= nl2br(htmlspecialchars($t['deskripsi'])) ?></p>
             </div>
+
+            <?php if (!empty($foto_list)): ?>
+            <div class="border-t border-border pt-3">
+                <p class="text-caption text-text/40 mb-2">Foto</p>
+
+                <div class="flex gap-3 flex-wrap">
+                    <?php foreach ($foto_list as $foto): ?>
+                        <a href="/public/uploads/tiket/<?= htmlspecialchars($foto) ?>" target="_blank"
+                           class="w-24 h-24 rounded-md overflow-hidden border border-border">
+                            <img src="/public/uploads/tiket/<?= htmlspecialchars($foto) ?>"
+                                 class="w-full h-full object-cover">
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
 
         </div>
 
     </div>
 
-    <!-- RIGHT -->
     <div class="space-y-4">
 
-        <div class="bg-white/5 border border-border rounded-xl p-5">
+        <div class="cs-card">
             <p class="text-caption text-text/40">SLA Progress</p>
 
             <div class="w-full bg-white/10 h-2 rounded-full mt-2">
@@ -153,22 +161,25 @@ tailwind.config = {
             </p>
         </div>
 
-        <div class="bg-white/5 border border-border rounded-xl p-5">
+        <div class="cs-card">
             <form method="POST" action="tiket-update-status.php" class="space-y-3">
 
                 <input type="hidden" name="id" value="<?= htmlspecialchars($t['id']) ?>">
 
-                <select name="status_baru" class="w-full bg-white/5 border border-border rounded-lg p-2 text-white" >
-                    <option value="open" style="background-color:#0B376D;color:#F5F7FA">Open</option>
+                <select name="status_baru"
+                        class="cs-input w-full"
+                        style="background:#0B376D;color:#fff">
+                    <option value="open">Open</option>
                     <option value="in_progress">Diproses</option>
                     <option value="resolved">Selesai</option>
                 </select>
 
-                <textarea name="catatan" rows="3"
-                          class="w-full bg-white/5 border border-border rounded-lg p-2 text-white"
+                <textarea name="catatan"
+                          rows="3"
+                          class="cs-input w-full"
                           placeholder="Catatan"></textarea>
 
-                <button class="w-full bg-accent text-black py-2 rounded-lg font-semibold">
+                <button class="cs-btn bg-accent text-black w-full justify-center py-2">
                     Simpan
                 </button>
 
