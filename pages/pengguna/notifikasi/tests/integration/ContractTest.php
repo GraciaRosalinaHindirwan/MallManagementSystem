@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . "/../../infrastructure/queries/mysql/MysqlContractQuery.php";
+require_once __DIR__ . "/db_populate/Prepopulate.php";
 
 use PHPUnit\Framework\TestCase;
 
@@ -13,6 +14,7 @@ class ContractTest extends TestCase
     {
         $this->db = new mysqli("localhost", "root", "", "mall_management");
         $this->db->begin_transaction();
+        Prepopulate::prepopulate_data($this->db, __DIR__ . "/db_populate/populate_contracts.sql");
     }
 
     function testQueryingWithAnIdOfTwo_ShouldGiveTheAppropriateContractNumber()
@@ -21,7 +23,7 @@ class ContractTest extends TestCase
 
         $contract = $contract_query->get_by_id(2);
 
-        $this->assertEquals("CONT-2026-002", $contract->contract_number);
+        $this->assertEquals("TEST-CONT-2026-002", $contract->contract_number);
     }
 
     function testQueryingAll_ShouldHaveTheAppropriateContractNumber()
@@ -30,9 +32,8 @@ class ContractTest extends TestCase
 
         $contracts = $contract_query->get_all();
 
-        $this->assertEquals("CONT-2026-001", $contracts[0]->contract_number);
-        $this->assertEquals("CONT-2026-002", $contracts[1]->contract_number);
-        $this->assertEquals("CONT-2026-003", $contracts[2]->contract_number);
+        $this->assertEquals("TEST-CONT-2026-001", $contracts[0]->contract_number);
+        $this->assertEquals("TEST-CONT-2026-002", $contracts[1]->contract_number);
     }
 
 

@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . "/../../infrastructure/queries/mysql/MysqlUserQuery.php";
+require_once __DIR__ . "/db_populate/Prepopulate.php";
 
 use PHPUnit\Framework\TestCase;
 
@@ -8,11 +9,14 @@ class UserTest extends TestCase
 {
     private mysqli $db;
 
+
     #[Override]
     function setUp(): void
     {
         $this->db = new mysqli("localhost", "root", "", "mall_management");
         $this->db->begin_transaction();
+
+        Prepopulate::prepopulate_data($this->db, __DIR__ . "/db_populate/populate_users.sql");
     }
 
     function testGetById()

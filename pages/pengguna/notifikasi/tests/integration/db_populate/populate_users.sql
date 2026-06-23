@@ -1,3 +1,7 @@
+-- Clear existing data to avoid duplicate PK conflicts
+DELETE FROM `09_users`;
+DELETE FROM `09_role_pages`;
+
 --
 -- Dumping data for table `09_role_pages`
 --
