@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../../config/koneksi.php';
-// require_once __DIR__ . '/../../auth/checkSession.php';
 
 $id         = $_POST['id'] ?? '';
 $status_baru = $_POST['status_baru'] ?? '';
