@@ -2,7 +2,6 @@
 
 require_once __DIR__ . "/../IUserQuery.php";
 
-// this test is extremely fragile but it works for now
 class MysqlsUserQuery implements IUserQuery
 {
     public mysqli $db;

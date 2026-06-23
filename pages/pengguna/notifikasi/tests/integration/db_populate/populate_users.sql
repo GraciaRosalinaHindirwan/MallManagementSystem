@@ -1,12 +1,15 @@
--- Clear existing data to avoid duplicate PK conflicts
-DELETE FROM `09_users`;
-DELETE FROM `09_role_pages`;
+-- Clear existing data and reset AUTO_INCREMENT
+DELETE FROM 09_users;
+DELETE FROM 09_role_pages;
+
+-- TRUNCATE TABLE `09_users`;
+-- TRUNCATE TABLE `09_role_pages`;
 
 --
 -- Dumping data for table `09_role_pages`
 --
 
-INSERT INTO `09_role_pages` (`id`, `role`, `page_permission`) VALUES
+INSERT INTO `09_role_pages` (id, `role`, `page_permission`) VALUES
 (1, 'Super Admin', 'pages/superadmin/*'),
 (2, 'Admin', 'pages/admin/*'),
 (3, 'Manager', 'pages/manager/*'),
@@ -33,7 +36,7 @@ INSERT INTO `09_role_pages` (`id`, `role`, `page_permission`) VALUES
 -- Dumping data for table `09_users`
 --
 
-INSERT INTO `09_users` (`id`, `full_name`, `username`, `email`, `password`, `must_change_password`, `role_page_id`, `failed_login_attempts`, `is_blocked`) VALUES
+INSERT INTO `09_users` (id, `full_name`, `username`, `email`, `password`, `must_change_password`, `role_page_id`, `failed_login_attempts`, `is_blocked`) VALUES
 (1, 'Super Admin', 'superadmin', 'superadmin@mall.com', 'admin123', 0, 1, 0, 0),
 (2, 'Admin Mall', 'admin', 'admin@mall.com', 'admin123', 1, 2, 0, 0),
 (3, 'Manager Mall', 'manager', 'manager@mall.com', 'manager123', 1, 3, 0, 0),
@@ -50,15 +53,3 @@ INSERT INTO `09_users` (`id`, `full_name`, `username`, `email`, `password`, `mus
 (14, 'Petugas Parkir A', 'parkir', 'parkir@mall.com', 'parkir123', 1, 15, 0, 0),
 (15, 'Event Manager', 'event.mgr', 'event@mall.com', 'event123', 1, 16, 0, 0),
 (16, 'Event Organizer A', 'event.org', 'event.org@mall.com', 'event123', 1, 17, 0, 0);
-
--- --------------------------------------------------------
-
---
--- Update AUTO_INCREMENT
---
-
-ALTER TABLE `09_role_pages`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
-
-ALTER TABLE `09_users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;

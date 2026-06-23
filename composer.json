@@ -1,5 +1,9 @@
 {
     "require-dev": {
         "phpunit/phpunit": "*"
+    },
+    "require": {
+        "phpmailer/phpmailer": "^7.1",
+        "crunzphp/crunz": "^3.9"
     }
 }

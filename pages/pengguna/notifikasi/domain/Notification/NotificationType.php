@@ -5,6 +5,7 @@ enum NotificationType
     case payment_due;
     case approval_request;
     case approval_result;
+    case complaint;
 
     public function to_string()
     {
@@ -13,6 +14,7 @@ enum NotificationType
             self::payment_due     => "payment_due",
             self::approval_request => "approval_request",
             self::approval_result  => "approval_result",
+            self::complaint => "complaint"
         };
     }
 
@@ -23,6 +25,7 @@ enum NotificationType
             "payment_due"     => self::payment_due,
             "approval_request" => self::approval_request,
             "approval_result"  => self::approval_result,
+            "complaint" => self::complaint
         };
     }
 }

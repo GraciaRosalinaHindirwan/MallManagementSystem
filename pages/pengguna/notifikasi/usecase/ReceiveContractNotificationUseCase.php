@@ -1,11 +1,16 @@
 <?php
+require_once __DIR__ . "/../domain/Notification/NotificationLog.php";
 
 require_once __DIR__ . "/../infrastructure/notifier/INotifier.php";
 require_once __DIR__ . "/../infrastructure/queries/IUserQuery.php";
 require_once __DIR__ . "/../infrastructure/queries/IContractQuery.php";
-
-require_once __DIR__ . "/../domain/Notification/NotificationLog.php";
 require_once __DIR__ . "/../infrastructure/writer/INotificationLogWriter.php";
+
+require_once __DIR__ . "/../infrastructure/queries/mysql/MysqlContractQuery.php";
+require_once __DIR__ . "/../infrastructure/queries/mysql/MysqlNotificationQuery.php";
+require_once __DIR__ . "/../infrastructure/notifier/WebNotifier.php";
+require_once __DIR__ . "/../infrastructure/writer/mysql/MysqlNotificationWriter.php";
+require_once __DIR__ . "/../infrastructure/writer/mysql/MysqlNotificationLogWriter.php";
 
 class ReceiveContractNotificationUseCase
 {
@@ -18,8 +23,22 @@ class ReceiveContractNotificationUseCase
         $this->_contracts = $_contracts;
     }
 
+    static function create_mysql(mysqli $db)
+    {
+        return new ReceiveContractNotificationUseCase(
+            new WebNotifier(
+                new MysqlNotificationWriter($db),
+                new MysqlNotificationQuery($db),
+                new MysqlNotificationLogWriter($db)
+            ),
+            new MysqlContractQuery($db),
+        );
+    }
+
     public function execute(User $user)
     {
+        if ($user == null) throw new Exception("failed to execute usecase: user is null");
+
         $contracts = $this->_contracts->get_all();
 
         /** @var Contract[] $contracts */
