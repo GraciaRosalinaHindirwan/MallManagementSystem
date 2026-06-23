@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/../../repositories/UserRepository.php';
+require_once __DIR__.'/../../repositories/DatabaseUserRepository.php';
 require_once __DIR__.'/../../dto/LoginDto.php';
 require_once __DIR__.'/../../services/authService.php';
 require_once __DIR__.'/AfterLoginProcess.php';
@@ -106,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // 1. Inisialisasi Service pendukung
-$userRepository = new UserRepository();
+$userRepository = new DatabaseUserRepository();
 $authService = new AuthService($userRepository);
 
 // 2. Inisialisasi semua Handler
@@ -121,11 +122,11 @@ $captchaHandler
     ->setNext($authHandler)
     ->setNext($sessionHandler);
 
-$validationHandler->setNext($authHandler)->setNext($sessionHandler);
+
 
 // 4. Jalankan Chain dengan data POST
 // Kalau captcha hidup
-$captchaHandler->handle($_POST);
+//$captchaHandler->handle($_POST);
 // Kalau captcha mati
-//$validationHandler->handle($_POST);
+$validationHandler->handle($_POST);
 ?>
