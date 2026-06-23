@@ -3,7 +3,7 @@ $conn = new mysqli(
     "localhost",
     "root",
     "",
-    "mall_erp"
+    "mall_management"
 );
 
 if ($conn->connect_error) {
