@@ -11,12 +11,14 @@ class UserRepository implements UserRepositoryInterface{
                 '1', 
                 'admin',  
                 password_hash('Admin123!', PASSWORD_DEFAULT), 
+                'admin',
                 false),
             
             new UserDto(
                 '2', 
                 'operator',  
                 password_hash('Operator123!', PASSWORD_DEFAULT), 
+                'manager',
                 true),
         ];
     }
@@ -37,6 +39,7 @@ class UserRepository implements UserRepositoryInterface{
                     $user->id,
                     $user->username,
                     $hashedPassword,
+                    $user->role,
                     false
                 );
                 return true;
