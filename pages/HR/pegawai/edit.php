@@ -3,13 +3,21 @@ $page_title = 'Edit Pegawai';
 require_once __DIR__ . '/../../../config/database.php';
 
 $id = (int)($_GET['id'] ?? 0);
-$pegawai = $pdo->prepare("SELECT * FROM pegawai WHERE id = ?");
-$pegawai->execute([$id]);
-$p = $pegawai->fetch();
-if (!$p) {
-    header("Location: index.php");
-    exit;
-}
+if (!$id) { header("Location: index.php"); exit; }
+
+$stmt = $pdo->prepare("SELECT * FROM pegawai WHERE id = ?");
+$stmt->execute([$id]);
+$p = $stmt->fetch();
+if (!$p) { header("Location: index.php"); exit; }
+
+$gaji_stmt = $pdo->prepare("
+    SELECT * FROM payroll 
+    WHERE pegawai_id = ? 
+    ORDER BY tahun DESC, bulan DESC 
+    LIMIT 1
+");
+$gaji_stmt->execute([$id]);
+$gaji = $gaji_stmt->fetch();
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -23,90 +31,163 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tgl_lahir  = $_POST['tgl_lahir'] ?? null;
     $tgl_masuk  = $_POST['tgl_masuk'] ?? '';
     $status     = $_POST['status'] ?? 'aktif';
+    $gaji_pokok = (int)str_replace(['.', ','], '', $_POST['gaji_pokok'] ?? '0');
 
     if (!$nik || !$nama || !$jabatan || !$departemen || !$email || !$tgl_masuk) {
         $errors[] = 'Field wajib tidak boleh kosong!';
     }
 
+    if ($email && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Format email tidak valid!';
+    }
+
     if (!$errors) {
-        $stmt = $pdo->prepare("UPDATE pegawai SET nik=?,nama=?,jabatan=?,departemen=?,email=?,no_hp=?,alamat=?,tgl_lahir=?,tgl_masuk=?,status=? WHERE id=?");
-        $stmt->execute([$nik, $nama, $jabatan, $departemen, $email, $no_hp, $alamat, $tgl_lahir ?: null, $tgl_masuk, $status, $id]);
+        $cek_nik = $pdo->prepare("SELECT id FROM pegawai WHERE nik = ? AND id != ?");
+        $cek_nik->execute([$nik, $id]);
+        if ($cek_nik->fetch()) $errors[] = "NIK <strong>$nik</strong> sudah dipakai pegawai lain!";
+
+        $cek_email = $pdo->prepare("SELECT id FROM pegawai WHERE email = ? AND id != ?");
+        $cek_email->execute([$email, $id]);
+        if ($cek_email->fetch()) $errors[] = "Email <strong>$email</strong> sudah dipakai pegawai lain!";
+    }
+
+    if (!$errors) {
+        $pdo->prepare("UPDATE pegawai SET 
+            nik=?, nama=?, jabatan=?, departemen=?, email=?, no_hp=?,
+            alamat=?, tgl_lahir=?, tgl_masuk=?, status=?
+            WHERE id=?")
+            ->execute([
+                $nik, $nama, $jabatan, $departemen, $email, $no_hp,
+                $alamat, $tgl_lahir ?: null, $tgl_masuk, $status, $id
+            ]);
+
+        if ($gaji_pokok > 0) {
+            if ($gaji) {
+                $pdo->prepare("UPDATE payroll SET gaji_pokok=?, total=? WHERE id=?")
+                    ->execute([$gaji_pokok, $gaji_pokok, $gaji['id']]);
+            } else {
+                $pdo->prepare("INSERT INTO payroll (pegawai_id, bulan, tahun, gaji_pokok, tunjangan, potongan, total, status) VALUES (?,?,?,?,0,0,?,?)")
+                    ->execute([$id, date('n'), date('Y'), $gaji_pokok, $gaji_pokok, 'draft']);
+            }
+        }
+
         header("Location: index.php?msg=edit");
         exit;
     }
-    $p = array_merge($p, $_POST);
 }
+
+$form = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $p;
 
 require_once __DIR__ . '/../../../includes/hr_header.php';
 ?>
 
 <?php if ($errors): ?>
-    <div class="alert alert-danger">
-        <i class="fa-solid fa-circle-exclamation"></i>
-        <?= implode('<br>', $errors) ?>
+<div class="alert alert-danger" style="flex-direction:column; align-items:flex-start; gap:6px;">
+    <div style="display:flex; align-items:center; gap:8px; font-weight:600;">
+        <i class="fa-solid fa-circle-exclamation"></i> Terdapat kesalahan:
     </div>
+    <ul style="margin:0; padding-left:20px;">
+        <?php foreach ($errors as $err): ?>
+        <li><?= $err ?></li>
+        <?php endforeach; ?>
+    </ul>
+</div>
 <?php endif; ?>
 
 <div class="card">
     <div class="card-header">
-        <h2 class="card-title">Edit Data Pegawai</h2>
-        <a href="index.php" class="btn btn-outline btn-sm">
-            <i class="fa-solid fa-arrow-left"></i> Kembali
-        </a>
+        <h2 class="card-title">Edit Pegawai</h2>
+        <div style="display:flex; gap:8px;">
+            <a href="detail.php?id=<?= $id ?>" class="btn btn-outline btn-sm">
+                <i class="fa-solid fa-eye"></i> Detail
+            </a>
+            <a href="index.php" class="btn btn-outline btn-sm">
+                <i class="fa-solid fa-arrow-left"></i> Kembali
+            </a>
+        </div>
     </div>
+
     <form method="POST">
         <div class="form-grid">
             <div class="form-group">
                 <label>NIK <span style="color:var(--danger)">*</span></label>
-                <input type="text" name="nik" value="<?= htmlspecialchars($p['nik']) ?>" required>
+                <input type="text" name="nik"
+                    value="<?= htmlspecialchars($form['nik'] ?? '') ?>"
+                    placeholder="EMP001" required>
             </div>
             <div class="form-group">
                 <label>Nama Lengkap <span style="color:var(--danger)">*</span></label>
-                <input type="text" name="nama" value="<?= htmlspecialchars($p['nama']) ?>" required>
+                <input type="text" name="nama"
+                    value="<?= htmlspecialchars($form['nama'] ?? '') ?>"
+                    placeholder="Nama pegawai" required>
             </div>
             <div class="form-group">
                 <label>Jabatan <span style="color:var(--danger)">*</span></label>
-                <input type="text" name="jabatan" value="<?= htmlspecialchars($p['jabatan']) ?>" required>
+                <input type="text" name="jabatan"
+                    value="<?= htmlspecialchars($form['jabatan'] ?? '') ?>"
+                    placeholder="Staff HR, Kasir, dll" required>
             </div>
             <div class="form-group">
                 <label>Departemen <span style="color:var(--danger)">*</span></label>
                 <select name="departemen" required>
-                    <?php foreach (['HR', 'CS', 'Security', 'Operations', 'Facility', 'Finance', 'IT'] as $dep): ?>
-                        <option value="<?= $dep ?>" <?= $p['departemen'] === $dep ? 'selected' : '' ?>><?= $dep ?></option>
+                    <option value="">-- Pilih Departemen --</option>
+                    <?php foreach (['HR','CS','Security','Operations','Facility','Finance','IT'] as $dep): ?>
+                    <option value="<?= $dep ?>" <?= ($form['departemen'] ?? '') === $dep ? 'selected' : '' ?>><?= $dep ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div class="form-group">
                 <label>Email <span style="color:var(--danger)">*</span></label>
-                <input type="email" name="email" value="<?= htmlspecialchars($p['email']) ?>" required>
+                <input type="email" name="email"
+                    value="<?= htmlspecialchars($form['email'] ?? '') ?>"
+                    placeholder="email@mall.com" required>
             </div>
             <div class="form-group">
                 <label>No. HP</label>
-                <input type="text" name="no_hp" value="<?= htmlspecialchars($p['no_hp'] ?? '') ?>">
+                <input type="text" name="no_hp"
+                    value="<?= htmlspecialchars($form['no_hp'] ?? '') ?>"
+                    placeholder="08xxxxxxxxxx">
             </div>
             <div class="form-group">
                 <label>Tanggal Lahir</label>
-                <input type="date" name="tgl_lahir" value="<?= $p['tgl_lahir'] ?? '' ?>">
+                <input type="date" name="tgl_lahir"
+                    value="<?= $form['tgl_lahir'] ?? '' ?>">
             </div>
             <div class="form-group">
                 <label>Tanggal Masuk <span style="color:var(--danger)">*</span></label>
-                <input type="date" name="tgl_masuk" value="<?= $p['tgl_masuk'] ?>" required>
+                <input type="date" name="tgl_masuk"
+                    value="<?= $form['tgl_masuk'] ?? '' ?>" required>
             </div>
             <div class="form-group">
-                <label>Status</label>
-                <select name="status">
-                    <option value="aktif" <?= $p['status'] === 'aktif'    ? 'selected' : '' ?>>Aktif</option>
-                    <option value="nonaktif" <?= $p['status'] === 'nonaktif' ? 'selected' : '' ?>>Nonaktif</option>
+                <label>Status <span style="color:var(--danger)">*</span></label>
+                <select name="status" required>
+                    <option value="aktif"    <?= ($form['status'] ?? '') === 'aktif'    ? 'selected' : '' ?>>Aktif</option>
+                    <option value="nonaktif" <?= ($form['status'] ?? '') === 'nonaktif' ? 'selected' : '' ?>>Nonaktif</option>
                 </select>
             </div>
             <div class="form-group" style="grid-column:1/-1;">
                 <label>Alamat</label>
-                <textarea name="alamat" rows="3"><?= htmlspecialchars($p['alamat'] ?? '') ?></textarea>
+                <textarea name="alamat" rows="3"
+                    placeholder="Alamat lengkap"><?= htmlspecialchars($form['alamat'] ?? '') ?></textarea>
             </div>
         </div>
+
+        <div class="section-divider"><span>Informasi Gaji</span></div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Gaji Pokok</label>
+                <input type="number" name="gaji_pokok" min="0" step="1000"
+                    value="<?= $_SERVER['REQUEST_METHOD'] === 'POST' ? ($_POST['gaji_pokok'] ?? '') : ($gaji['gaji_pokok'] ?? '') ?>"
+                    placeholder="0 (kosongkan jika belum ditentukan)">
+                <small style="color:rgba(245,247,250,0.4); font-size:12px;">
+                    <?= $gaji ? 'Mengupdate data payroll periode ' . $gaji['bulan'] . '/' . $gaji['tahun'] : 'Akan membuat data payroll baru bulan ini' ?>
+                </small>
+            </div>
+        </div>
+
         <div class="form-actions" style="margin-top:24px;">
             <button type="submit" class="btn btn-primary">
-                <i class="fa-solid fa-floppy-disk"></i> Update
+                <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan
             </button>
             <a href="index.php" class="btn btn-outline">Batal</a>
         </div>
