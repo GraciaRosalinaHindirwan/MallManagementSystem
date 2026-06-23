@@ -9,7 +9,6 @@ class UserTest extends TestCase
 {
     private mysqli $db;
 
-
     #[Override]
     function setUp(): void
     {
