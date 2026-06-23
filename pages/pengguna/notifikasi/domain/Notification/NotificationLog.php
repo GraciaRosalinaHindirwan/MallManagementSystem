@@ -40,9 +40,9 @@ class NotificationLog
     public static function pending(
         Recipient $recipient,
         NotificationContent $content,
-        NotificationChannel $channel = NotificationChannel::inapp,
-        ?string $notificationId = null,
         int $user_id,
+        NotificationChannel $channel = NotificationChannel::inapp,
+        ?string $notificationId = null
     ): self {
         return new self(
             id: 0,
@@ -95,5 +95,28 @@ class NotificationLog
     public function get_sent_at(): ?DateTime
     {
         return $this->delivery_result->sent_at;
+    }
+    public static function reconstruct(
+        int $id,
+        string $notification_id,
+        Recipient $recipient,
+        NotificationContent $notification_content,
+        NotificationChannel $channel,
+        DeliveryResult $delivery_result,
+        DateTime $created_at,
+        int $user_id
+    ): self {
+        $log = new self(
+            id: $id,
+            notification_id: $notification_id,
+            recipient: $recipient,
+            notification_content: $notification_content,
+            channel: $channel,
+            delivery_result: $delivery_result,
+            created_at: $created_at,
+            user_id: $user_id
+        );
+
+        return $log;
     }
 }
