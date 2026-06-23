@@ -283,6 +283,43 @@ ob_start();
     </div>
 </div>
 
+<?php
+$content = ob_get_clean();
+$content .= <<<'HTML'
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: { DEFAULT: "#0B376D", dark: "#082A53" },
+                    secondary: { DEFAULT: "#167E80", dark: "#0D4859" },
+                    accent: "#00D4D8", success: "#22C55E", danger: "#EF4444", warning: "#F59E0B",
+                    background: "#021F42", 
+                    surface: { raised: "rgba(255,255,255,0.05)" },
+                    border: { DEFAULT: "rgba(255,255,255,0.1)", strong: "rgba(255,255,255,0.2)" },
+                    text: { DEFAULT: "#F5F7FA", accent: "#FFB62A" }
+                },
+                fontSize: {
+                    caption: ["0.75rem", { lineHeight: "1rem" }],
+                    label: ["0.875rem", { lineHeight: "1.25rem" }],
+                    body: ["1rem", { lineHeight: "1.5rem" }],
+                    subheading: ["1.25rem", { lineHeight: "1.75rem" }],
+                    h2: ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }],
+                    h1: ["2.25rem", { lineHeight: "2.5rem", fontWeight: "700" }]
+                }
+            }
+        }
+    }
+</script>
+<style type="text/tailwindcss">
+    @layer components {
+        .cs-card { @apply bg-white/5 border border-white/10 rounded-xl p-4 sm:p-6 shadow-lg backdrop-blur-sm mb-6; }
+        .cs-input { @apply w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 text-white focus:outline-none focus:border-accent transition-colors; }
+        .cs-btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2 sm:py-2.5 rounded-lg font-medium transition-all duration-200; }
+    }
+</style>
 <script>
 const deptMap = {
     facility: 'Departemen Facility',
@@ -318,8 +355,7 @@ document.getElementById('foto-input').addEventListener('change', function () {
     });
 });
 </script>
+HTML;
 
-<?php
-$content = ob_get_clean();
-include __DIR__ . '/../../includes/layout_cs.php';
+require_once '../../includes/navbarM05.php';
 ?>

@@ -39,7 +39,9 @@ ob_start();
     <i class="bi bi-exclamation-triangle-fill text-danger text-lg"></i>
     <div>
         <p class="text-label font-semibold text-danger">Peringatan SLA Breach</p>
-        <p class="text-caption text-text/60">Terdapat <strong class="text-danger"><?= $total_breach ?> tiket</strong> yang melewati batas waktu penanganan. Segera eskalasi ke departemen terkait.</p>
+        <p class="text-caption text-text/60">
+            Terdapat <strong class="text-danger"><?= $total_breach ?> tiket</strong> yang melewati batas waktu penanganan.
+        </p>
     </div>
 </div>
 <?php else: ?>
@@ -49,112 +51,147 @@ ob_start();
 </div>
 <?php endif; ?>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
     <div class="cs-card flex items-center gap-4">
-        <div class="w-10 h-10 rounded-lg bg-danger/15 flex items-center justify-center flex-shrink-0">
-            <i class="bi bi-exclamation-circle text-danger text-lg"></i>
+        <div class="w-10 h-10 rounded-lg bg-danger/15 flex items-center justify-center">
+            <i class="bi bi-exclamation-circle text-danger"></i>
         </div>
         <div>
             <p class="text-caption text-text/50">Total Breach</p>
             <p class="text-h2 font-bold text-danger"><?= $total_breach ?></p>
         </div>
     </div>
+
     <div class="cs-card flex items-center gap-4">
-        <div class="w-10 h-10 rounded-lg bg-danger/15 flex items-center justify-center flex-shrink-0">
-            <i class="bi bi-record-circle text-danger text-lg"></i>
+        <div class="w-10 h-10 rounded-lg bg-danger/15 flex items-center justify-center">
+            <i class="bi bi-record-circle text-danger"></i>
         </div>
         <div>
             <p class="text-caption text-text/50">Status Open</p>
             <p class="text-h2 font-bold text-danger"><?= $open_count ?></p>
         </div>
     </div>
+
     <div class="cs-card flex items-center gap-4">
-        <div class="w-10 h-10 rounded-lg bg-warning/15 flex items-center justify-center flex-shrink-0">
-            <i class="bi bi-arrow-repeat text-warning text-lg"></i>
+        <div class="w-10 h-10 rounded-lg bg-warning/15 flex items-center justify-center">
+            <i class="bi bi-arrow-repeat text-warning"></i>
         </div>
         <div>
-            <p class="text-caption text-text/50">Sedang Diproses</p>
+            <p class="text-caption text-text/50">Diproses</p>
             <p class="text-h2 font-bold text-warning"><?= $proses_count ?></p>
         </div>
     </div>
 </div>
 
-<div class="cs-card space-y-4">
+<div class="cs-card space-y-4 mt-4">
     <div class="flex items-center gap-3 pb-4 border-b border-border">
         <i class="bi bi-exclamation-triangle text-danger"></i>
         <h2 class="text-label font-semibold">Tiket Melebihi SLA</h2>
     </div>
 
     <?php if (empty($breach_list)): ?>
-        <p class="text-center text-caption text-text/30 py-10">Tidak ada tiket yang breach SLA.</p>
-    <?php endif; ?>
+        <p class="text-center text-caption text-text/30 py-10">
+            Tidak ada tiket yang breach SLA.
+        </p>
+    <?php else: ?>
 
-    <div class="space-y-3">
-        <?php foreach ($breach_list as $t):
-            $lewat  = (int) $t['lewat_menit'];
-            $persen = min(100, round(($t['umur_menit'] / $t['sla_menit']) * 100));
-            $kat    = $kategori_label[$t['kategori']] ?? $kategori_label['other'];
-            $stat   = $status_label[$t['status']] ?? $status_label['open'];
-        ?>
-        <div class="border border-danger/30 bg-danger/5 rounded-lg p-4 space-y-3">
-            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                <div class="flex items-center gap-3">
-                    <span class="font-mono text-caption text-accent font-semibold"><?= htmlspecialchars($t['id']) ?></span>
-                    <span class="px-2 py-0.5 rounded-full text-caption font-medium <?= $kat['class'] ?>"><?= $kat['label'] ?></span>
-                    <span class="px-2 py-0.5 rounded-full text-caption font-medium <?= $stat['class'] ?>"><?= $stat['label'] ?></span>
-                </div>
-                <div class="flex items-center gap-2">
+        <div class="space-y-3">
+            <?php foreach ($breach_list as $t):
+                $lewat  = (int) $t['lewat_menit'];
+                $persen = min(100, round(($t['umur_menit'] / $t['sla_menit']) * 100));
+                $kat    = $kategori_label[$t['kategori']] ?? $kategori_label['other'];
+                $stat   = $status_label[$t['status']] ?? $status_label['open'];
+            ?>
+            <div class="border border-danger/30 bg-danger/5 rounded-lg p-4 space-y-3">
+
+                <div class="flex justify-between gap-2 flex-wrap">
+                    <div class="flex items-center gap-2">
+                        <span class="font-mono text-caption text-accent font-semibold">
+                            <?= htmlspecialchars($t['id']) ?>
+                        </span>
+
+                        <span class="px-2 py-0.5 rounded-full text-caption <?= $kat['class'] ?>">
+                            <?= $kat['label'] ?>
+                        </span>
+
+                        <span class="px-2 py-0.5 rounded-full text-caption <?= $stat['class'] ?>">
+                            <?= $stat['label'] ?>
+                        </span>
+                    </div>
+
                     <span class="text-caption text-danger font-semibold bg-danger/15 px-3 py-1 rounded-full">
                         <i class="bi bi-clock"></i> Lewat <?= $lewat ?> menit
                     </span>
-                    <a href="tiket-detail.php?id=<?= urlencode($t['id']) ?>" class="cs-btn bg-white/5 hover:bg-white/10 text-text/70 text-caption px-3 py-1">
-                        <i class="bi bi-eye"></i> Detail
-                    </a>
                 </div>
-            </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-caption">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-caption">
+                    <div>
+                        <p class="text-text/40">Pelapor</p>
+                        <p><?= htmlspecialchars($t['pelapor']) ?></p>
+                    </div>
+                    <div>
+                        <p class="text-text/40">Lokasi</p>
+                        <p><?= htmlspecialchars($t['lokasi']) ?></p>
+                    </div>
+                    <div>
+                        <p class="text-text/40">Departemen</p>
+                        <p><?= htmlspecialchars($t['dept'] ?? '-') ?></p>
+                    </div>
+                </div>
+
                 <div>
-                    <p class="text-text/40 mb-0.5">Pelapor</p>
-                    <p class="text-text/80"><?= htmlspecialchars($t['pelapor']) ?></p>
+                    <p class="text-text/40 text-caption">Deskripsi</p>
+                    <p class="text-caption text-text/70">
+                        <?= htmlspecialchars($t['deskripsi']) ?>
+                    </p>
                 </div>
-                <div>
-                    <p class="text-text/40 mb-0.5">Lokasi</p>
-                    <p class="text-text/80"><?= htmlspecialchars($t['lokasi']) ?></p>
-                </div>
-                <div>
-                    <p class="text-text/40 mb-0.5">Departemen</p>
-                    <p class="text-text/80"><?= htmlspecialchars($t['dept']) ?></p>
-                </div>
-            </div>
 
-            <div>
-                <p class="text-caption text-text/40 mb-0.5">Deskripsi</p>
-                <p class="text-caption text-text/70"><?= htmlspecialchars($t['deskripsi']) ?></p>
-            </div>
-
-            <div class="space-y-1">
-                <div class="flex justify-between text-caption text-text/40">
-                    <span>Durasi: <?= $t['umur_menit'] ?> menit</span>
-                    <span>SLA: <?= $t['sla_menit'] ?> menit</span>
+                <div class="space-y-1">
+                    <div class="flex justify-between text-caption text-text/40">
+                        <span>Durasi: <?= $t['umur_menit'] ?> menit</span>
+                        <span>SLA: <?= $t['sla_menit'] ?> menit</span>
+                    </div>
+                    <div class="w-full bg-white/10 rounded-full h-1.5">
+                        <div class="bg-danger h-1.5 rounded-full" style="width:<?= $persen ?>%"></div>
+                    </div>
                 </div>
-                <div class="w-full bg-white/10 rounded-full h-1.5">
-                    <div class="bg-danger h-1.5 rounded-full" style="width:<?= $persen ?>%"></div>
-                </div>
-            </div>
 
-            <div class="flex items-center justify-between pt-1 border-t border-border">
-                <p class="text-caption text-text/30">Dibuat: <?= date('Y-m-d H:i', strtotime($t['created_at'])) ?></p>
-                <button class="cs-btn bg-danger/15 text-danger hover:bg-danger/25 text-caption px-3 py-1">
-                    <i class="bi bi-send"></i> Eskalasi
-                </button>
             </div>
+            <?php endforeach; ?>
         </div>
-        <?php endforeach; ?>
-    </div>
+
+    <?php endif; ?>
 </div>
 
 <?php
 $content = ob_get_clean();
-include __DIR__ . '/../../includes/layout_cs.php';
+$content .= <<<'HTML'
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: "#0B376D",
+        accent: "#00D4D8",
+        background: "#021F42",
+        success: "#22C55E",
+        danger: "#EF4444",
+        warning: "#F59E0B",
+        text: "#F5F7FA",
+        border: "rgba(255,255,255,0.1)"
+      }
+    }
+  }
+};
+</script>
+
+<style type="text/tailwindcss">
+.cs-card { @apply bg-white/5 border border-white/10 rounded-xl p-4 shadow-lg; }
+</style>
+HTML;
+
+require_once '../../includes/navbarM05.php';
 ?>

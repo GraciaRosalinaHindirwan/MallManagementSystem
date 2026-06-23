@@ -37,10 +37,16 @@ $menu_items = [
         'active_page' => 'event'
     ],
     [
+        'icon'        => 'fa-solid fa-list',
+        'label'       => 'Semua Tiket',
+        'link'        => BASE_URL . '/pages/CS/tiket.php',
+        'active_page' => 'tiket'
+    ],
+    [
         'icon'        => 'fa-solid fa-ticket',
         'label'       => 'Buat Tiket Baru',
-        'link'        => BASE_URL . '/pages/CS/form-tiket.php',
-        'active_page' => 'form-tiket'
+        'link'        => BASE_URL . '/pages/CS/tiket-buat.php',
+        'active_page' => 'tiket-buat'
     ],
     [
         'icon'        => 'fa-solid fa-triangle-exclamation',
