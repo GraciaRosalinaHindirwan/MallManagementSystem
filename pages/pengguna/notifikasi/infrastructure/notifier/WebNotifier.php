@@ -1,10 +1,12 @@
 <?php
-
-require_once __DIR__ . "/../notifier/INotifier.php";
 require_once __DIR__ . "/../../domain/User.php";
 require_once __DIR__ . "/../../domain/Notification/NotificationContent.php";
+require_once __DIR__ . "/../../domain/Notification/Notification.php";
+
+require_once __DIR__ . "/../notifier/INotifier.php";
 require_once __DIR__ . "/../writer/INotificationWriter.php";
 require_once __DIR__ . "/../writer/INotificationLogWriter.php";
+
 
 class WebNotifier implements INotifier
 {
@@ -31,9 +33,9 @@ class WebNotifier implements INotifier
         $this->_logger->insert(NotificationLog::pending(
             new Recipient($user->email, $user->username),
             $message,
+            $user->id,
             NotificationChannel::inapp,
             "NOTIF-" . $id,
-            $user->id
         ));
     }
 }
