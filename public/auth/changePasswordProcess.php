@@ -1,7 +1,6 @@
 <?php
 session_start();
-require_once __DIR__.'/../../repositories/UserRepository.php';
-require_once __DIR__.'/../../repositories/DatabaseUserRepository.php';
+require_once __DIR__.'/../../repositories/UserRepositoryFactory.php';
 require_once __DIR__.'/../../dto/changePasswordDto.php';
 require_once __DIR__.'/../../services/authService.php';
 
@@ -44,7 +43,7 @@ $dto = new changePasswordDto(
     $newPassword
 );
 
-$userRepository = new DatabaseUserRepository();
+$userRepository = UserRepositoryFactory::getInstance();
 $authService = new AuthService($userRepository);
 
 $result = $authService->changePassword($dto);
