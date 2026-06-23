@@ -26,8 +26,20 @@ $pegawais = $pdo->query("SELECT id, nama FROM pegawai WHERE status='aktif' ORDER
 ?>
 
 <?php if (isset($_GET['msg'])): ?>
-<div class="alert alert-success"><i class="fa-solid fa-circle-check"></i>
-    <?= $_GET['msg'] === 'tambah' ? 'Jadwal berhasil ditambahkan!' : 'Jadwal berhasil dihapus!' ?>
+<div class="alert <?= $_GET['msg'] === 'bentrok' ? 'alert-danger' : 'alert-success' ?>">
+    <i class="fa-solid <?= $_GET['msg'] === 'bentrok' ? 'fa-circle-exclamation' : 'fa-circle-check' ?>"></i>
+    <?php
+        $tgl = isset($_GET['tgl']) ? date('d M Y', strtotime($_GET['tgl'])) : '';
+        echo match($_GET['msg']) {
+            'tambah'  => 'Jadwal berhasil ditambahkan!',
+            'edit'    => 'Jadwal berhasil diupdate!',
+            'hapus'   => 'Jadwal berhasil dihapus!',
+            'bentrok' => ($_GET['sumber'] ?? '') === 'edit' 
+    ? "Jadwal gagal diupdate! Pegawai ini sudah memiliki jadwal pada tanggal $tgl."
+    : "Jadwal gagal ditambahkan! Pegawai ini sudah memiliki jadwal pada tanggal $tgl.",
+            default   => ''
+        };
+    ?>
 </div>
 <?php endif; ?>
 
@@ -98,13 +110,16 @@ $pegawais = $pdo->query("SELECT id, nama FROM pegawai WHERE status='aktif' ORDER
                         <td><span class="badge badge-info"><?= $j['nama_shift'] ?></span></td>
                         <td><?= substr($j['jam_masuk'],0,5) ?> – <?= substr($j['jam_keluar'],0,5) ?></td>
                         <td><?= date('d M Y', strtotime($j['tanggal'])) ?></td>
-                        <td>
-                            <a href="index.php?hapus=<?= $j['id'] ?>"
-                               class="btn btn-danger btn-sm"
-                               onclick="return confirm('Hapus jadwal ini?')">
-                                <i class="fa-solid fa-trash"></i>
-                            </a>
-                        </td>
+                        <td style="display:flex; gap:6px;">
+    <a href="edit.php?id=<?= $j['id'] ?>" class="btn btn-warning btn-sm">
+        <i class="fa-solid fa-pen"></i>
+    </a>
+    <a href="index.php?hapus=<?= $j['id'] ?>"
+       class="btn btn-danger btn-sm"
+       onclick="return confirm('Hapus jadwal ini?')">
+        <i class="fa-solid fa-trash"></i>
+    </a>
+</td>
                     </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
