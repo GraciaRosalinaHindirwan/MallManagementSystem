@@ -1,12 +1,11 @@
 <?php
-session_start();
-// require_once "../../public/auth/checkSession.php";
+require_once "../../public/auth/checkSession.php";
 require_once "../../config/konek.php";
 
 $page_title  = 'Edit Prospek';
 $active_page = 'prospek';
-$user_name   = 'Leasing Manager';
-$role        = 'leasingManager';
+$user_name   = $_SESSION['username'];   
+$role        = $_SESSION['user_role'];     
 
 $idProspect = (int)($_GET['id'] ?? $_POST['id_prospect'] ?? 0);
 if ($idProspect <= 0) {

@@ -1,6 +1,5 @@
 <?php
-// session_start();
-// require_once "../../public/auth/checkSession.php";
+require_once "../../public/auth/checkSession.php";
 require_once "../../config/konek.php";
 
 header('Content-Type: application/json');

@@ -1,14 +1,11 @@
 <?php
-session_start();
-// require_once "../../public/auth/checkSession.php";
+require_once "../../public/auth/checkSession.php";
 require_once "../../config/konek.php"; 
 
 $page_title  = 'Verifikasi Data Tenant';                  
 $active_page = 'verifikasi';                              
-// $user_name   = $_SESSION['nama_lengkap'] ?? 'Guest';   
-// $role        = $_SESSION['role_user'] ?? 'tenant';     
-$user_name   = 'Leasing Manager';
-$role        = 'leasingManager';
+$user_name   = $_SESSION['username'];   
+$role        = $_SESSION['user_role'];     
 
 require_once "../../includes/navbarM02.php"; 
 

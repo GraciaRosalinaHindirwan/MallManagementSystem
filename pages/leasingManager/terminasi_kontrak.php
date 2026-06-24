@@ -1,14 +1,11 @@
 <?php
-session_start();
-// require_once "../../public/auth/checkSession.php";
+require_once "../../public/auth/checkSession.php";
 require_once "../../config/konek.php";
 
 $page_title  = 'Terminasi Kontrak';
 $active_page = 'terminasi_kontrak';
-// $user_name   = $_SESSION['nama_lengkap'] ?? 'Guest';
-// $role        = $_SESSION['role_user'] ?? 'tenant';
-$user_name   = 'Leasing Manager';
-$role        = 'leasingManager';
+$user_name   = $_SESSION['username'];   
+$role        = $_SESSION['user_role'];     
 
 require_once "../../includes/navbarM02.php";
 
@@ -105,9 +102,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// ─────────────────────────────────────────────
-// QUERY – ambil daftar kontrak (Active + Terminated)
-// ─────────────────────────────────────────────
 $contracts_result = $conn->query(
     "SELECT
          c.id_contract,
@@ -172,7 +166,6 @@ $active_contracts = array_filter($contracts, fn($c) => $c['contract_status'] ===
             gap: 24px;
         }
 
-        /* ── Container utama ── */
         .container {
             background: var(--primary, #0B376D);
             padding: 32px;
@@ -196,7 +189,6 @@ $active_contracts = array_filter($contracts, fn($c) => $c['contract_status'] ===
             margin-bottom: 24px;
         }
 
-        /* ── Toolbar pencarian/filter ── */
         .toolbar {
             display: flex;
             gap: 10px;
@@ -220,7 +212,6 @@ $active_contracts = array_filter($contracts, fn($c) => $c['contract_status'] ===
         .toolbar input:focus,
         .toolbar select:focus { border-color: var(--accent, #00D4D8); }
 
-        /* ── Tabel ── */
         .table-responsive {
             overflow-x: auto;
             margin-top: 20px;
@@ -261,7 +252,6 @@ $active_contracts = array_filter($contracts, fn($c) => $c['contract_status'] ===
             background: rgba(0, 212, 216, 0.04);
         }
 
-        /* ── Badge status ── */
         .badge {
             display: inline-block;
             border-radius: 99px;
@@ -276,7 +266,6 @@ $active_contracts = array_filter($contracts, fn($c) => $c['contract_status'] ===
         .badge-occupied    { background: rgba(255,182,42,.15); color: var(--text-accent, #FFB62A); border: 1px solid rgba(255,182,42,.3); }
         .badge-overdue     { background: rgba(239,68,68,.12);  color: #fca5a5;  border: 1px solid rgba(239,68,68,.25); font-size: 11px; }
 
-        /* ── Tombol aksi ── */
         .btn-group {
             display: flex;
             gap: 8px;
@@ -326,7 +315,6 @@ $active_contracts = array_filter($contracts, fn($c) => $c['contract_status'] ===
             transform: translateY(-1px);
         }
 
-        /* ── Alert ── */
         .alert {
             border-radius: 10px;
             padding: 12px 16px;
@@ -348,7 +336,6 @@ $active_contracts = array_filter($contracts, fn($c) => $c['contract_status'] ===
         }
         .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
 
-        /* ── Form terminasi (modal-like section) ── */
         .form-section { display: none; margin-top: 24px; }
         .form-section.visible { display: block; }
 
@@ -382,7 +369,6 @@ $active_contracts = array_filter($contracts, fn($c) => $c['contract_status'] ===
         .form-group textarea { resize: vertical; min-height: 90px; }
         .form-group select option { background: var(--primary-dark, #082A53); }
 
-        /* ── Checklist ── */
         .checklist-block {
             background: rgba(255,255,255,.04);
             border: 1px solid rgba(255,255,255,.08);
@@ -413,7 +399,6 @@ $active_contracts = array_filter($contracts, fn($c) => $c['contract_status'] ===
             flex-shrink: 0;
         }
 
-        /* ── Note box ── */
         .note-box {
             background: rgba(0,212,216,.07);
             border: 1px solid rgba(0,212,216,.2);

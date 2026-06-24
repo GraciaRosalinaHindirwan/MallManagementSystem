@@ -1,12 +1,11 @@
 <?php
-session_start();
-// require_once "../../public/auth/checkSession.php";
+require_once "../../public/auth/checkSession.php";
 require_once "../../config/konek.php";
 
 $page_title  = 'Detail Prospek';
 $active_page = 'prospek';
-$user_name   = 'Leasing Manager';
-$role        = 'leasingManager';
+$user_name   = $_SESSION['username'];   
+$role        = $_SESSION['user_role'];     
 
 $idProspect = (int)($_GET['id'] ?? 0);
 if ($idProspect <= 0) {
@@ -31,13 +30,11 @@ if (!$prospek) {
     exit;
 }
 
-function e($value): string
-{
+function e($value): string {
     return htmlspecialchars((string)($value ?? ''), ENT_QUOTES, 'UTF-8');
 }
 
-function statusBadgeClass(string $status): string
-{
+function statusBadgeClass(string $status): string {
     return match ($status) {
         'Verified' => 'badge--verified',
         'Converted' => 'badge--converted',
@@ -46,8 +43,7 @@ function statusBadgeClass(string $status): string
     };
 }
 
-function formatTanggalID(?string $date): string
-{
+function formatTanggalID(?string $date): string {
     if (!$date) return '-';
     $bulan = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
     $ts = strtotime($date);
@@ -55,8 +51,7 @@ function formatTanggalID(?string $date): string
     return date('d', $ts) . ' ' . $bulan[(int)date('n', $ts)] . ' ' . date('Y', $ts);
 }
 
-function whatsappUrl(?string $phone): string
-{
+function whatsappUrl(?string $phone): string {
     $digits = preg_replace('/\D+/', '', (string)$phone);
     if ($digits === '') return '#';
     if (str_starts_with($digits, '0')) {

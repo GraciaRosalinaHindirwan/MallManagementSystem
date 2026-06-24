@@ -1,6 +1,5 @@
 ﻿<?php
-session_start();
-// require_once "../../public/auth/checkSession.php";
+require_once "../../public/auth/checkSession.php";
 require_once "../../config/konek.php";
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -8,10 +7,8 @@ $conn->set_charset('utf8mb4');
 
 $page_title  = 'Renewal Kontrak';
 $active_page = 'renewal';
-// $user_name   = $_SESSION['nama_lengkap'] ?? 'Guest';
-// $role        = $_SESSION['role_user'] ?? 'tenant';
-$user_name   = 'Leasing Manager';
-$role        = 'leasingManager';
+$user_name   = $_SESSION['username'];   
+$role        = $_SESSION['user_role'];     
 
 function setFlash(string $type, string $msg): void
 {
@@ -960,4 +957,3 @@ require_once "../../includes/navbarM02.php";
 </script>
 </body>
 </html>
-

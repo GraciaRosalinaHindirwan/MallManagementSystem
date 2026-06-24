@@ -1,14 +1,11 @@
 <?php
-session_start();
-// require_once "../../public/auth/checkSession.php";
+require_once "../../public/auth/checkSession.php";
 require_once "../../config/konek.php"; 
 
 $page_title  = 'Pendaftaran Prospek';                  
 $active_page = 'prospek';                              
-// $user_name   = $_SESSION['nama_lengkap'] ?? 'Guest';   
-// $role        = $_SESSION['role_user'] ?? 'tenant';     
-$user_name   = 'Leasing Manager';
-$role        = 'leasingManager';
+$user_name   = $_SESSION['username'];   
+$role        = $_SESSION['user_role'];     
 
 require_once "../../includes/navbarM02.php"; 
 
@@ -86,7 +83,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
             font-size: var(--body, 16px);
         }
 
-        /* layout */
         .page-wrapper {
             padding: 24px 32px;
             max-width: 1280px;
@@ -96,7 +92,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
             gap: 24px;
         }
 
-        /* header page */
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -117,7 +112,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
             color: var(--text, #F5F7FA);
         }
 
-        /* stats */
         .stats-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -147,7 +141,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
             color: var(--text, #F5F7FA);
         }
 
-        /* card */
         .card {
             background: var(--primary, #0B376D);
             border-radius: 12px;
@@ -168,7 +161,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
             font-weight: 600;
         }
 
-        /* button */
         .btn-primary {
             display: inline-flex;
             align-items: center;
@@ -211,7 +203,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
         }
         .btn-close:hover { opacity: 1; }
 
-        /* form */
         .form-card { padding-bottom: 8px; }
 
         .form-grid {
@@ -257,7 +248,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
             padding: 0 24px 24px;
         }
 
-        /* search */
         .search-wrapper { position: relative; }
         .search-input {
             background: var(--background, #021F42);
@@ -273,7 +263,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
         }
         .search-input:focus { border-color: var(--accent, #00D4D8); }
 
-        /* tabel */
         .table-wrapper { overflow-x: auto; }
 
         .data-table {
@@ -316,7 +305,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
             font-size: var(--label, 14px);
         }
 
-        /* badge */
         .badge {
             display: inline-block;
             padding: 3px 10px;
@@ -331,7 +319,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
             border: 1px solid rgba(255,182,42,0.3);
         }
 
-        /* ---------- Action Buttons ---------- */
         .action-group { display: flex; gap: 8px; }
 
         .btn-action {
@@ -357,7 +344,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
             border: 1px solid rgba(255,182,42,0.3);
         }
 
-        /* ---------- Responsive ---------- */
         @media (max-width: 768px) {
             .page-wrapper { padding: 16px; }
             .page-header { flex-direction: column; align-items: flex-start; gap: 16px; }
@@ -391,10 +377,8 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
 </script>
 
 <body>
-<!-- Page Content -->
 <div class="page-wrapper">
  
-    <!-- Page Header -->
     <div class="page-header">
         <div>
             <p class="page-breadcrumb">Tenant & Leasing / Tenant Lifecycle</p>
@@ -402,7 +386,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
         </div>
     </div>
  
-    <!-- Form Tambah Prospek -->
     <div class="card form-card" id="formProspek">
         <div class="card-header">
             <h2 class="card-title">Form Pendaftaran Prospek Baru</h2>
@@ -463,7 +446,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
  
             </div>
  
-            <!-- Status otomatis -->
             <input type="hidden" name="status" value="Prospek">
             <input type="hidden" name="tgl_daftar" value="<?= date('Y-m-d') ?>">
  
@@ -474,7 +456,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
         </form>
     </div>
  
-    <!-- Stats Row -->
     <div class="stats-row">
         <div class="stat-card">
             <span class="stat-label">Total Prospek</span>
@@ -490,7 +471,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
         </div>
     </div>
  
-    <!-- Tabel Daftar Prospek -->
     <div class="card">
         <div class="card-header">
             <h2 class="card-title">Pipeline Prospek</h2>
@@ -559,7 +539,6 @@ $unitOptions     = mysqli_query($conn, "SELECT unit_code FROM `01_units` WHERE s
             </table>
         </div>
     </div>
- 
 </div>
 </body>
 </html>
