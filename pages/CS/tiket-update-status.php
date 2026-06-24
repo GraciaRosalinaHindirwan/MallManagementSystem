@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config/koneksi.php';
+require_once __DIR__ . '/../../config/konek_05.php';
 
 $id         = $_POST['id'] ?? '';
 $status_baru = $_POST['status_baru'] ?? '';
