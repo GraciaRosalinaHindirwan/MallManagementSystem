@@ -1,13 +1,18 @@
 <?php
-// =========================================================================
-// FINANCE & ACCOUNTING MODULE - INVOICE MANAGEMENT (PBI-M06-01-01)
-// =========================================================================
+/** @var mysqli $conn */ 
+
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Simulasi hak akses Staff Finance
-$_SESSION['role'] = 'Finance Staff'; 
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
+    header("Location: ../../index.php"); 
+    exit();
+}*/
+
+// Sesi default sementara tetap dibiarkan di bawahnya agar aman dicoba sekarang
+$_SESSION['role'] = 'financeStaff';
 $_SESSION['nama'] = 'Staff';
 
 // Panggil file koneksi database terpusat
