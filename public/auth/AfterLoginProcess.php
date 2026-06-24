@@ -13,13 +13,11 @@ class RedirectByRoleAction implements AfterLoginAction{
 
     //redirect per role disini yeah
         if($this->role == 'admin') {
-            header(
-                'Location: google.com'
-            );
+            // header('Location: google.com');
+            header('Location: ../../testing/dashboardTest.php');
         } else {
-            header(
-                'Location: youtube.com'
-            );
+            // header('Location: youtube.com');
+            header('Location: ../../testing/dashboardTest.php');
         }
         
         exit;

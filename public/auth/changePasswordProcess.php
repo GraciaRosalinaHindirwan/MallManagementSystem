@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__.'/../../repositories/UserRepository.php';
+require_once __DIR__.'/../../repositories/UserRepositoryFactory.php';
 require_once __DIR__.'/../../dto/changePasswordDto.php';
 require_once __DIR__.'/../../services/authService.php';
 
@@ -43,7 +43,7 @@ $dto = new changePasswordDto(
     $newPassword
 );
 
-$userRepository = new UserRepository();
+$userRepository = UserRepositoryFactory::getInstance();
 $authService = new AuthService($userRepository);
 
 $result = $authService->changePassword($dto);
@@ -54,10 +54,12 @@ if (!$result) {
     header('Location: ../../public/changePassword.php');
     exit;
 }
+
+$userRepository->clearMustChangePassword($_SESSION['user_id']);
 unset($_SESSION['warning']);
 
 header(
-    'Location: ../../testing/dashboard.php'
+    'Location: ../../testing/dashboardTest.php'
 );
 
 exit;
