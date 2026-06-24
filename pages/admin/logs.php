@@ -63,20 +63,6 @@ if (isset($_POST['clear_log'])) {
             padding:25px;
         }
 
-        .back-btn{
-            display:inline-block;
-            text-decoration:none;
-            color:#fff;
-            background:rgba(255,255,255,.08);
-            padding:14px 22px;
-            border-radius:12px;
-            margin-bottom:30px;
-            border:1px solid rgba(255,255,255,.1);
-        }
-
-        .back-btn:hover{
-            background:rgba(255,255,255,.15);
-        }
 
         .header{
             background:linear-gradient(90deg,#0c4c8d,#13b7c8);
@@ -210,10 +196,6 @@ if (isset($_POST['clear_log'])) {
 </head>
 <body>
 
-<a href="../dashboard/dashboard.php" class="back-btn">
-    <i class="fa fa-arrow-left"></i>
-    Kembali ke Dashboard
-</a>
 
 <div class="header">
     <h1>
