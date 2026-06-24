@@ -62,16 +62,16 @@ class AuthenticationHandler extends BaseLoginHandler {
 
     public function handle(array $request): void {
         $dto = new LoginDto(trim($request['username']), trim($request['password']));
-        $user = $this->authService->login($dto);
+        $result = $this->authService->login($dto);
 
-        if (!$user) {
-            $_SESSION['error'] = 'Username atau password salah';
+        if (!$result['success']) {
+            $_SESSION['error'] = $result['message'];
             header('Location: ../index.php');
             exit;
         }
 
         // Simpan data user ke request untuk dipakai di handler berikutnya
-        $request['authenticated_user'] = $user; 
+        $request['authenticated_user'] = $result['user']; 
         
         parent::handle($request);
     }
