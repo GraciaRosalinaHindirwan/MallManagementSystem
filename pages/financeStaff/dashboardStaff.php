@@ -1,7 +1,7 @@
 <?php
 session_start();
 $_SESSION['role'] = 'Finance Staff'; 
-$_SESSION['nama'] = 'Intan (Staff)';
+$_SESSION['nama'] = 'Staff';
 
 // Panggil file koneksi terpusat
 if (file_exists('../../config/koneksi.php')) {
@@ -13,18 +13,18 @@ if (file_exists('../../config/koneksi.php')) {
 require_once '../../includes/header.php';
 require_once '../../includes/navbar.php';
 
-// --- AMBIL DATA REAL-TIME DARI DB UNTUK OPERASIONAL STAFF ---
-// 1. Hitung total invoice yang sudah diterbitkan
-$res_total = $conn->query("SELECT COUNT(*) as jml FROM invoices");
-$total_invoice = $res_total->fetch_assoc()['jml'] ?? 0;
+// --- SINKRONISASI QUERY DASHBOARD DENGAN DB BARU MODUL 06 ---
+// 1. Hitung total invoice yang sudah diterbitkan dari tabel 06_invoices
+$res_total = $conn->query("SELECT COUNT(*) as jml FROM 06_invoices");
+$total_invoice = ($res_total) ? $res_total->fetch_assoc()['jml'] : 0;
 
-// 2. Hitung invoice yang butuh tindakan (Belum Bayar)
-$res_pending = $conn->query("SELECT COUNT(*) as jml FROM invoices WHERE status = 'Belum Bayar'");
-$pending_invoice = $res_pending->fetch_assoc()['jml'] ?? 0;
+// 2. Hitung invoice yang Belum Bayar ('Unpaid') dari tabel 06_invoices
+$res_pending = $conn->query("SELECT COUNT(*) as jml FROM 06_invoices WHERE status = 'Unpaid'");
+$pending_invoice = ($res_pending) ? $res_pending->fetch_assoc()['jml'] : 0;
 
-// 3. Hitung total entri jurnal yang sudah terbentuk otomatis
-$res_jurnal = $conn->query("SELECT COUNT(*) as jml FROM jurnal");
-$total_jurnal = $res_jurnal->fetch_assoc()['jml'] ?? 0;
+// 3. Hitung total entri jurnal dari tabel 06_journal_entries
+$res_jurnal = $conn->query("SELECT COUNT(*) as jml FROM 06_journal_entries");
+$total_jurnal = ($res_jurnal) ? $res_jurnal->fetch_assoc()['jml'] : 0;
 ?>
 
 <div class="content-container">
@@ -41,7 +41,7 @@ $total_jurnal = $res_jurnal->fetch_assoc()['jml'] ?? 0;
                 <i class="fa-solid fa-file-invoice"></i>
             </div>
             <h2 style="color: #fff; margin: 15px 0 5px 0; font-size: 28px; font-weight: 700;"><?= $total_invoice; ?> <span style="font-size: 14px; font-weight: 400; color: #cbd5e1;">Data</span></h2>
-            <span style="color: #00cfd5; font-size: 12px;">Telah diterbitkan di sistem</span>
+            <span style="color: #00cfd5; font-size: 12px;">Telah diterbitkan di sistem M06</span>
         </div>
 
         <div style="background: #032b5c; padding: 25px; border-radius: 15px; border-left: 5px solid var(--accent); box-shadow: 0 10px 15px rgba(0,0,0,0.2);">
@@ -50,7 +50,7 @@ $total_jurnal = $res_jurnal->fetch_assoc()['jml'] ?? 0;
                 <i class="fa-solid fa-hourglass-half" style="color: var(--accent);"></i>
             </div>
             <h2 style="color: var(--accent); margin: 15px 0 5px 0; font-size: 28px; font-weight: 700;"><?= $pending_invoice; ?> <span style="font-size: 14px; font-weight: 400; color: #cbd5e1;">Belum Bayar</span></h2>
-            <span style="color: #cbd5e1; font-size: 12px;">Menunggu tindakan penagihan</span>
+            <span style="color: #cbd5e1; font-size: 12px;">Menunggu tindakan penagihan (Unpaid)</span>
         </div>
 
         <div style="background: #032b5c; padding: 25px; border-radius: 15px; border-left: 5px solid #10b981; box-shadow: 0 10px 15px rgba(0,0,0,0.2);">
