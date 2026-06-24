@@ -16,7 +16,7 @@ Sistem informasi manajemen mall yang dikembangkan untuk mempermudah pengelolaan 
 | Backend | PHP Native |
 | Database | MySQL |
 | Frontend | HTML5, CSS3, JavaScript |
-| UI Framework | Bootstrap 5 |
+| UI Framework | Bootstrap 5, tailwind CSS |
 | Web Server | Apache (XAMPP/Laragon) |
 | Version Control | Git & GitHub |
 
@@ -42,26 +42,57 @@ Sistem informasi manajemen mall yang dikembangkan untuk mempermudah pengelolaan 
 MALL/
 │
 ├── config/
+│   └── koneksi.php
 │
-├── include/
+├── dto/
+│   ├── UserDto.php
+│   ├── LoginDto.php
+│   └── ChangePasswordDto.php
+│
+├── repositories/
+│   ├── UserRepositoryInterface.php
+│   └── UserRepository.php
+│
+├── services/
+│   └── AuthService.php
+│
+├── testing/
+│   ├── dashboardTest.php
+│   └── 
+│
+├── includes/
 │   ├── header.php
 │   ├── navbar.php
 │   └── footer.php
 │
 ├── pages/
-│   ├── super-admin/
-│   ├── mall-director/
-│   ├── leasing-manager/
-│   ├── finance/
+│   ├── admin/
+│   ├── approver/
+│   ├── CS/
+│   ├── eventManager/
+│   ├── eventOrganizer/
+│   ├── facilityManager/
+│   ├── facilityStaff/
+│   ├── financeManager/
+│   ├── financeStaff/
 │   ├── hr/
-│   ├── facility-manager/
+│   ├── leasingManager/
+│   ├── manager/
+│   ├── member/
+│   ├── operationalManager/
+│   ├── pegawai/
+│   ├── pengguna/
+│   ├── pengunjung/
 │   ├── technician/
-│   ├── customer-service/
-│   ├── security/
-│   ├── tenant/
-│   └── visitor/
+│   ├── keamanan/
+│   ├── petugasParkir/
+│   ├── pusrchasingStaff/
+│   ├── staff/
+│   ├── teknisi/
+│   └── tenant/
 │
 ├── public/
+│   │
 │   ├── asset/
 │   │   ├── css/
 │   │   ├── images/
@@ -69,10 +100,15 @@ MALL/
 │   │
 │   ├── auth/
 │   │   ├── loginProcess.php
-│   │   └── registerProcess.php
+│   │   ├── registerProcess.php
+│   │   ├── changePasswordProcess.php
+│   │   ├── checkSession.php
+│   │   ├── captcha.php
+│   │   └── logout.php
 │   │
 │   ├── index.php
-│   └── logout.php
+│   ├── changePassword.php
+│   └── register.php
 │
 └── README.md
 ```
@@ -165,7 +201,7 @@ http://localhost/mall-management/public
 - Pengunjung
 ## Development Notes
 
-This project is developed using **Native PHP** without a framework. Shared components such as headers, footers, navigation bars, and utility functions are stored in the `includes` directory and reused across pages using `include` or `require`.
+Proyek ini dikembangkan menggunakan PHP Native tanpa framework. Komponen yang digunakan bersama seperti header, footer, navbar, serta fungsi-fungsi pendukung disimpan dalam folder `includes` dan digunakan kembali pada berbagai halaman menggunakan `include` atau `require`.
 
 Example:
 
