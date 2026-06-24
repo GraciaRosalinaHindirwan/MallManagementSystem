@@ -1,5 +1,5 @@
 <?php
-
+require_once 'auth/checkSession.php';
 $page_title = "Maintenance Schedule";
 $page = "schedule";
 
