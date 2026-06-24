@@ -5,10 +5,15 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Set session untuk Finance Manager Intan
-$_SESSION['role'] = 'Finance Manager';
-$_SESSION['nama'] = 'Manager';
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeManager') {
+    header("Location: ../../index.php"); 
+    exit();
+}
+*/
 
+$_SESSION['role'] = 'financeManager';
+$_SESSION['nama'] = 'Manager';
 if (file_exists(__DIR__ . '/../../config/koneksi.php')) {
     require_once __DIR__ . '/../../config/koneksi.php';
 } else {
