@@ -5,7 +5,15 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-$_SESSION['role'] = 'Finance Manager';
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'FinanceManager') {
+    header("Location: ../../index.php"); 
+    exit();
+}
+*/
+
+// Sesi default sementara tetap dibiarkan di bawahnya agar aman dicoba sekarang
+$_SESSION['role'] = 'FinanceManager';
 $_SESSION['nama'] = 'Manager';
 
 if (file_exists(__DIR__ . '/../../config/koneksi.php')) {
