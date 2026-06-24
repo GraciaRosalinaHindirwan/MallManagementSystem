@@ -14,12 +14,12 @@ if (file_exists($file)) {
     }
 }
 
-// Urutkan dari terbaru
+// Urutkan log terbaru
 usort($logs, function ($a, $b) {
     return strtotime($b['tanggal']) - strtotime($a['tanggal']);
 });
 
-// Filter user
+// Filter berdasarkan username
 $filterUser = $_GET['user'] ?? '';
 
 if (!empty($filterUser)) {
@@ -28,7 +28,7 @@ if (!empty($filterUser)) {
     });
 }
 
-// Total log
+// Hitung total log
 $totalLogs = count($logs);
 
 // Hapus semua log
@@ -43,6 +43,7 @@ if (isset($_POST['clear_log'])) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audit Log</title>
 
     <link rel="stylesheet"
@@ -57,43 +58,54 @@ if (isset($_POST['clear_log'])) {
         }
 
         body{
-            background:linear-gradient(135deg,#021b45,#06265d,#04183d);
+            background: linear-gradient(135deg,#021b45,#06265d,#04183d);
             min-height:100vh;
             color:#fff;
-            padding:25px;
+            padding:30px 0;
         }
 
+        .container{
+            width:90%;
+            max-width:1280px;
+            margin:0 auto;
+        }
+
+        /* HEADER */
 
         .header{
-            background:linear-gradient(90deg,#0c4c8d,#13b7c8);
+            background:linear-gradient(90deg,#0b4d8d,#14b6c7);
             border-radius:22px;
-            padding:40px;
+            padding:35px;
             margin-bottom:30px;
         }
 
         .header h1{
-            font-size:52px;
+            font-size:48px;
             margin-bottom:10px;
         }
 
         .header p{
-            font-size:22px;
+            font-size:20px;
             opacity:.8;
         }
 
+        /* CARD */
+
         .card{
             background:rgba(8,36,89,.85);
-            border:1px solid rgba(255,255,255,.1);
-            border-radius:22px;
-            padding:30px;
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:20px;
+            padding:28px;
             margin-bottom:30px;
         }
 
         .card-title{
-            color:#18d4f4;
+            color:#17d5f5;
+            font-size:28px;
             margin-bottom:25px;
-            font-size:30px;
         }
+
+        /* FILTER */
 
         .filter-form{
             display:flex;
@@ -102,24 +114,31 @@ if (isset($_POST['clear_log'])) {
 
         .filter-form input{
             flex:1;
-            background:#0a2c63;
-            border:1px solid rgba(255,255,255,.1);
-            color:#fff;
             padding:18px;
+            border:none;
             border-radius:12px;
+            background:#0c2f66;
+            color:#fff;
+            outline:none;
             font-size:16px;
+        }
+
+        .filter-form input::placeholder{
+            color:#9bb5db;
         }
 
         .filter-form button{
             border:none;
-            background:#18d4e4;
-            color:#fff;
-            padding:18px 35px;
             border-radius:12px;
+            padding:18px 35px;
+            background:#20d6e8;
+            color:#fff;
             cursor:pointer;
             font-size:16px;
             font-weight:600;
         }
+
+        /* TABLE */
 
         .table-header{
             display:flex;
@@ -165,6 +184,8 @@ if (isset($_POST['clear_log'])) {
             padding:40px;
         }
 
+        /* BUTTON */
+
         .clear-btn{
             margin-top:25px;
             border:none;
@@ -175,139 +196,154 @@ if (isset($_POST['clear_log'])) {
             cursor:pointer;
         }
 
+        .clear-btn:hover{
+            background:#c0392b;
+        }
+
+        /* RESPONSIVE */
+
         @media(max-width:768px){
+
+            .header h1{
+                font-size:32px;
+            }
 
             .filter-form{
                 flex-direction:column;
-            }
-
-            table{
-                display:block;
-                overflow-x:auto;
             }
 
             .table-header{
                 flex-direction:column;
                 gap:15px;
             }
+
+            table{
+                display:block;
+                overflow-x:auto;
+            }
         }
+
     </style>
 
 </head>
 <body>
 
+<div class="container">
 
-<div class="header">
-    <h1>
-        <i class="fa-solid fa-clipboard-list"></i>
-        Audit Log
-    </h1>
-    <p>SISFO MALL</p>
-</div>
+    <!-- HEADER -->
+    <div class="header">
+        <h1>
+            <i class="fa-solid fa-clipboard-list"></i>
+            Audit Log
+        </h1>
+        <p>SISFO MALL</p>
+    </div>
 
-<!-- FILTER -->
-<div class="card">
-
-    <h3 class="card-title">
-        <i class="fa fa-filter"></i>
-        FILTER LOG
-    </h3>
-
-    <form method="GET" class="filter-form">
-
-        <input type="text"
-               name="user"
-               placeholder="Masukkan username..."
-               value="<?= htmlspecialchars($filterUser) ?>">
-
-        <button type="submit">
-            <i class="fa fa-search"></i>
-            Search
-        </button>
-
-    </form>
-
-</div>
-
-<!-- TABEL -->
-<div class="card">
-
-    <div class="table-header">
+    <!-- FILTER -->
+    <div class="card">
 
         <h3 class="card-title">
-            <i class="fa fa-list"></i>
-            DAFTAR LOG AKTIVITAS
+            <i class="fa fa-filter"></i>
+            FILTER LOG
         </h3>
 
-        <div class="total-log">
-            Total <?= $totalLogs ?> Log
-        </div>
+        <form method="GET" class="filter-form">
+
+            <input type="text"
+                   name="user"
+                   placeholder="Masukkan username..."
+                   value="<?= htmlspecialchars($filterUser) ?>">
+
+            <button type="submit">
+                <i class="fa fa-search"></i>
+                Search
+            </button>
+
+        </form>
 
     </div>
 
-    <table>
+    <!-- DAFTAR LOG -->
+    <div class="card">
 
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>User</th>
-                <th>Aktivitas</th>
-                <th>Waktu</th>
-            </tr>
-        </thead>
+        <div class="table-header">
 
-        <tbody>
+            <h3 class="card-title">
+                <i class="fa fa-list"></i>
+                DAFTAR LOG AKTIVITAS
+            </h3>
 
-        <?php if (empty($logs)): ?>
+            <div class="total-log">
+                Total <?= $totalLogs ?> Log
+            </div>
 
-            <tr>
-                <td colspan="4" class="empty">
-                    Tidak ada log ditemukan
-                </td>
-            </tr>
+        </div>
 
-        <?php else: ?>
+        <table>
 
-            <?php $no = 1; ?>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>User</th>
+                    <th>Aktivitas</th>
+                    <th>Waktu</th>
+                </tr>
+            </thead>
 
-            <?php foreach ($logs as $log): ?>
+            <tbody>
+
+            <?php if (empty($logs)): ?>
 
                 <tr>
-
-                    <td><?= $no++ ?></td>
-
-                    <td>
-                        <span class="badge">
-                            <?= htmlspecialchars($log['username']) ?>
-                        </span>
+                    <td colspan="4" class="empty">
+                        Tidak ada log ditemukan
                     </td>
-
-                    <td>
-                        <?= htmlspecialchars($log['aktivitas']) ?>
-                    </td>
-
-                    <td>
-                        <?= date('d M Y H:i:s', strtotime($log['tanggal'])) ?>
-                    </td>
-
                 </tr>
 
-            <?php endforeach; ?>
+            <?php else: ?>
 
-        <?php endif; ?>
+                <?php $no = 1; ?>
 
-        </tbody>
+                <?php foreach ($logs as $log): ?>
 
-    </table>
+                    <tr>
 
-    <form method="POST"
-          onsubmit="return confirm('Yakin ingin menghapus semua log?')">
+                        <td><?= $no++ ?></td>
 
-        <button class="clear-btn" name="clear_log">
-            Hapus Semua Log
-        </button>
+                        <td>
+                            <span class="badge">
+                                <?= htmlspecialchars($log['username']) ?>
+                            </span>
+                        </td>
 
-    </form>
+                        <td>
+                            <?= htmlspecialchars($log['aktivitas']) ?>
+                        </td>
+
+                        <td>
+                            <?= date('d M Y H:i:s', strtotime($log['tanggal'])) ?>
+                        </td>
+
+                    </tr>
+
+                <?php endforeach; ?>
+
+            <?php endif; ?>
+
+            </tbody>
+
+        </table>
+
+        <form method="POST"
+              onsubmit="return confirm('Yakin ingin menghapus semua log?')">
+
+            <button class="clear-btn" name="clear_log">
+                <i class="fa fa-trash"></i> Hapus Semua Log
+            </button>
+
+        </form>
+
+    </div>
 
 </div>
 
