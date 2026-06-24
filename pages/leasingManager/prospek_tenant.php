@@ -5,8 +5,10 @@ require_once "../../config/konek.php";
 
 $page_title  = 'Pendaftaran Prospek';                  
 $active_page = 'prospek';                              
-$user_name   = $_SESSION['nama_lengkap'] ?? 'Guest';   
-$role        = $_SESSION['role_user'] ?? 'tenant';     
+// $user_name   = $_SESSION['nama_lengkap'] ?? 'Guest';   
+// $role        = $_SESSION['role_user'] ?? 'tenant';     
+$user_name   = 'Leasing Manager';
+$role        = 'leasingManager';
 
 require_once "../../includes/navbarM02.php"; 
 
