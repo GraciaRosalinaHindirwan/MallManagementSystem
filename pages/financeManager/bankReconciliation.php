@@ -1,8 +1,19 @@
 <?php
-session_start();
-$_SESSION['role'] = 'Finance Manager'; 
-$_SESSION['nama'] = 'Intan (Manager)';
+/** @var mysqli $conn */ 
 
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeManager') {
+    header("Location: ../../index.php"); 
+    exit();
+}
+*/
+
+$_SESSION['role'] = 'financeManager';
+$_SESSION['nama'] = 'Manager';
 // 1. Panggil file koneksi terpusat
 if (file_exists('../../config/koneksi.php')) {
     require_once '../../config/koneksi.php';
