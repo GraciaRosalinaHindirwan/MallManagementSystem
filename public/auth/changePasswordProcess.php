@@ -59,7 +59,7 @@ $userRepository->clearMustChangePassword($_SESSION['user_id']);
 unset($_SESSION['warning']);
 
 header(
-    'Location: ../../testing/dashboard.php'
+    'Location: ../../testing/dashboardTest.php'
 );
 
 exit;
