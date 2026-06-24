@@ -3,6 +3,7 @@ session_start();
 require_once __DIR__.'/../../repositories/UserRepositoryFactory.php';
 require_once __DIR__.'/../../dto/changePasswordDto.php';
 require_once __DIR__.'/../../services/authService.php';
+require_once __DIR__.'/../../config/log_helper.php';
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST'){
     header('Location: ../../public/changePassword.php');
@@ -56,6 +57,12 @@ if (!$result) {
 }
 
 $userRepository->clearMustChangePassword($_SESSION['user_id']);
+
+simpanLog(
+    $_SESSION['username'],
+    'CHANGE_PASSWORD'
+);
+
 unset($_SESSION['warning']);
 
 header(

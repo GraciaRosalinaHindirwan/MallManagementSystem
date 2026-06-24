@@ -3,6 +3,7 @@ require_once __DIR__.'/../../repositories/UserRepositoryFactory.php';
 require_once __DIR__.'/../../dto/LoginDto.php';
 require_once __DIR__.'/../../services/authService.php';
 require_once __DIR__.'/AfterLoginProcess.php';
+require_once __DIR__.'/../../config/log_helper.php';
 
 interface LoginHandler{
     public function setNext(LoginHandler $loginHandler): LoginHandler;
@@ -84,6 +85,12 @@ class SessionAndPostLoginHandler extends BaseLoginHandler {
         // Set Session
         $_SESSION['user_id'] = $user->id;
         $_SESSION['username'] = $user->username;
+
+        simpanLog(
+            $user->username,
+            'LOGIN'
+        );
+
         $_SESSION['user_role'] = $user->role;
         $_SESSION['last_activity'] = time();
 
