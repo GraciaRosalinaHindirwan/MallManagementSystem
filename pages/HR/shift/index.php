@@ -6,7 +6,8 @@ require_once __DIR__ . '/../../../includes/hr_header.php';
 // Hapus jadwal
 if (isset($_GET['hapus'])) {
     $pdo->prepare("DELETE FROM jadwal_shift WHERE id=?")->execute([(int)$_GET['hapus']]);
-    header("Location: index.php?msg=hapus"); exit;
+    header("Location: index.php?msg=hapus");
+    exit;
 }
 
 // Filter bulan
@@ -26,27 +27,30 @@ $pegawais = $pdo->query("SELECT id, nama FROM pegawai WHERE status='aktif' ORDER
 ?>
 
 <?php if (isset($_GET['msg'])): ?>
-<div class="alert <?= $_GET['msg'] === 'bentrok' ? 'alert-danger' : 'alert-success' ?>">
-    <i class="fa-solid <?= $_GET['msg'] === 'bentrok' ? 'fa-circle-exclamation' : 'fa-circle-check' ?>"></i>
-    <?php
+    <div class="alert <?= $_GET['msg'] === 'bentrok' ? 'alert-danger' : 'alert-success' ?>">
+        <i class="fa-solid <?= $_GET['msg'] === 'bentrok' ? 'fa-circle-exclamation' : 'fa-circle-check' ?>"></i>
+        <?php
         $tgl = isset($_GET['tgl']) ? date('d M Y', strtotime($_GET['tgl'])) : '';
-        echo match($_GET['msg']) {
+        echo match ($_GET['msg']) {
             'tambah'  => 'Jadwal berhasil ditambahkan!',
             'edit'    => 'Jadwal berhasil diupdate!',
             'hapus'   => 'Jadwal berhasil dihapus!',
-            'bentrok' => ($_GET['sumber'] ?? '') === 'edit' 
-    ? "Jadwal gagal diupdate! Pegawai ini sudah memiliki jadwal pada tanggal $tgl."
-    : "Jadwal gagal ditambahkan! Pegawai ini sudah memiliki jadwal pada tanggal $tgl.",
+            'bentrok' => ($_GET['sumber'] ?? '') === 'edit'
+                ? "Jadwal gagal diupdate! Pegawai ini sudah memiliki jadwal pada tanggal $tgl."
+                : "Jadwal gagal ditambahkan! Pegawai ini sudah memiliki jadwal pada tanggal $tgl.",
             default   => ''
         };
-    ?>
-</div>
+        ?>
+    </div>
 <?php endif; ?>
 
 <!-- FORM TAMBAH JADWAL -->
 <div class="card">
     <div class="card-header">
         <h2 class="card-title">Tambah Jadwal Shift</h2>
+        <a href="master_shift.php" class="btn btn-outline btn-sm">
+            <i class="fa-solid fa-clock"></i> Kelola Master Shift
+        </a>
     </div>
     <form method="POST" action="tambah.php">
         <div class="form-grid">
@@ -55,7 +59,7 @@ $pegawais = $pdo->query("SELECT id, nama FROM pegawai WHERE status='aktif' ORDER
                 <select name="pegawai_id" required>
                     <option value="">-- Pilih Pegawai --</option>
                     <?php foreach ($pegawais as $pg): ?>
-                    <option value="<?= $pg['id'] ?>"><?= htmlspecialchars($pg['nama']) ?></option>
+                        <option value="<?= $pg['id'] ?>"><?= htmlspecialchars($pg['nama']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -64,7 +68,7 @@ $pegawais = $pdo->query("SELECT id, nama FROM pegawai WHERE status='aktif' ORDER
                 <select name="shift_id" required>
                     <option value="">-- Pilih Shift --</option>
                     <?php foreach ($shifts as $sh): ?>
-                    <option value="<?= $sh['id'] ?>"><?= $sh['nama_shift'] ?> (<?= substr($sh['jam_masuk'],0,5) ?>–<?= substr($sh['jam_keluar'],0,5) ?>)</option>
+                        <option value="<?= $sh['id'] ?>"><?= $sh['nama_shift'] ?> (<?= substr($sh['jam_masuk'], 0, 5) ?>–<?= substr($sh['jam_keluar'], 0, 5) ?>)</option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -104,31 +108,33 @@ $pegawais = $pdo->query("SELECT id, nama FROM pegawai WHERE status='aktif' ORDER
             <tbody>
                 <?php if ($jadwal): ?>
                     <?php foreach ($jadwal as $i => $j): ?>
-                    <tr>
-                        <td><?= $i+1 ?></td>
-                        <td><?= htmlspecialchars($j['nama']) ?></td>
-                        <td><span class="badge badge-info"><?= $j['nama_shift'] ?></span></td>
-                        <td><?= substr($j['jam_masuk'],0,5) ?> – <?= substr($j['jam_keluar'],0,5) ?></td>
-                        <td><?= date('d M Y', strtotime($j['tanggal'])) ?></td>
-                        <td style="display:flex; gap:6px;">
-    <a href="edit.php?id=<?= $j['id'] ?>" class="btn btn-warning btn-sm">
-        <i class="fa-solid fa-pen"></i>
-    </a>
-    <a href="index.php?hapus=<?= $j['id'] ?>"
-       class="btn btn-danger btn-sm"
-       onclick="return confirm('Hapus jadwal ini?')">
-        <i class="fa-solid fa-trash"></i>
-    </a>
-</td>
-                    </tr>
+                        <tr>
+                            <td><?= $i + 1 ?></td>
+                            <td><?= htmlspecialchars($j['nama']) ?></td>
+                            <td><span class="badge badge-info"><?= $j['nama_shift'] ?></span></td>
+                            <td><?= substr($j['jam_masuk'], 0, 5) ?> – <?= substr($j['jam_keluar'], 0, 5) ?></td>
+                            <td><?= date('d M Y', strtotime($j['tanggal'])) ?></td>
+                            <td style="display:flex; gap:6px;">
+                                <a href="edit.php?id=<?= $j['id'] ?>" class="btn btn-warning btn-sm">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+                                <a href="index.php?hapus=<?= $j['id'] ?>"
+                                    class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Hapus jadwal ini?')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <tr><td colspan="6">
-                        <div class="empty-state">
-                            <i class="fa-solid fa-calendar-xmark"></i>
-                            <p>Tidak ada jadwal untuk bulan ini</p>
-                        </div>
-                    </td></tr>
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <i class="fa-solid fa-calendar-xmark"></i>
+                                <p>Tidak ada jadwal untuk bulan ini</p>
+                            </div>
+                        </td>
+                    </tr>
                 <?php endif; ?>
             </tbody>
         </table>

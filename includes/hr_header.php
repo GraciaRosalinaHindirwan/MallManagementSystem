@@ -49,16 +49,12 @@ $user_name  = $user_name  ?? 'HR Admin';
                     <i class="fa-solid fa-gauge"></i> Dashboard
                 </a>
                 <a href="<?= BASE_URL ?>/pages/HR/pegawai/index.php"
-                    class="nav-item <?= (in_array($current_page, ['index', 'tambah', 'edit']) && strpos($_SERVER['PHP_SELF'], 'pegawai') !== false) ? 'active' : '' ?>">
+                    class="nav-item <?= (in_array($current_page, ['index', 'tambah', 'edit', 'detail']) && strpos($_SERVER['PHP_SELF'], 'pegawai') !== false) ? 'active' : '' ?>">
                     <i class="fa-solid fa-users"></i> Data Pegawai
                 </a>
                 <a href="<?= BASE_URL ?>/pages/HR/shift/index.php"
                     class="nav-item <?= strpos($_SERVER['PHP_SELF'], 'shift') !== false ? 'active' : '' ?>">
                     <i class="fa-solid fa-calendar-days"></i> Jadwal Shift
-                </a>
-                <a href="<?= BASE_URL ?>/pages/HR/shift/master_shift.php"
-                    class="nav-item <?= strpos($_SERVER['PHP_SELF'], 'master_shift') !== false ? 'active' : '' ?>">
-                    <i class="fa-solid fa-clock"></i> Master Shift
                 </a>
                 <a href="<?= BASE_URL ?>/pages/HR/absensi/index.php"
                     class="nav-item <?= strpos($_SERVER['PHP_SELF'], 'absensi') !== false ? 'active' : '' ?>">
@@ -100,10 +96,10 @@ $user_name  = $user_name  ?? 'HR Admin';
 
                 <script>
                     (function() {
-                        const menuToggle = document.getElementById('menuToggle');
-                        const sidebar = document.getElementById('sidebar');
+                        const menuToggle   = document.getElementById('menuToggle');
+                        const sidebar      = document.getElementById('sidebar');
                         const sidebarClose = document.getElementById('sidebarClose');
-                        const body = document.body;
+                        const body         = document.body;
 
                         if (!menuToggle || !sidebar) return;
 
