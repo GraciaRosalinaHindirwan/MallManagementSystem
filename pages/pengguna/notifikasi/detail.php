@@ -395,5 +395,5 @@ $initials      = strtoupper(implode('', array_map(
 <?php
 $content = ob_get_clean();
 
-include __DIR__ . '/../../../includes/08_navbar.php';
+include __DIR__ . '/../../../includes/08_nav_template.php';
 ?>
