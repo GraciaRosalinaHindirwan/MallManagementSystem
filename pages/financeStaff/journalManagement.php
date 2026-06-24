@@ -1,13 +1,18 @@
 <?php
-// =========================================================================
-// FINANCE & ACCOUNTING MODULE - LOG OTOMASI JURNAL
-// =========================================================================
+/** @var mysqli $conn */ 
+
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
+    header("Location: ../../index.php"); 
+    exit();
+}
+*/
 
-// Proteksi atau setting identitas session role untuk keperluan demonstrasi
-$_SESSION['role'] = 'Finance Staff'; 
+// Sesi default sementara tetap dibiarkan di bawahnya agar aman dicoba sekarang
+$_SESSION['role'] = 'financeStaff';
 $_SESSION['nama'] = 'Staff';
 
 // 1. Cek file koneksi
