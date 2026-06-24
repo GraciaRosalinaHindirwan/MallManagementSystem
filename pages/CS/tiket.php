@@ -18,6 +18,39 @@ $kategori_label = [
     'other'    => ['label' => 'Lainnya',  'class' => 'bg-text/10 text-text/60'],
 ];
 
+/**
+ * Ubah nomor telepon lokal (08xx / 62xx / +62xx) jadi format internasional
+ * tanpa simbol "+", siap dipakai di link wa.me (mis. 081234567890 -> 6281234567890).
+ */
+function formatNomorWA(?string $no): string
+{
+    $no = preg_replace('/\D/', '', (string) $no); // sisakan digit saja
+    if ($no === '') {
+        return '';
+    }
+
+    if (str_starts_with($no, '0')) {
+        $no = '62' . substr($no, 1);
+    } elseif (!str_starts_with($no, '62')) {
+        $no = '62' . $no;
+    }
+
+    return $no;
+}
+
+/**
+ * Susun teks pesan konfirmasi penyelesaian keluhan untuk satu tiket.
+ */
+function buatPesanKonfirmasi(array $t, array $kat): string
+{
+    return "Halo {$t['pelapor']},\n\n"
+        . "Kami informasikan bahwa keluhan Anda dengan ID tiket *{$t['id']}* mengenai "
+        . "*{$kat['label']}* di lokasi *{$t['lokasi']}* telah *selesai* kami tangani.\n\n"
+        . "Terima kasih atas kesabaran dan kepercayaan Anda. Jika masih ada kendala terkait "
+        . "hal ini, jangan ragu untuk menghubungi kami kembali.\n\n"
+        . "Terima kasih";
+}
+
 $tiket_list = $pdo->query("
     SELECT *,
         TIMESTAMPDIFF(MINUTE, created_at, NOW()) AS umur_menit
@@ -136,6 +169,12 @@ ob_start();
                     $sisa = $t['sla_menit'] - $t['umur_menit'];
                     $kat  = $kategori_label[$t['kategori']] ?? $kategori_label['other'];
                     $stat = $status_label[$t['status']] ?? $status_label['open'];
+
+                
+                    $wa_number = formatNomorWA($t['no_hp'] ?? null);
+                    $wa_link   = $wa_number !== ''
+                        ? 'https://wa.me/' . $wa_number . '?text=' . rawurlencode(buatPesanKonfirmasi($t, $kat))
+                        : null;
                 ?>
 
                 <tr class="tiket-row hover:bg-white/5 transition"
@@ -196,10 +235,47 @@ ob_start();
                     </td>
 
                     <td class="py-3">
-                        <a href="tiket-detail.php?id=<?= urlencode($t['id']) ?>"
-                           class="cs-btn bg-white/5 hover:bg-white/10 text-caption px-3 py-1 rounded-lg p-2">
-                            <i class="bi bi-eye"></i> Detail
-                        </a>
+                        <div class="flex items-center gap-2">
+                            <a href="tiket-detail.php?id=<?= urlencode($t['id']) ?>"
+                               class="cs-btn bg-white/5 hover:bg-white/10 text-caption px-3 py-1 rounded-lg p-2"
+                               title="Lihat detail tiket">
+                                <i class="bi bi-eye"></i>
+                                <span class="hidden lg:inline">Detail</span>
+                            </a>
+
+                            <?php if ($t['status'] === 'resolved'): ?>
+                                <?php if ($wa_link): ?>
+                                    <a href="<?= htmlspecialchars($wa_link) ?>"
+                                       target="_blank" rel="noopener"
+                                       title="Kirim konfirmasi penyelesaian via WhatsApp"
+                                       class="wa-confirm-btn group relative flex items-center justify-center
+                                              gap-1.5 w-9 h-9 sm:w-auto sm:h-9 sm:px-3
+                                              rounded-full sm:rounded-lg
+                                              bg-[#25D366] text-white
+                                              shadow-[0_2px_8px_rgba(37,211,102,0.35)]
+                                              transition-all duration-200 ease-out
+                                              hover:bg-[#1fb958] hover:shadow-[0_4px_14px_rgba(37,211,102,0.5)]
+                                              hover:-translate-y-0.5 active:translate-y-0 active:scale-95">
+                                        <i class="bi bi-whatsapp text-[15px] sm:text-sm"></i>
+                                        <span class="hidden sm:inline text-caption font-medium whitespace-nowrap">
+                                            Konfirmasi WA
+                                        </span>
+                                        <span class="sm:hidden pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2
+                                                      whitespace-nowrap rounded-md bg-text text-background text-[10px]
+                                                      px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            Konfirmasi WA
+                                        </span>
+                                    </a>
+                                <?php else: ?>
+                                    <span class="flex items-center justify-center w-9 h-9 sm:w-auto sm:h-9 sm:px-3
+                                                 rounded-full sm:rounded-lg bg-white/5 text-text/30"
+                                          title="Nomor WhatsApp pelapor tidak tersedia">
+                                        <i class="bi bi-whatsapp text-[15px] sm:text-sm"></i>
+                                        <span class="hidden sm:inline text-caption ml-1.5 whitespace-nowrap">Tanpa nomor</span>
+                                    </span>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                     </td>
 
                 </tr>
