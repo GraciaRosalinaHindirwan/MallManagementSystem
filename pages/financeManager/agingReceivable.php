@@ -1,9 +1,16 @@
 <?php
 session_start();
-// Set role sebagai Finance Manager
-$_SESSION['role'] = 'Finance Manager'; 
-$_SESSION['nama'] = 'Manager';
 
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeManager') {
+    header("Location: ../../index.php"); 
+    exit();
+}
+*/
+
+// Default session sementara
+$_SESSION['role'] = 'financeManager'; 
+$_SESSION['nama'] = 'Manager';
 // 1. Panggil file koneksi terpusat secara aman
 if (file_exists('../../config/koneksi.php')) {
     require_once '../../config/koneksi.php';
