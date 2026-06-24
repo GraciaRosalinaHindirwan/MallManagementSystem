@@ -1,12 +1,18 @@
 <?php
-// =========================================================================
-// FINANCE & ACCOUNTING MODULE - BILLING & COLLECTION (PBI-M06-01-04)
-// =========================================================================
+/** @var mysqli $conn */ 
+
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
+    header("Location: ../../index.php"); 
+    exit();
+}
+*/
 
-$_SESSION['role'] = 'Finance Staff'; 
+// Sesi default sementara tetap dibiarkan di bawahnya agar aman dicoba sekarang
+$_SESSION['role'] = 'financeStaff';
 $_SESSION['nama'] = 'Staff';
 
 // 1. Panggil file koneksi dari folder config
