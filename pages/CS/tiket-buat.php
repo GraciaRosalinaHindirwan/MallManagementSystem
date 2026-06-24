@@ -35,26 +35,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($severity_level < 1) $severity_level = 1;
     if ($severity_level > 10) $severity_level = 10;
 
-    if (!$nama_pelapor)                  $errors[] = 'Nama pelapor wajib diisi.';
-    if (!$lokasi)                        $errors[] = 'Lokasi kejadian wajib diisi.';
-    if (!$kategori || !in_array($kategori, $allowed_kat)) $errors[] = 'Kategori tiket wajib dipilih.';
-    if (!$deskripsi)                     $errors[] = 'Deskripsi masalah wajib diisi.';
+    if (!$nama_pelapor)                                     $errors[] = 'Nama pelapor wajib diisi.';
+    if (!$lokasi)                                           $errors[] = 'Lokasi kejadian wajib diisi.';
+    if (!$kategori || !in_array($kategori, $allowed_kat))   $errors[] = 'Kategori tiket wajib dipilih.';
+    if (!$deskripsi)                                        $errors[] = 'Deskripsi masalah wajib diisi.';
 
     if (empty($errors)) {
-        $stmt = $pdo->query("SELECT COUNT(*) FROM `05_tiket`");
+        $stmt  = $pdo->query("SELECT COUNT(*) FROM `05_tiket`");
         $count = (int) $stmt->fetchColumn();
         $new_id = 'TKT-' . str_pad($count + 1, 3, '0', STR_PAD_LEFT);
 
         $foto_paths = [];
         if (!empty($_FILES['foto']['name'][0])) {
-            $upload_dir = __DIR__ . '/uploads/tiket/';
+            $upload_dir = __DIR__ . '/../../storage/uploads/tiket/';
             if (!is_dir($upload_dir)) mkdir($upload_dir, 0755, true);
             foreach ($_FILES['foto']['tmp_name'] as $i => $tmp) {
                 if ($_FILES['foto']['error'][$i] === UPLOAD_ERR_OK) {
                     $ext      = pathinfo($_FILES['foto']['name'][$i], PATHINFO_EXTENSION);
                     $filename = $new_id . '_' . ($i + 1) . '.' . $ext;
                     move_uploaded_file($tmp, $upload_dir . $filename);
-                    $foto_paths[] = 'uploads/tiket/' . $filename;
+                    $foto_paths[] = 'storage/uploads/tiket/' . $filename;
                 }
             }
         }
@@ -296,7 +296,7 @@ $content .= <<<'HTML'
                     primary: { DEFAULT: "#0B376D", dark: "#082A53" },
                     secondary: { DEFAULT: "#167E80", dark: "#0D4859" },
                     accent: "#00D4D8", success: "#22C55E", danger: "#EF4444", warning: "#F59E0B",
-                    background: "#021F42", 
+                    background: "#021F42",
                     surface: { raised: "rgba(255,255,255,0.05)" },
                     border: { DEFAULT: "rgba(255,255,255,0.1)", strong: "rgba(255,255,255,0.2)" },
                     text: { DEFAULT: "#F5F7FA", accent: "#FFB62A" }
