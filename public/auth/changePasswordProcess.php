@@ -66,7 +66,7 @@ simpanLog(
 unset($_SESSION['warning']);
 
 header(
-    'Location: ../../testing/dashboard.php'
+    'Location: ../../testing/dashboardTest.php'
 );
 
 exit;
