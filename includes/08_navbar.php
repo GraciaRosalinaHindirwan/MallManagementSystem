@@ -21,29 +21,29 @@ $user_name = $user_name ?? 'Manager';
 
 // Menu default modul 8 (bisa di-override)
 $menu_items = $menu_items ?? [
-    [
-        'icon' => 'fa-solid fa-chart-line',
-        'label' => 'Dashboard KPI',
-        'link' => '08_dashboard.php',
-        'active_page' => 'dashboard'
+     [
+        'icon'        => 'fa-solid fa-chart-line',
+        'label'       => 'Dashboard KPI',
+        'link'        => '08_dashboard.php',
+        'active_page' => 'dashboard',
     ],
     [
-        'icon' => 'fa-solid fa-file-alt',
-        'label' => 'Laporan',
-        'link' => '08_laporan.php',
-        'active_page' => 'laporan'
+        'icon'        => 'fa-solid fa-file-alt',
+        'label'       => 'Laporan',
+        'link'        => '08_laporan.php',
+        'active_page' => 'laporan',
     ],
     [
-        'icon' => 'fa-solid fa-check-circle',
-        'label' => 'Approval',
-        'link' => '08_approval.php',
-        'active_page' => 'approval'
+        'icon'        => 'fa-solid fa-check-circle',
+        'label'       => 'Approval',
+        'link'        => '#',
+        'active_page' => 'approval',
     ],
     [
-        'icon' => 'fa-solid fa-bell',
-        'label' => 'Notifikasi',
-        'link' => '08_notifikasi.php',
-        'active_page' => 'notifikasi'
+        'icon'        => 'fa-solid fa-bell',
+        'label'       => 'Notifikasi',
+        'link'        => 'index.php',
+        'active_page' => 'index',
     ],
 ];
 ?>
