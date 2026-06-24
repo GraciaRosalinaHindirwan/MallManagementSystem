@@ -1,12 +1,6 @@
 <?php
-// =====================================================
-// event_data.php — Data layer untuk Event Management
-// Membaca dari DB: 04_event_booking, 04_event_areas,
-// 04_event_analytics, 04_event_tiket, 04_event_sponsorship
-// =====================================================
 require_once '../../config/konek.php';
 
-// ── AREAS ──────────────────────────────────────────
 function getAreas() {
     global $conn;
     $result = mysqli_query($conn, "
@@ -29,7 +23,6 @@ function getAreaById($id) {
     return mysqli_fetch_assoc($result);
 }
 
-// ── BOOKINGS ───────────────────────────────────────
 function getBookings($filter_status = null) {
     global $conn;
     $where = $filter_status ? "WHERE b.status = '" . mysqli_real_escape_string($conn, $filter_status) . "'" : "";
@@ -111,7 +104,6 @@ function checkConflict($id_area, $tanggal_mulai, $tanggal_selesai, $exclude_id =
     return $rows;
 }
 
-// ── VENDORS ────────────────────────────────────────
 function getVendorsByBooking($id_booking) {
     global $conn;
     $id = (int)$id_booking;
@@ -149,7 +141,6 @@ function deleteVendor($id) {
     mysqli_query($conn, "DELETE FROM 04_event_booking_vendor WHERE id=" . (int)$id);
 }
 
-// ── TICKETING ──────────────────────────────────────
 function getTiketByBooking($id_booking) {
     global $conn;
     $id = (int)$id_booking;
@@ -174,7 +165,6 @@ function getAllTiket() {
 
 function addTiket($id_booking, $tipe, $kuota, $harga) {
     global $conn;
-    // Generate id_tiket
     $res = mysqli_query($conn, "SELECT COUNT(*) AS c FROM 04_event_tiket");
     $cnt = mysqli_fetch_assoc($res)['c'] + 1;
     $id_tiket   = 'TKT-' . str_pad($cnt, 3, '0', STR_PAD_LEFT);
@@ -192,7 +182,6 @@ function deleteTiket($id_tiket) {
     mysqli_query($conn, "DELETE FROM 04_event_tiket WHERE id_tiket='$id'");
 }
 
-// ── SPONSORSHIP ────────────────────────────────────
 function getSponsorByBooking($id_booking) {
     global $conn;
     $id = (int)$id_booking;
@@ -240,7 +229,6 @@ function deleteSponsor($id_sponsor) {
     mysqli_query($conn, "DELETE FROM 04_event_sponsorship WHERE id_sponsor='$id'");
 }
 
-// ── ANALYTICS ──────────────────────────────────────
 function getAnalytics() {
     global $conn;
     $result = mysqli_query($conn, "
@@ -256,7 +244,6 @@ function getAnalytics() {
     return $rows;
 }
 
-// ── BADGE HELPER ───────────────────────────────────
 function statusBadge($status) {
     $map = [
         'pending'  => '<span class="badge bg-warning text-dark">Pending</span>',

@@ -1,6 +1,14 @@
 <?php
-require_once __DIR__ . '/../../public/auth/checkSession.php';
+require_once('../../public/auth/checkSession.php');
 require_once '../eventManager/event_data.php';
+
+$page_title = 'Form Pengajuan Booking Event';
+$page       = 'event_booking_form';
+
+$success_id   = null;
+$errors       = [];
+$konflik_info = [];
+
 
 if (!defined('BASE_URL')) {
     $project_root = realpath(__DIR__ . '/../..');
@@ -15,50 +23,13 @@ if (!defined('BASE_URL')) {
 
 $department_name = 'Event Management';
 $menu_items = [
-    [
-        'icon'        => 'fa-solid fa-house',
-        'label'       => 'Dashboard',
-        'link'        => BASE_URL . '/pages/eventManager/index.php',
-        'active_page' => 'index',
-    ],
-    [
-        'icon'        => 'fa-solid fa-calendar-plus',
-        'label'       => 'Form Booking',
-        'link'        => BASE_URL . '/pages/eventOrganizer/event_booking_form.php',
-        'active_page' => 'event_booking_form',
-    ],
-    [
-        'icon'        => 'fa-solid fa-list-check',
-        'label'       => 'Status Pengajuan',
-        'link'        => BASE_URL . '/pages/eventOrganizer/event_booking_status.php',
-        'active_page' => 'event_booking_status',
-    ],
-    [
-        'icon'        => 'fa-solid fa-calendar-week',
-        'label'       => 'Kalender & Approval',
-        'link'        => BASE_URL . '/pages/eventManager/event_calendar.php',
-        'active_page' => 'event_calendar',
-    ],
-    [
-        'icon'        => 'fa-solid fa-people-group',
-        'label'       => 'Vendor & Tiket',
-        'link'        => BASE_URL . '/pages/eventManager/event_vendor_ticketing.php',
-        'active_page' => 'event_vendor_ticketing',
-    ],
-    [
-        'icon'        => 'fa-solid fa-chart-line',
-        'label'       => 'Analytics',
-        'link'        => BASE_URL . '/pages/eventManager/event_analytics.php',
-        'active_page' => 'event_analytics',
-    ],
+    ['icon'=>'fa-solid fa-house',         'label'=>'Dashboard',          'link'=>BASE_URL.'/pages/eventManager/index.php',                   'active_page'=>'index'],
+    ['icon'=>'fa-solid fa-calendar-plus', 'label'=>'Form Booking',       'link'=>BASE_URL.'/pages/eventOrganizer/event_booking_form.php',    'active_page'=>'event_booking_form'],
+    ['icon'=>'fa-solid fa-list-check',    'label'=>'Status Pengajuan',   'link'=>BASE_URL.'/pages/eventOrganizer/event_booking_status.php',  'active_page'=>'event_booking_status'],
+    ['icon'=>'fa-solid fa-calendar-week', 'label'=>'Kalender & Approval','link'=>BASE_URL.'/pages/eventManager/event_calendar.php',          'active_page'=>'event_calendar'],
+    ['icon'=>'fa-solid fa-people-group',  'label'=>'Vendor & Tiket',     'link'=>BASE_URL.'/pages/eventManager/event_vendor_ticketing.php',  'active_page'=>'event_vendor_ticketing'],
+    ['icon'=>'fa-solid fa-chart-line',    'label'=>'Analytics',          'link'=>BASE_URL.'/pages/eventManager/event_analytics.php',         'active_page'=>'event_analytics'],
 ];
-
-$page_title = 'Form Pengajuan Booking Event';
-$page       = 'event_booking_form';
-
-$success_id   = null;
-$errors       = [];
-$konflik_info = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     deleteBooking((int)$_POST['delete_id']);
@@ -341,7 +312,7 @@ ob_start();
 <?php
 $extra_scripts = <<<JS
 <script>
-// area card select
+
 document.querySelectorAll('.area-radio').forEach(r => {
     r.addEventListener('change', () => {
         document.querySelectorAll('.area-card').forEach(c => {
@@ -355,17 +326,17 @@ document.querySelectorAll('.area-radio').forEach(r => {
         }
     });
 });
-// tanggal min
+
 document.getElementById('tglMulai')?.addEventListener('change', function() {
     document.getElementById('tglSelesai').min = this.value;
 });
-// delete confirm
+
 function confirmDelete(id, nama) {
     document.getElementById('deleteId').value = id;
     document.getElementById('deleteDesc').textContent = '"' + nama + '" (#' + id + ') akan dihapus permanen.';
     new bootstrap.Modal(document.getElementById('deleteModal')).show();
 }
-// init selected areas
+
 document.querySelectorAll('.area-radio:checked').forEach(r => {
     const card = r.closest('label').querySelector('.area-card');
     if(card){ card.style.borderColor='var(--accent)'; card.style.background='rgba(0,212,216,.08)'; }

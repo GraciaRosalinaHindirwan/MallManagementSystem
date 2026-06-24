@@ -1,6 +1,4 @@
 <?php
-// pages/eventOrganizer/event_booking_status.php
-// PBI-M04-03-01 — Status & Timeline Pengajuan Booking Event
 require_once __DIR__ . '/../../public/auth/checkSession.php';
 require_once '../eventManager/event_data.php';
 
@@ -58,7 +56,6 @@ $menu_items = [
 $page_title = 'Status Pengajuan Event';
 $page       = 'event_booking_status';
 
-// Handle DELETE
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     deleteBooking((int)$_POST['delete_id']);
     header('Location: event_booking_status.php?deleted=1');
@@ -68,7 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
 $semua   = getBookings();
 $deleted = isset($_GET['deleted']);
 
-// Hitung counts
 $counts = ['pending'=>0, 'approved'=>0, 'revision'=>0, 'rejected'=>0];
 foreach ($semua as $p) if (isset($counts[$p['status']])) $counts[$p['status']]++;
 
@@ -83,7 +79,6 @@ ob_start();
 <script>setTimeout(()=>document.getElementById('toastDeleted').remove(),3000)</script>
 <?php endif; ?>
 
-<!-- Header actions -->
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div class="d-flex gap-2 flex-wrap">
         <button class="filter-btn active" onclick="filterStatus('all',this)"
@@ -108,7 +103,6 @@ ob_start();
     </a>
 </div>
 
-<!-- Empty state -->
 <?php if (empty($semua)): ?>
 <div style="text-align:center;padding:3rem;opacity:.5">
     <i class="bi bi-inbox" style="font-size:3rem;display:block;margin-bottom:.5rem"></i>
@@ -117,9 +111,7 @@ ob_start();
 </div>
 <?php endif; ?>
 
-<!-- Cards -->
 <?php foreach ($semua as $p):
-    // Build timeline steps
     $steps = [
         ['label' => 'Diajukan',     'state' => 'done'],
         ['label' => 'Review Admin', 'state' => in_array($p['status'], ['approved','rejected','revision']) ? 'done' : 'active'],
@@ -140,7 +132,6 @@ ob_start();
             border-radius:12px;margin-bottom:1rem;transition:border-color .2s">
     <div style="padding:1.25rem 1.5rem">
 
-        <!-- Header row -->
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
             <div>
                 <span style="font-size:12px;color:var(--accent);font-weight:600">#<?= $p['id_booking'] ?></span>
@@ -157,7 +148,6 @@ ob_start();
             </div>
         </div>
 
-        <!-- Meta -->
         <div class="row g-3 mt-1">
             <div class="col-6 col-md-3">
                 <div style="font-size:11px;opacity:.55;text-transform:uppercase">Area</div>
@@ -178,7 +168,6 @@ ob_start();
             </div>
         </div>
 
-        <!-- Catatan admin -->
         <?php if (!empty($p['catatan_admin'])): ?>
         <div style="background:rgba(255,255,255,.04);border-left:3px solid var(--secondary);
                     border-radius:0 6px 6px 0;padding:.6rem 1rem;font-size:12px;margin-top:.75rem">
@@ -187,7 +176,6 @@ ob_start();
         </div>
         <?php endif; ?>
 
-        <!-- Timeline -->
         <div style="display:flex;margin-top:1rem">
             <?php foreach ($steps as $i => $st):
                 $dot_bg = match($st['state']) {
@@ -222,7 +210,6 @@ ob_start();
 </div>
 <?php endforeach; ?>
 
-<!-- Delete form & modal -->
 <form method="POST" id="delForm" style="display:none">
     <input type="hidden" name="delete_id" id="delId">
 </form>

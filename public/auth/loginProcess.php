@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__.'/../../repositories/UserRepository.php';
+require_once __DIR__.'/../../repositories/UserRepositoryFactory.php';
 require_once __DIR__.'/../../dto/LoginDto.php';
 require_once __DIR__.'/../../services/authService.php';
 require_once __DIR__.'/AfterLoginProcess.php';
@@ -62,16 +62,16 @@ class AuthenticationHandler extends BaseLoginHandler {
 
     public function handle(array $request): void {
         $dto = new LoginDto(trim($request['username']), trim($request['password']));
-        $user = $this->authService->login($dto);
+        $result = $this->authService->login($dto);
 
-        if (!$user) {
-            $_SESSION['error'] = 'Username atau password salah';
+        if (!$result['success']) {
+            $_SESSION['error'] = $result['message'];
             header('Location: ../index.php');
             exit;
         }
 
         // Simpan data user ke request untuk dipakai di handler berikutnya
-        $request['authenticated_user'] = $user; 
+        $request['authenticated_user'] = $result['user']; 
         
         parent::handle($request);
     }
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // 1. Inisialisasi Service pendukung
-$userRepository = new UserRepository();
+$userRepository = UserRepositoryFactory::getInstance();
 $authService = new AuthService($userRepository);
 
 // 2. Inisialisasi semua Handler
@@ -121,7 +121,7 @@ $captchaHandler
     ->setNext($authHandler)
     ->setNext($sessionHandler);
 
-$validationHandler->setNext($authHandler)->setNext($sessionHandler);
+
 
 // 4. Jalankan Chain dengan data POST
 // Kalau captcha hidup

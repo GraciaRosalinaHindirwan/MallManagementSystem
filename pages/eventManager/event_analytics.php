@@ -1,7 +1,5 @@
 <?php
-// pages/eventManager/event_analytics.php
-// PBI-M04-03-04 — Analitik Traffic Pengunjung Pasca-Event (Read-Only: Manajer)
-// require_once __DIR__ . '/../../public/auth/checkSession.php';
+require_once __DIR__ . '/../../public/auth/checkSession.php';
 require_once 'event_data.php';
 
 if (!defined('BASE_URL')) {
@@ -82,7 +80,6 @@ ob_start();
 ?>
 
 <style>
-/* ── Analytics Page Styles ── */
 .an-page-header {
     background: linear-gradient(135deg, #082A53 0%, #0D4859 60%, #0a3d4a 100%);
     padding: 1.75rem 2rem;
@@ -249,16 +246,7 @@ ob_start();
 }
 </style>
 
-<!-- ── Back Button + Header ── -->
 <div class="an-page-header">
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-        <a href="index.php" class="an-back-btn">
-            <i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard
-        </a>
-        <span class="an-badge-readonly">
-            <i class="fa-solid fa-lock" style="font-size:10px"></i> Read-Only · Manajer
-        </span>
-    </div>
     <div class="d-flex justify-content-between align-items-end flex-wrap gap-3">
         <div>
             <div style="font-size:11px;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem">
@@ -275,7 +263,6 @@ ob_start();
 </div>
 
 <?php if (empty($analytics)): ?>
-<!-- Empty State -->
 <div class="an-chart-card an-empty">
     <i class="fa-solid fa-chart-bar" style="font-size:3rem;display:block;margin-bottom:1rem;color:var(--accent);opacity:.3"></i>
     <div style="font-size:1rem;font-weight:600;margin-bottom:.5rem">Belum Ada Data Analytics</div>
@@ -286,7 +273,6 @@ ob_start();
 
 <?php else: ?>
 
-<!-- ── KPI Cards ── -->
 <div class="an-kpi-grid">
     <div class="an-kpi-card revenue">
         <i class="fa-solid fa-sack-dollar an-kpi-icon"></i>
@@ -318,7 +304,6 @@ ob_start();
     </div>
 </div>
 
-<!-- ── Charts ── -->
 <div class="row g-3 mb-4">
     <div class="col-md-6">
         <div class="an-chart-card">
@@ -338,7 +323,6 @@ ob_start();
     </div>
 </div>
 
-<!-- ── Per-Event Detail Cards ── -->
 <div style="font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem">
     <i class="fa-solid fa-list-ul me-1"></i> Detail Per Event
 </div>
@@ -371,7 +355,7 @@ ob_start();
     </div>
     <div class="an-event-body">
         <div class="row g-3">
-            <!-- Pengunjung -->
+
             <div class="col-md-3">
                 <div class="an-metric-box">
                     <div class="lbl">Pengunjung Aktual</div>
@@ -389,7 +373,6 @@ ob_start();
                     </div>
                 </div>
             </div>
-            <!-- Revenue Breakdown -->
             <div class="col-md-5">
                 <div style="font-size:10px;opacity:.45;text-transform:uppercase;margin-bottom:.5rem">Revenue Breakdown</div>
                 <div class="d-flex gap-2 flex-wrap">
@@ -407,7 +390,6 @@ ob_start();
                     </div>
                 </div>
             </div>
-            <!-- Traffic Mini Bar -->
             <div class="col-md-2">
                 <div style="font-size:10px;opacity:.45;text-transform:uppercase;margin-bottom:.5rem">Traffic Impact</div>
                 <div style="display:flex;gap:6px;align-items:flex-end;height:56px">
@@ -422,7 +404,6 @@ ob_start();
                     <i class="fa-solid fa-arrow-trend-up" style="font-size:9px"></i> +<?= $trafficLift ?>% lift
                 </div>
             </div>
-            <!-- Rating -->
             <div class="col-md-2">
                 <div style="font-size:10px;opacity:.45;text-transform:uppercase;margin-bottom:.5rem">Kepuasan</div>
                 <div class="an-star" style="font-size:1.05rem">
