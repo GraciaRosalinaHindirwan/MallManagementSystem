@@ -1,25 +1,21 @@
 <?php
 session_start();
 
-// file log (sesuai log_helper kamu)
 $file = '../../config/audit_log.json';
 
 $logs = [];
 
-// baca file JSON
 if (file_exists($file)) {
     $logs = json_decode(file_get_contents($file), true);
-    if (!is_array($logs)) {
-        $logs = [];
-    }
+    if (!is_array($logs)) $logs = [];
 }
 
-// urutkan terbaru
+// urut terbaru
 usort($logs, function ($a, $b) {
     return strtotime($b['tanggal']) - strtotime($a['tanggal']);
 });
 
-// filter user (optional)
+// filter user
 $filterUser = $_GET['user'] ?? '';
 if ($filterUser) {
     $logs = array_filter($logs, function ($log) use ($filterUser) {
@@ -38,20 +34,37 @@ if (isset($_POST['clear_log'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Audit Logs</title>
+    <title>Audit Log</title>
     <style>
         body { font-family: Arial; background:#f4f6f9; margin:0; }
-        .container { padding:20px; }
-        .card { background:white; padding:20px; border-radius:10px; }
 
-        table { width:100%; border-collapse:collapse; margin-top:15px; }
-        th, td { padding:10px; border-bottom:1px solid #ddd; }
-        th { background:#007bff; color:white; }
+        .container { padding:20px; }
+
+        .card {
+            background:white;
+            padding:20px;
+            border-radius:10px;
+        }
+
+        table {
+            width:100%;
+            border-collapse:collapse;
+            margin-top:15px;
+        }
+
+        th, td {
+            border:1px solid #ddd;
+            padding:10px;
+        }
+
+        th {
+            background:#007bff;
+            color:white;
+        }
 
         .topbar {
             display:flex;
             justify-content:space-between;
-            align-items:center;
             margin-bottom:10px;
         }
 
@@ -60,14 +73,14 @@ if (isset($_POST['clear_log'])) {
         .btn {
             padding:6px 10px;
             border:none;
-            border-radius:5px;
             cursor:pointer;
         }
 
-        .btn-danger { background:red; color:white; }
-        .btn-filter { background:green; color:white; }
+        .danger { background:red; color:white; }
+        .green { background:green; color:white; }
     </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -77,13 +90,14 @@ if (isset($_POST['clear_log'])) {
         <h2>📊 Audit Log</h2>
 
         <form method="get">
-            <input type="text" name="user" placeholder="Filter user..." value="<?= htmlspecialchars($filterUser) ?>">
-            <button class="btn btn-filter">Filter</button>
+            <input type="text" name="user" placeholder="Filter user..."
+                   value="<?= htmlspecialchars($filterUser) ?>">
+            <button class="btn green">Filter</button>
         </form>
     </div>
 
-    <form method="post" onsubmit="return confirm('Yakin hapus semua log?')">
-        <button name="clear_log" class="btn btn-danger">Clear Log</button>
+    <form method="post" onsubmit="return confirm('Hapus semua log?')">
+        <button name="clear_log" class="btn danger">Clear Log</button>
     </form>
 
     <table>
@@ -108,6 +122,7 @@ if (isset($_POST['clear_log'])) {
                 </tr>
             <?php endforeach; ?>
         <?php endif; ?>
+
     </table>
 
 </div>
