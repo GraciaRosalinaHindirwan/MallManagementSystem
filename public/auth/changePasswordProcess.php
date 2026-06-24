@@ -54,6 +54,8 @@ if (!$result) {
     header('Location: ../../public/changePassword.php');
     exit;
 }
+
+$userRepository->clearMustChangePassword($_SESSION['user_id']);
 unset($_SESSION['warning']);
 
 header(
