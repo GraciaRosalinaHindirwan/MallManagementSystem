@@ -1,9 +1,10 @@
 <?php
+
+// require_once "../../public/auth/checkSession.php";
 session_start();
 require_once '../../config/konek.php';
 
-// Ensure $conn variable exists to avoid undefined variable errors when
-// the included config may not set it.
+
 if (!isset($conn)) $conn = null;
 
 /* ── Helpers ─────────────────────────────────────────────── */
