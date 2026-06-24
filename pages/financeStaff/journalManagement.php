@@ -1,7 +1,19 @@
 <?php
-session_start();
-$_SESSION['role'] = 'Finance Staff'; 
-$_SESSION['nama'] = 'Intan (Staff)';
+/** @var mysqli $conn */ 
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
+    header("Location: ../../index.php"); 
+    exit();
+}
+*/
+
+$_SESSION['role'] = 'financeStaff';
+$_SESSION['nama'] = 'Staff';
 
 // 1. Cek otomatis file koneksi di folder config agar tidak fatal error
 if (file_exists('../../config/koneksi.php')) {
