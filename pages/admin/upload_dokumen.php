@@ -1,18 +1,12 @@
 <?php
-session_start();
-// require_once "../../public/auth/checkSession.php";
+require_once "../../public/auth/checkSession.php";
 require_once "../../config/konek.php";
 
 $page_title  = 'Upload Dokumen Legal';
 $active_page = 'dokumen';
-// $user_name   = $_SESSION['nama_lengkap'] ?? 'Guest';
-// $role        = $_SESSION['role_user'] ?? 'tenant';
-$user_name   = 'Admin';
-$role        = 'admin';
+$user_name   = $_SESSION['username'];
+$role        = $_SESSION['user_role'];
 
-/* ─────────────────────────────────────────────
-   Helpers
-───────────────────────────────────────────── */
 $ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
 $ALLOWED_EXT   = ['pdf', 'jpg', 'jpeg', 'png'];
 $MAX_SIZE      = 10 * 1024 * 1024; // 10 MB
@@ -22,14 +16,10 @@ if (!is_dir($UPLOAD_DIR)) {
     mkdir($UPLOAD_DIR, 0755, true);
 }
 
-/* ─────────────────────────────────────────────
-   POST handler
-───────────────────────────────────────────── */
 $flash = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    /* ── Hapus dokumen ── */
     if (isset($_POST['action']) && $_POST['action'] === 'delete') {
         $contract_id = (int)($_POST['contract_id'] ?? 0);
         if ($contract_id > 0) {
@@ -56,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    /* ── Upload dokumen ── */
     elseif (isset($_POST['action']) && $_POST['action'] === 'upload') {
         $contract_id = (int)($_POST['contract_id'] ?? 0);
 
@@ -117,9 +106,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-/* ─────────────────────────────────────────────
-   Query: daftar kontrak
-───────────────────────────────────────────── */
 $filter_status = $_GET['status'] ?? '';
 $search        = trim($_GET['search'] ?? '');
 $where         = '1=1';
@@ -189,7 +175,6 @@ ob_start();
 <style>
 .doc-page { max-width: 1200px; margin: 0 auto; }
 
-/* Flash message */
 .doc-flash {
     display: flex;
     align-items: center;
@@ -208,7 +193,6 @@ ob_start();
 .doc-flash-close { background: none; border: none; color: inherit; font-size: 14px; cursor: pointer; opacity: .6; flex-shrink: 0; padding: 4px; }
 .doc-flash-close:hover { opacity: 1; }
 
-/* Header */
 .doc-page-header {
     display: flex;
     align-items: flex-start;
@@ -232,7 +216,6 @@ ob_start();
     margin-bottom: 8px;
 }
 
-/* Stat cards */
 .doc-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -267,7 +250,6 @@ ob_start();
 .doc-stat-value { font-size: 26px; font-weight: 700; line-height: 1.1; }
 .doc-stat-label { font-size: var(--caption); color: var(--text-secondary); margin-top: 2px; }
 
-/* Grid layout */
 .doc-grid {
     display: grid;
     grid-template-columns: 340px 1fr;
@@ -294,7 +276,6 @@ ob_start();
 }
 .doc-panel-body { padding: 20px; }
 
-/* Form */
 .doc-form-group { margin-bottom: 18px; }
 .doc-form-label { display: block; font-size: var(--label); font-weight: 500; margin-bottom: 7px; color: var(--text); }
 .doc-form-label span { color: var(--danger); margin-left: 2px; }
@@ -363,7 +344,6 @@ ob_start();
 .doc-rules { font-size: var(--caption); color: var(--text-secondary); line-height: 1.7; padding-left: 18px; margin: 0; }
 .doc-rules li { margin-bottom: 4px; }
 
-/* Filter bar */
 .doc-filter-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
 .doc-filter-select,
 .doc-filter-input {
@@ -398,7 +378,6 @@ ob_start();
 .doc-filter-btn:hover { opacity: .85; }
 .doc-filter-btn.reset { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); }
 
-/* Table */
 .doc-table-wrap { overflow-x: auto; }
 .doc-table { width: 100%; border-collapse: collapse; font-size: var(--label); min-width: 760px; }
 .doc-table thead th {
@@ -456,7 +435,6 @@ ob_start();
 
 .doc-table-footnote { margin-top: 12px; font-size: var(--caption); color: rgba(184,199,217,0.4); }
 
-/* Modal */
 .doc-modal-bg {
     display: none;
     position: fixed;
@@ -498,7 +476,6 @@ ob_start();
 }
 .doc-modal-confirm:hover { opacity: .85; }
 
-/* ───────── Responsive ───────── */
 @media (max-width: 992px) {
     .doc-grid { grid-template-columns: 1fr; }
 }
@@ -550,8 +527,6 @@ ob_start();
     </div>
 
     <div class="doc-grid">
-
-        <!-- Upload form -->
         <div>
             <div class="doc-panel">
                 <div class="doc-panel-header"><i class="bi bi-upload"></i> Unggah Dokumen</div>
@@ -611,7 +586,6 @@ ob_start();
             </div>
         </div>
 
-        <!-- Tabel kontrak -->
         <div class="doc-panel">
             <div class="doc-panel-header"><i class="bi bi-card-list"></i> Daftar Kontrak &amp; Arsip Dokumen</div>
             <div class="doc-panel-body">
@@ -725,7 +699,6 @@ ob_start();
     </div>
 </div>
 
-<!-- Delete modal -->
 <div class="doc-modal-bg" id="deleteModal">
     <div class="doc-modal">
         <div class="doc-modal-icon"><i class="bi bi-trash3"></i></div>
