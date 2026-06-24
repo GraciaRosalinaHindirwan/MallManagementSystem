@@ -43,9 +43,9 @@ class FeedbackNotificationUseCase
             if ($feedback->rating > 3) continue;
 
             $this->notifier->notify(new NotificationContent(
-                "feedback rendah",
-                $feedback->komentar,
-                NotificationType::complaint
+                subject: "feedback rendah",
+                body: $feedback->komentar,
+                type: NotificationType::complaint
             ), $user);
         }
     }

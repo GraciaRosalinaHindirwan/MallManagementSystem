@@ -3,7 +3,7 @@
 session_start();
 
 // SIMULASI LOGIN (hapus saat integrasi login asli)
-$_SESSION['user_id'] = 1;
+$_SESSION['user_id'] = 32;
 $_SESSION['nama']    = 'Tester User';
 
 require_once __DIR__ . '/../../../config/konek.php';
@@ -26,9 +26,15 @@ $failed  = 0;
 foreach ($notifications as $notification) {
     $status = $notification->delivery_result->status->name ?? 'pending';
     switch ($status) {
-        case 'sent':   $sent++;    break;
-        case 'failed': $failed++;  break;
-        default:       $pending++; break;
+        case 'sent':
+            $sent++;
+            break;
+        case 'failed':
+            $failed++;
+            break;
+        default:
+            $pending++;
+            break;
     }
 }
 
@@ -79,12 +85,15 @@ ob_start();
     tbody tr {
         transition: background 0.15s ease;
     }
+
     tbody tr:hover {
         background: rgba(0, 212, 216, 0.06);
     }
+
     tbody tr:nth-child(even) {
         background: rgba(255, 255, 255, 0.025);
     }
+
     tbody tr:nth-child(even):hover {
         background: rgba(0, 212, 216, 0.06);
     }
@@ -94,6 +103,7 @@ ob_start();
         border-bottom: 1px solid rgba(255, 255, 255, 0.07);
         vertical-align: middle;
     }
+
     tbody tr:last-child td {
         border-bottom: none;
     }
@@ -107,15 +117,41 @@ ob_start();
     }
 
     /* ---- Stat card accent warna per tipe ---- */
-    .stat-card.accent-total  { border-left-color: var(--accent, #00D4D8); }
-    .stat-card.accent-sent   { border-left-color: #22C55E; }
-    .stat-card.accent-wait   { border-left-color: #FFB62A; }
-    .stat-card.accent-fail   { border-left-color: #EF4444; }
+    .stat-card.accent-total {
+        border-left-color: var(--accent, #00D4D8);
+    }
 
-    .stat-card.accent-total .stat-icon { background: rgba(0, 212, 216, 0.15); color: #00D4D8; }
-    .stat-card.accent-sent  .stat-icon { background: rgba(34, 197, 94, 0.15); color: #22C55E; }
-    .stat-card.accent-wait  .stat-icon { background: rgba(255, 182, 42, 0.15); color: #FFB62A; }
-    .stat-card.accent-fail  .stat-icon { background: rgba(239, 68, 68, 0.15);  color: #EF4444; }
+    .stat-card.accent-sent {
+        border-left-color: #22C55E;
+    }
+
+    .stat-card.accent-wait {
+        border-left-color: #FFB62A;
+    }
+
+    .stat-card.accent-fail {
+        border-left-color: #EF4444;
+    }
+
+    .stat-card.accent-total .stat-icon {
+        background: rgba(0, 212, 216, 0.15);
+        color: #00D4D8;
+    }
+
+    .stat-card.accent-sent .stat-icon {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22C55E;
+    }
+
+    .stat-card.accent-wait .stat-icon {
+        background: rgba(255, 182, 42, 0.15);
+        color: #FFB62A;
+    }
+
+    .stat-card.accent-fail .stat-icon {
+        background: rgba(239, 68, 68, 0.15);
+        color: #EF4444;
+    }
 
     /* ---- Card header ---- */
     .card-header {
@@ -126,9 +162,11 @@ ob_start();
         flex-wrap: wrap;
         gap: 10px;
     }
+
     .card-header .card-title {
         margin-bottom: 0;
     }
+
     .record-count {
         font-size: 12px;
         color: rgba(245, 247, 250, 0.45);
@@ -149,9 +187,11 @@ ob_start();
         color: rgba(245, 247, 250, 0.4);
         text-align: center;
     }
+
     .empty-state i {
         font-size: 2.5rem;
     }
+
     .empty-state p {
         font-size: 14px;
         margin: 0;
@@ -200,6 +240,7 @@ ob_start();
         gap: 7px;
         white-space: nowrap;
     }
+
     .recipient-avatar {
         width: 26px;
         height: 26px;
@@ -343,8 +384,8 @@ ob_start();
                             </td>
 
                             <td class="td-message" title="<?= htmlspecialchars(
-                                $notification->notification_content->body ?? ''
-                            ) ?>">
+                                                                $notification->notification_content->body ?? ''
+                                                            ) ?>">
                                 <?= htmlspecialchars(
                                     $notification->notification_content->body ?? '-'
                                 ) ?>
@@ -361,7 +402,7 @@ ob_start();
                             <td>
                                 <span class="pill">
                                     <i class="fa-solid fa-satellite-dish"
-                                       style="font-size:10px; margin-right:4px; opacity:.7;"></i>
+                                        style="font-size:10px; margin-right:4px; opacity:.7;"></i>
                                     <?= htmlspecialchars(
                                         $notification->channel->name ?? '-'
                                     ) ?>
@@ -386,7 +427,7 @@ ob_start();
                             <td class="td-date">
                                 <?php if ($notification->created_at): ?>
                                     <i class="fa-regular fa-calendar"
-                                       style="margin-right:4px; opacity:.5;"></i>
+                                        style="margin-right:4px; opacity:.5;"></i>
                                     <?= $notification->created_at->format('d M Y') ?><br>
                                     <span style="margin-left:16px; font-size:11px; opacity:.6;">
                                         <?= $notification->created_at->format('H:i') ?>
@@ -398,8 +439,8 @@ ob_start();
 
                             <td>
                                 <a href="detail.php?id=<?= urlencode($notification->id) ?>"
-                                   class="btn btn-primary"
-                                   style="font-size:12px; padding:6px 14px;">
+                                    class="btn btn-primary"
+                                    style="font-size:12px; padding:6px 14px;">
                                     <i class="fa-solid fa-eye"></i>
                                     Detail
                                 </a>
@@ -428,3 +469,4 @@ $content = ob_get_clean();
 // ===============================
 
 include __DIR__ . '/../../../includes/08_navbar.php';
+
