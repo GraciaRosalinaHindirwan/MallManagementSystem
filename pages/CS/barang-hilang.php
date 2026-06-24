@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../../config/db_lostnfound.php';
+require_once '../../config/konek.php';
 
 $alertMsg  = '';
 $alertType = '';

@@ -1,6 +1,7 @@
+```php
 <?php
 session_start();
-require_once '../../config/db_lostnfound.php';
+require_once '../../config/konek.php';
 
 $alertMsg  = '';
 $alertType = '';
@@ -24,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $photo          = null;
 
         if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
-            $uploadDir = '../../uploads/found_items/';
+            $uploadDir = '../../storage/uploads/found_items/';
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
             $photo = time() . '_' . basename($_FILES['photo']['name']);
             move_uploaded_file($_FILES['photo']['tmp_name'], $uploadDir . $photo);
@@ -104,7 +105,7 @@ ob_start();
                     <td><?= $i + 1 ?></td>
                     <td>
                         <?php if ($item['photo']): ?>
-                            <img src="../../uploads/found_items/<?= $item['photo'] ?>" style="width:48px; height:48px; object-fit:cover; border-radius:6px;" />
+                            <img src="../../storage/uploads/found_items/<?= $item['photo'] ?>" style="width:48px; height:48px; object-fit:cover; border-radius:6px;" />
                         <?php else: ?>
                             <span style="color:rgba(245,247,250,0.3)">—</span>
                         <?php endif; ?>
