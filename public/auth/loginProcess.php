@@ -25,15 +25,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['role']     = $user['role']; 
             $_SESSION['nama']     = $user['nama'];
 
-            // === REDIRECT SESUAI 4 ROLE ===
+            // Lempar ke halaman dashboard yang sesuai berdasarkan role masing-masing
             if ($user['role'] === 'Finance Manager') {
                 header("Location: ../../pages/financeManager/dashboardManager.php");
             } else if ($user['role'] === 'Finance Staff') {
                 header("Location: ../../pages/financeStaff/dashboardStaff.php");
             } else if ($user['role'] === 'Purchasing Manager') {
-                header("Location: ../../pages/purchasingManager/dashboardPurchasingManager.php"); // Sesuaikan nama file dashboardnya nanti ya
+                header("Location: ../../pages/purchasingManager/dashboardManager.php");
             } else if ($user['role'] === 'Purchasing Staff') {
-                header("Location: ../../pages/purchasingStaff/dashboardPurchasingStaff.php");     // Sesuaikan nama file dashboardnya nanti ya
+                header("Location: ../../pages/purchasingStaff/dashboardStaff.php");
             } else {
                 header("Location: ../index.php?error=role_tidak_dikenal");
             }
