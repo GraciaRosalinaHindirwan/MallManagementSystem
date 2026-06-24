@@ -1,13 +1,18 @@
 <?php
-// =========================================================================
-// FINANCE & ACCOUNTING MODULE - LAPORAN KEUANGAN (PBI-M06-04-03)
-// =========================================================================
+/** @var mysqli $conn */ 
+
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Set session untuk Finance Manager
-$_SESSION['role'] = 'Finance Manager'; 
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeManager') {
+    header("Location: ../../index.php"); 
+    exit();
+}
+*/
+
+$_SESSION['role'] = 'financeManager';
 $_SESSION['nama'] = 'Manager';
 
 // 1. Cek file koneksi
