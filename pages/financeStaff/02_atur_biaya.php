@@ -19,11 +19,6 @@ if (!$conn) {
 ?>
 
 <?php
-// =====================================================
-// 1. KONEKSI DATABASE
-// =====================================================
-// Sesuaikan path koneksi database sesuai struktur projek Anda, contoh menggunakan conn dari modul 8 atau config umum
-
 // Proses Handling Form Submit (Aksi Input ke Database)
 $message = "";
 if (isset($_POST['submit_biaya'])) {
@@ -41,9 +36,9 @@ if (isset($_POST['submit_biaya'])) {
     $stmt->bind_param("issds", $id_contract, $charge_type, $calculation_basis, $amount_or_percentage, $billing_cycle);
 
     if ($stmt->execute()) {
-        $message = "<div class='alert alert-success'>Komponen biaya sewa berhasil diatur dan disimpan!</div>";
+        $message = "<div class='alert alert-success'><i class='fa-solid fa-circle-check me-2'></i>Komponen biaya sewa berhasil diatur dan disimpan!</div>";
     } else {
-        $message = "<div class='alert alert-danger'>Gagal menyimpan data: " . $conn->error . "</div>";
+        $message = "<div class='alert alert-danger'><i class='fa-solid fa-circle-xmark me-2'></i>Gagal menyimpan data: " . $conn->error . "</div>";
     }
 }
 
@@ -55,70 +50,136 @@ $query_kontrak = "SELECT c.id_contract, c.contract_number, t.brand_name, u.unit_
                   WHERE c.contract_status = 'Active'";
 $result_kontrak = $conn->query($query_kontrak);
 
-
-// =====================================================
-// 2. DEFINISIKAN VARIABEL UNTUK TEMPLATE Layout
-// =====================================================
 $department_name = "Tenant & Leasing Management"; 
 $page_title = "Atur Komponen Biaya Tenant";
-$user_name = "Muhammad Naufal"; // Menggunakan data profil user
+$user_name = "Muhammad Naufal"; 
 
-$menu_items = [
-    [
-        'icon' => 'fa-solid fa-chart-line',
-        'label' => 'Dashboard',
-        'link' => '08_dashboard.php',
-        'active_page' => 'dashboard'
-    ],
-    [
-        'icon' => 'fa-solid fa-money-bill-wave',
-        'label' => 'Manajemen Biaya',
-        'link' => '02_atur_biaya.php',
-        'active_page' => 'atur_biaya'
-    ],
-    [
-        'icon' => 'fa-solid fa-file-alt',
-        'label' => 'Laporan',
-        'link' => '08_laporan.php',
-        'active_page' => 'laporan'
-    ]
-];
-
-
-// =====================================================
-// 3. KONTEN HALAMAN (Menggunakan Output Buffering)
-// =====================================================
 ob_start();
 ?>
 
-<div class="container-fluid py-4">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    .card-custom {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(149, 157, 165, 0.15) !important;
+        overflow: hidden;
+    }
+    .card-header-custom {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%) !important;
+        padding: 1.25rem 1.5rem;
+        border-bottom: none;
+    }
+    .card-header-custom h5 {
+        font-size: 1.15rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    .card-body-custom {
+        padding: 2rem 2.5rem;
+        background-color: #ffffff;
+    }
+    .form-label-custom {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    .form-control-custom {
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        border: 1px solid #d1d3e2;
+        font-size: 0.95rem;
+        transition: all 0.2s ease-in-out;
+    }
+    .form-control-custom:focus {
+        border-color: #bac8f3;
+        box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.15);
+        background-color: #fff;
+    }
+    .input-group-text-custom {
+        background-color: #eaecf4;
+        border: 1px solid #d1d3e2;
+        border-radius: 8px 0 0 8px;
+        color: #495057;
+        font-weight: 500;
+    }
+    .input-group .form-control-custom {
+        border-radius: 0 8px 8px 0;
+    }
+    .btn-custom-primary {
+        background-color: #4e73df;
+        border-color: #4e73df;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.2rem;
+    }
+    .btn-custom-primary:hover {
+        background-color: #2e59d9;
+        border-color: #2653d4;
+    }
+    .btn-custom-secondary {
+        background-color: #eaecf4;
+        border-color: #eaecf4;
+        color: #5a5c69;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    .btn-custom-secondary:hover {
+        background-color: #dddfeb;
+        color: #5a5c69;
+    }
+    .alert {
+        border-radius: 8px;
+        font-size: 0.95rem;
+        border: none;
+    }
+    .small-info {
+        font-size: 0.8rem;
+        color: #858796;
+        margin-top: 0.25rem;
+    }
+</style>
+
+<div class="container-fluid py-5">
     <div class="row">
-        <div class="col-md-8 mx-auto">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
+        <div class="col-xl-7 col-lg-9 mx-auto">
+            <div class="card card-custom">
+                <div class="card-header card-header-custom text-white">
                     <h5 class="mb-0"><i class="fa-solid fa-calculator me-2"></i> Form Input Komponen Biaya Tenant (PBI-M02-03-01)</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body card-body-custom">
                     
                     <?php echo $message; ?>
 
-                    <form action="biaya_tampil.php" method="POST">
+                    <form action="" method="POST">
                         
-                        <div class="mb-3">
-                            <label for="id_contract" class="form-label font-weight-bold">Kontrak / Tenant Aktif</label>
-                            <select class="form-control" id_contract name="id_contract" required>
+                        <div class="mb-4">
+                            <label for="id_contract" class="form-label form-label-custom font-weight-bold">Kontrak / Tenant Aktif</label>
+                            <select class="form-select form-control-custom" id="id_contract" name="id_contract" required>
                                 <option value="">-- Pilih Kontrak Tenant --</option>
                                 <?php while($row = $result_kontrak->fetch_assoc()): ?>
                                     <option value="<?php echo $row['id_contract']; ?>">
                                         <?php echo $row['contract_number'] . " - " . $row['brand_name'] . " (Unit: " . $row['unit_code'] . ")"; ?>
                                     </option>
-                                <?php endwhile; ?> </select>
+                                <?php endwhile; ?>
                             </select>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="charge_type" class="form-label font-weight-bold">Jenis Komponen Biaya (Charge Type)</label>
-                            <select class="form-control" id="charge_type" name="charge_type" required>
+                        <div class="mb-4">
+                            <label for="charge_type" class="form-label form-label-custom font-weight-bold">Jenis Komponen Biaya (Charge Type)</label>
+                            <select class="form-select form-control-custom" id="charge_type" name="charge_type" required>
                                 <option value="">-- Pilih Jenis Biaya --</option>
                                 <option value="Fixed Rent">Fixed Rent (Sewa Tetap)</option>
                                 <option value="Revenue Sharing">Revenue Sharing (Bagi Hasil)</option>
@@ -128,9 +189,9 @@ ob_start();
                             </select>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="calculation_basis" class="form-label font-weight-bold">Dasar Perhitungan (Calculation Basis)</label>
-                            <select class="form-control" id="calculation_basis" name="calculation_basis" required>
+                        <div class="mb-4">
+                            <label for="calculation_basis" class="form-label form-label-custom font-weight-bold">Dasar Perhitungan (Calculation Basis)</label>
+                            <select class="form-select form-control-custom" id="calculation_basis" name="calculation_basis" required>
                                 <option value="">-- Pilih Dasar Hitung --</option>
                                 <option value="Per Sqm">Per Meter Persegi (Per Sqm)</option>
                                 <option value="Fixed Monthly">Bulanan Tetap (Fixed Monthly)</option>
@@ -138,27 +199,27 @@ ob_start();
                             </select>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="amount_or_percentage" class="form-label font-weight-bold">Nilai Nominal (Rupiah) / Persentase (%)</label>
+                        <div class="mb-4">
+                            <label for="amount_or_percentage" class="form-label form-label-custom font-weight-bold">Nilai Nominal (Rupiah) / Persentase (%)</label>
                             <div class="input-group">
-                                <span class="input-group-text">Nilai</span>
-                                <input type="number" step="0.01" class="form-control" id="amount_or_percentage" name="amount_or_percentage" placeholder="Contoh: 150000000 atau 10.5" required>
+                                <span class="input-group-text input-group-text-custom">Rp / %</span>
+                                <input type="number" step="0.01" class="form-control form-control-custom" id="amount_or_percentage" name="amount_or_percentage" placeholder="Contoh: 150000000 atau 10.5" required>
                             </div>
-                            <small class="text-muted">*Jangan gunakan titik atau koma untuk ribuan, gunakan desimal langsung jika berupa persentase.</small>
+                            <div class="small-info">*Jangan gunakan titik atau koma untuk ribuan, gunakan desimal langsung jika berupa persentase.</div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="billing_cycle" class="form-label font-weight-bold">Siklus Penagihan (Billing Cycle)</label>
-                            <select class="form-control" id="billing_cycle" name="billing_cycle" required>
+                        <div class="mb-4">
+                            <label for="billing_cycle" class="form-label form-label-custom font-weight-bold">Siklus Penagihan (Billing Cycle)</label>
+                            <select class="form-select form-control-custom" id="billing_cycle" name="billing_cycle" required>
                                 <option value="Monthly">Bulanan (Monthly)</option>
                                 <option value="Quarterly">Tiga Bulanan (Quarterly)</option>
                                 <option value="Annually">Tahunan (Annually)</option>
                             </select>
                         </div>
 
-                        <div class="mt-4 text-end">
-                            <button type="reset" class="btn btn-secondary me-2"><i class="fa-solid fa-undo"></i> Reset</button>
-                            <button type="submit" name="submit_biaya" class="btn btn-primary"><i class="fa-solid fa-save"></i> Simpan Komponen Biaya</button>
+                        <div class="mt-5 text-end">
+                            <button type="reset" class="btn btn-custom-secondary me-2"><i class="fa-solid fa-undo me-1"></i> Reset</button>
+                            <button type="submit" name="submit_biaya" class="btn btn-custom-primary text-white"><i class="fa-solid fa-save me-1"></i> Simpan Komponen Biaya</button>
                         </div>
 
                     </form>

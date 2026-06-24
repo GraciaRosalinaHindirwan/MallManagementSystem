@@ -112,10 +112,3 @@ if ($result && $result->num_rows > 0) {
         </div>
     </div>
 </div>
-
-<?php
-$content = ob_get_clean();
-
-// 4. PANGGIL TEMPLATE UTAMA
-require_once '../../includes/navbar.php';
-?>
