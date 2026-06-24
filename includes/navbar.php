@@ -7,7 +7,7 @@ $role = $_SESSION['role'] ?? 'Guest';
 
 // Bersihkan nama dari duplikat kata (Staff)/(Manager) biar rapi
 $user_name = $_SESSION['nama'] ?? 'User';
-$user_name = str_replace(['(Staff)', '(Manager)', 'Staff', 'Manager'], '', $user_name);
+$user_name = str_replace(['(Staff)', 'Manager', 'Staff', 'Manager'], '', $user_name);
 $user_name = trim($user_name);
 
 // Judul dinamis sesuai role di Topbar
