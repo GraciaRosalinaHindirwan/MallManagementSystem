@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require_once '../config/log_helper.php';
+require_once '../../config/log_helper.php';
 
 $username = $_SESSION['username'] ?? 'Unknown';
 simpanLog($username, 'Logout');
