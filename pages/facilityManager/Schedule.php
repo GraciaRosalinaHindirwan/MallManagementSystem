@@ -179,7 +179,7 @@ ob_start();
 }
 
 .modal-content{
-    background:#fff;
+    background:#021F42;
     width:500px;
     max-width:90%;
     margin:50px auto;

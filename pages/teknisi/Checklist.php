@@ -234,7 +234,7 @@ ob_start();
 }
 
 .modal-content{
-    background:#fff;
+    background:#021F42;
     width:600px;
     max-width:95%;
     margin:40px auto;
