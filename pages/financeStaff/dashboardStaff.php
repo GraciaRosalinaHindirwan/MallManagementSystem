@@ -1,6 +1,18 @@
 <?php
-session_start();
-$_SESSION['role'] = 'Finance Staff'; 
+/** @var mysqli $conn */ 
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
+    header("Location: ../../index.php"); 
+    exit();
+}
+
+// Sesi default sementara tetap dibiarkan di bawahnya agar aman dicoba sekarang
+$_SESSION['role'] = 'financeStaff';
 $_SESSION['nama'] = 'Staff';
 
 // Panggil file koneksi terpusat
