@@ -5,7 +5,14 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-$_SESSION['role'] = 'Finance Manager';
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeManager') {
+    header("Location: ../../index.php"); 
+    exit();
+}
+*/
+
+$_SESSION['role'] = 'financeManager';
 $_SESSION['nama'] = 'Manager';
 
 if (file_exists(__DIR__ . '/../../config/koneksi.php')) {
