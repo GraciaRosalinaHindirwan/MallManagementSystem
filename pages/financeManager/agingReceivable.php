@@ -1,20 +1,20 @@
 <?php
-if (session_status() == PHP_SESSION_NONE) { 
-    session_start(); 
+/** @var mysqli $conn */ 
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
 }
 
-if (!isset($_SESSION['role']) || strtolower(trim($_SESSION['role'])) !== 'financeManager') {
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeManager') {
     header("Location: ../../index.php"); 
     exit();
 }
 */
 
-// Set / Koreksi session sementara agar sinkron dengan database & navbar baru
-$_SESSION['role'] = 'financeManager'; 
-if (!isset($_SESSION['nama'])) {
-    $_SESSION['nama'] = 'Manager';
-}
-
+// Sesi default sementara tetap dibiarkan di bawahnya agar aman dicoba sekarang
+$_SESSION['role'] = 'financeManager';
+$_SESSION['nama'] = 'Manager';
 
 $current_page = basename($_SERVER['PHP_SELF']);
 $role = $_SESSION['role'] ?? 'Guest';
