@@ -159,6 +159,8 @@ $menu_items = [
     ['icon' => 'fa-solid fa-chart-line', 'label' => 'Laporan', 'link' => '08_laporan.php', 'active_page' => '08_laporan'],
     ['icon' => 'fa-solid fa-check-circle', 'label' => 'Approval', 'link' => '08_approval.php', 'active_page' => '08_approval'],
     ['icon' => 'fa-solid fa-bell', 'label' => 'Notifikasi', 'link' => '08_notifikasi.php', 'active_page' => '08_notifikasi'],
+    ['icon' => 'fa-solid fa-bell', 'label' => 'Event Analitik', 'link' => 'event_analytics.php', 'active_page' => 'event_analytics'],
+    ['icon' => 'fa-solid fa-bell', 'label' => 'Utility Analitik', 'link' => 'utility_analitik.php', 'active_page' => 'utility_analitik']
 ];
 
 ob_start();

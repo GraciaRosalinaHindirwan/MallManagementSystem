@@ -61,11 +61,17 @@ $chart_konsumsi = array_map(fn($t) => (float)$t['total_konsumsi'], $per_tipe);
 $chart_tipe_colors = array_map(fn($t) => $utilColor[$t['utility_type']] ?? '#6b7280', $per_tipe);
 
 // ── Variabel template ────────────────────────────────────────────────────────
-$department_name = 'Utility Management';
-$page_title      = 'Analitik Konsumsi Energi';
-$user_name       = $_SESSION['nama'] ?? ($_SESSION['username'] ?? 'Manager');
+$department_name = "BI, Workflow, and Notification";
+$page_title = "Dashboard KPI";
+$user_name = "Manager";
+
 $menu_items = [
-    ['icon'=>'fa-solid fa-chart-line', 'label'=>'Analitik', 'link'=>'../../pages/manager/utility_analitik.php','active_page'=>'utility_analitik']
+    ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard KPI', 'link' => '08_dashboard.php', 'active_page' => '08_dashboard'],
+    ['icon' => 'fa-solid fa-chart-line', 'label' => 'Laporan', 'link' => '08_laporan.php', 'active_page' => '08_laporan'],
+    ['icon' => 'fa-solid fa-check-circle', 'label' => 'Approval', 'link' => '08_approval.php', 'active_page' => '08_approval'],
+    ['icon' => 'fa-solid fa-bell', 'label' => 'Notifikasi', 'link' => '08_notifikasi.php', 'active_page' => '08_notifikasi'],
+    ['icon' => 'fa-solid fa-bell', 'label' => 'Event Analitik', 'link' => 'event_analytics.php', 'active_page' => 'event_analytics'],
+    ['icon' => 'fa-solid fa-bell', 'label' => 'Utility Analitik', 'link' => 'utility_analitik.php', 'active_page' => 'utility_analitik']
 ];
 
 ob_start();
@@ -267,5 +273,5 @@ new Chart(document.getElementById('chartTren'),{
 <?php
 $content = ob_get_clean();
 $conn->close();
-require_once __DIR__ . '/../../includes/navbar.php';
+require_once dirname(__DIR__, 2) . '/includes/08_nav_template.php';
 ?>
