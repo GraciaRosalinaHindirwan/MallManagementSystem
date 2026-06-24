@@ -11,14 +11,16 @@ if (file_exists($file)) {
 }
 
 // urut terbaru
-usort($logs, fn($a, $b) => strtotime($b['tanggal']) - strtotime($a['tanggal']));
+usort($logs, function ($a, $b) {
+    return strtotime($b['tanggal']) - strtotime($a['tanggal']);
+});
 
-// filter
+// filter user
 $filterUser = $_GET['user'] ?? '';
 if ($filterUser) {
-    $logs = array_filter($logs, fn($log) =>
-        strtolower($log['username']) === strtolower($filterUser)
-    );
+    $logs = array_filter($logs, function ($log) use ($filterUser) {
+        return strtolower($log['username']) === strtolower($filterUser);
+    });
 }
 
 // stats
@@ -36,112 +38,128 @@ if (isset($_POST['clear_log'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Audit Logs</title>
+    <title>Audit Log</title>
 
     <style>
-        body{
-            margin:0;
-            font-family:Arial;
-            background:#eef2f7;
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #eef2f7;
         }
 
-        .container{
-            padding:20px;
+        .container {
+            padding: 20px;
         }
 
-        .title{
-            font-size:22px;
-            font-weight:bold;
-            margin-bottom:15px;
+        /* HEADER */
+        .header {
+            background: linear-gradient(90deg, #2c3e50, #34495e);
+            color: white;
+            padding: 18px;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
         }
 
-        /* CARD STATS */
-        .stats{
-            display:flex;
-            gap:15px;
-            margin-bottom:15px;
+        .header h2 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: 1px;
         }
 
-        .card{
-            flex:1;
-            background:white;
-            padding:15px;
-            border-radius:12px;
-            box-shadow:0 2px 8px rgba(0,0,0,0.08);
+        /* STATS */
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
         }
 
-        .card h3{
-            margin:0;
-            font-size:18px;
+        .card {
+            flex: 1;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
-        .card p{
-            margin:5px 0 0;
-            color:gray;
+        .card h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .card p {
+            margin: 5px 0 0;
+            color: gray;
         }
 
         /* TOP BAR */
-        .topbar{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:10px;
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
         }
 
-        input{
-            padding:8px;
-            border:1px solid #ccc;
-            border-radius:8px;
+        input {
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
         }
 
-        button{
-            padding:8px 12px;
-            border:none;
-            border-radius:8px;
-            cursor:pointer;
+        button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
         }
 
-        .btn-danger{ background:#e74c3c; color:white; }
-        .btn-green{ background:#2ecc71; color:white; }
+        .btn-red {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-green {
+            background: #2ecc71;
+            color: white;
+        }
 
         /* TABLE */
-        table{
-            width:100%;
-            border-collapse:collapse;
-            background:white;
-            border-radius:12px;
-            overflow:hidden;
-            box-shadow:0 2px 8px rgba(0,0,0,0.08);
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
-        th{
-            background:#2c3e50;
-            color:white;
-            padding:12px;
-            text-align:left;
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: left;
         }
 
-        td{
-            padding:12px;
-            border-bottom:1px solid #eee;
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
         }
 
-        tr:hover{
-            background:#f6f9ff;
+        tr:hover {
+            background: #f6f9ff;
         }
 
-        /* BADGE */
-        .badge{
-            padding:4px 10px;
-            border-radius:20px;
-            font-size:12px;
-            background:#dff0ff;
-            color:#0077cc;
-            display:inline-block;
+        .badge {
+            background: #dff0ff;
+            color: #0077cc;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
         }
 
-        .activity{
-            font-weight:500;
+        .activity {
+            font-weight: 500;
         }
     </style>
 </head>
@@ -150,7 +168,10 @@ if (isset($_POST['clear_log'])) {
 
 <div class="container">
 
-    <div class="title">📊 Audit Log Dashboard</div>
+    <!-- HEADER -->
+    <div class="header">
+        <h2>📊 Audit Log Dashboard</h2>
+    </div>
 
     <!-- STATS -->
     <div class="stats">
@@ -169,12 +190,13 @@ if (isset($_POST['clear_log'])) {
     <div class="topbar">
 
         <form method="get">
-            <input type="text" name="user" placeholder="Filter username..." value="<?= htmlspecialchars($filterUser) ?>">
+            <input type="text" name="user" placeholder="Filter username..."
+                   value="<?= htmlspecialchars($filterUser) ?>">
             <button class="btn-green">Search</button>
         </form>
 
-        <form method="post" onsubmit="return confirm('Hapus semua log?')">
-            <button class="btn-danger" name="clear_log">Clear All</button>
+        <form method="post" onsubmit="return confirm('Yakin hapus semua log?')">
+            <button class="btn-red" name="clear_log">Clear All</button>
         </form>
 
     </div>
