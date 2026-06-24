@@ -47,25 +47,26 @@ if ($conn) {
     }
 }
 
-$jenisList = ['Toilet','ATM','Mushola','Lift','Eskalator','Parkir','Lainnya'];
+$jenisList = ['HVAC', 'Electrical', 'Security'];
 $jenisCount = [];
-$jenisIcon  = [
-    'Toilet'    => 'fa-restroom',
-    'ATM'       => 'fa-credit-card',
-    'Mushola'   => 'fa-moon',
-    'Lift'      => 'fa-elevator',
-    'Eskalator' => 'fa-stairs',
-    'Parkir'    => 'fa-square-parking',
-    'Lainnya'   => 'fa-ellipsis',
+
+$jenisIcon = [
+    'HVAC'       => 'fa-fan',
+    'Electrical' => 'fa-bolt',
+    'Security'   => 'fa-shield-halved',
 ];
 
 if ($conn) {
-    $res = $conn->query("SELECT category, COUNT(*) as total FROM `03_assets` GROUP BY category");
+    $res = $conn->query("SELECT category, COUNT(*) AS total FROM `03_assets` GROUP BY category");
 
-while ($row = $res->fetch_assoc()) {
-    $jenisCount[$row['category']] = (int)$row['total'];
-}
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $jenisCount[$row['category']] = (int)$row['total'];
+        }
+    } else {
+        die($conn->error);
     }
+}
 
 $grouped = [];
 foreach ($facilities as $fac) {
