@@ -1,8 +1,173 @@
 <?php
-// registerUser.php
-// PBI-M09-01-03 — Menambahkan pengguna baru
-// Hanya dapat diakses oleh Admin
+include '../config/konek.php';
+
+$successMessage = "";
+$errorMessage = "";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $nama       = trim($_POST['nama_lengkap'] ?? '');
+    $username   = trim($_POST['username'] ?? '');
+    $email      = trim($_POST['email'] ?? '');
+    $role       = trim($_POST['role'] ?? '');
+
+    $errors = [];
+
+    if (empty($nama)) {
+        $errors[] = "Nama lengkap wajib diisi.";
+    }
+
+    if (empty($username)) {
+        $errors[] = "Username wajib diisi.";
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Email tidak valid.";
+    }
+
+    if (empty($role)) {
+        $errors[] = "Role wajib dipilih.";
+    }
+
+    $cekUsername = mysqli_prepare(
+        $conn,
+        "SELECT id FROM 09_users WHERE username = ?"
+    );
+
+    mysqli_stmt_bind_param(
+        $cekUsername,
+        "s",
+        $username
+    );
+
+    mysqli_stmt_execute($cekUsername);
+
+    $resultUsername =
+        mysqli_stmt_get_result($cekUsername);
+
+    if (mysqli_num_rows($resultUsername) > 0) {
+        $errors[] = "Username sudah digunakan.";
+    }
+
+    $cekEmail = mysqli_prepare(
+        $conn,
+        "SELECT id FROM 09_users WHERE email = ?"
+    );
+
+    mysqli_stmt_bind_param(
+        $cekEmail,
+        "s",
+        $email
+    );
+
+    mysqli_stmt_execute($cekEmail);
+
+    $resultEmail =
+        mysqli_stmt_get_result($cekEmail);
+
+    if (mysqli_num_rows($resultEmail) > 0) {
+        $errors[] = "Email sudah digunakan.";
+    }
+
+    if (empty($errors)) {
+        $roleQuery = mysqli_prepare(
+            $conn,
+            "SELECT id
+             FROM 09_role_pages
+             WHERE role = ?
+             LIMIT 1"
+        );
+
+        mysqli_stmt_bind_param(
+            $roleQuery,
+            "s",
+            $role
+        );
+
+        mysqli_stmt_execute($roleQuery);
+
+        $roleResult =
+            mysqli_stmt_get_result($roleQuery);
+
+        $roleData =
+            mysqli_fetch_assoc($roleResult);
+
+        if (!$roleData) {
+
+            $errorMessage =
+                "Role tidak ditemukan.";
+
+        } else {
+
+            $rolePageId =
+                $roleData['id'];
+
+            // password default
+            $plainPassword =
+                $username . "@123";
+
+            $hashedPassword =
+                password_hash(
+                    $plainPassword,
+                    PASSWORD_DEFAULT
+                );
+
+            $insert = mysqli_prepare(
+                $conn,
+                "INSERT INTO 09_users
+                (
+                    full_name,
+                    username,
+                    email,
+                    password,
+                    must_change_password,
+                    role_page_id
+                )
+                VALUES
+                (
+                    ?, ?, ?, ?, 1, ?
+                )"
+            );
+
+            mysqli_stmt_bind_param(
+                $insert,
+                "ssssi",
+                $nama,
+                $username,
+                $email,
+                $hashedPassword,
+                $rolePageId
+            );
+
+            if (mysqli_stmt_execute($insert)) {
+
+                $successMessage =
+                "
+                User berhasil ditambahkan.<br>
+                Username : <b>$username</b><br>
+                Password Default :
+                <b>$plainPassword</b><br>
+                Role :
+                <b>$role</b>
+                ";
+
+                $_POST = [];
+
+            } else {
+
+                $errorMessage =
+                "Gagal menambahkan user.";
+            }
+        }
+
+    } else {
+
+        $errorMessage =
+            implode("<br>", $errors);
+    }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -23,7 +188,6 @@
       align-items: stretch;
     }
 
-    /* ── LEFT PANEL — background image ── */
     .bg-panel {
       flex: 1;
       background: url('../public/asset/images/background.png') center center / cover no-repeat;
@@ -53,7 +217,6 @@
       color: rgba(245,247,250,.7);
     }
 
-    /* ── RIGHT PANEL — form card ── */
     .form-panel {
       width: 520px;
       flex-shrink: 0;
@@ -66,7 +229,6 @@
       border-left: 1px solid rgba(0, 212, 216, 0.18);
     }
 
-    /* Back link */
     .back-link {
       display: inline-flex;
       align-items: center;
@@ -81,7 +243,6 @@
     .back-link:hover { opacity: 1; }
     .back-link svg { width: 16px; height: 16px; }
 
-    /* Heading */
     .form-panel__heading h1 {
       font-size: var(--h1);
       font-weight: 700;
@@ -94,7 +255,6 @@
       margin-bottom: 32px;
     }
 
-    /* Form layout */
     .form-grid {
       display: flex;
       flex-direction: column;
@@ -131,7 +291,6 @@
       box-shadow: 0 0 0 3px rgba(0, 212, 216, 0.15);
     }
 
-    /* Select arrow */
     .form-group select {
       appearance: none;
       -webkit-appearance: none;
@@ -146,7 +305,6 @@
       color: var(--text);
     }
 
-    /* Password info box */
     .info-box {
       background: rgba(0, 212, 216, 0.08);
       border: 1px solid rgba(0, 212, 216, 0.25);
@@ -161,7 +319,6 @@
     }
     .info-box svg { flex-shrink: 0; margin-top: 1px; color: var(--accent); }
 
-    /* Submit button */
     .btn-submit {
       margin-top: 8px;
       background: var(--secondary);
@@ -179,7 +336,6 @@
     .btn-submit:hover { background: var(--secondary-dark); }
     .btn-submit:active { transform: scale(.99); }
 
-    /* Success / Error feedback (PHP-driven) */
     .alert {
       border-radius: 8px;
       padding: 12px 16px;
@@ -197,7 +353,6 @@
       color: #EF4444;
     }
 
-    /* ── Responsive ── */
     @media (max-width: 900px) {
       .bg-panel { display: none; }
       .form-panel { width: 100%; padding: 40px 28px; }
@@ -206,7 +361,6 @@
 </head>
 <body>
 
-<!-- LEFT — background panel -->
 <div class="bg-panel">
   <div class="bg-panel__text">
     <h2>Manajemen Pengguna</h2>
@@ -214,10 +368,9 @@
   </div>
 </div>
 
-<!-- RIGHT — form card -->
 <div class="form-panel">
 
-  <a href="userList.php" class="back-link">
+  <a href="../pages/admin/listUser.php" class="back-link">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
          stroke="currentColor" stroke-width="2">
       <polyline points="15 18 9 12 15 6"/>
@@ -230,48 +383,20 @@
     <p>Isi data di bawah untuk mendaftarkan akun pengguna baru.</p>
   </div>
 
-  <?php
-  /* ── Handle POST ── */
-  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nama     = trim($_POST['nama_lengkap'] ?? '');
-    $username = trim($_POST['username'] ?? '');
-    $email    = trim($_POST['email'] ?? '');
-    $role     = trim($_POST['role'] ?? '');
+<?php if (!empty($successMessage)): ?>
+<div class="alert alert--success">
+    <?= $successMessage ?>
+</div>
+<?php endif; ?>
 
-    $errors = [];
-    if (!$nama)       $errors[] = 'Nama lengkap wajib diisi.';
-    if (!$username)   $errors[] = 'Username wajib diisi.';
-    if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL))
-                      $errors[] = 'Alamat email tidak valid.';
-    if (!$role)       $errors[] = 'Role wajib dipilih.';
+<?php if (!empty($errorMessage)): ?>
+<div class="alert alert--error">
+    <?= $errorMessage ?>
+</div>
+<?php endif; ?>
 
-    if (empty($errors)) {
-      /*
-       * TODO: replace block below with actual DB insert
-       *
-       * $default_password = password_hash('Welcome@123', PASSWORD_BCRYPT);
-       * $first_login      = 1;
-       *
-       * $stmt = $pdo->prepare("INSERT INTO users
-       *   (nama_lengkap, username, email, role, password, first_login, created_at)
-       *   VALUES (?, ?, ?, ?, ?, ?, NOW())");
-       * $stmt->execute([$nama, $username, $email, $role, $default_password, $first_login]);
-       *
-       * Kirim notifikasi email berisi password default ke $email
-       */
-      echo '<div class="alert alert--success">
-              ✓ Pengguna <strong>' . htmlspecialchars($username) . '</strong>
-              berhasil ditambahkan. Password default telah dikirim ke email pengguna.
-            </div>';
-    } else {
-      echo '<div class="alert alert--error">' . implode('<br>', array_map('htmlspecialchars', $errors)) . '</div>';
-    }
-  }
-  ?>
+  <form method="POST" class="form-grid" novalidate>
 
-  <form method="POST" action="registerUser.php" class="form-grid" novalidate>
-
-    <!-- Nama Lengkap -->
     <div class="form-group">
       <label for="nama_lengkap">Nama Lengkap</label>
       <input type="text" id="nama_lengkap" name="nama_lengkap"
@@ -280,7 +405,6 @@
              required />
     </div>
 
-    <!-- Username -->
     <div class="form-group">
       <label for="username">Username</label>
       <input type="text" id="username" name="username"
@@ -289,7 +413,6 @@
              autocomplete="off" required />
     </div>
 
-    <!-- Email -->
     <div class="form-group">
       <label for="email">Email</label>
       <input type="email" id="email" name="email"
@@ -300,32 +423,54 @@
 
     <!-- Role -->
     <div class="form-group">
-      <label for="role">Role</label>
-      <select id="role" name="role" required>
-        <option value="" disabled <?= empty($_POST['role']) ? 'selected' : '' ?>>
-          Pilih role pengguna
-        </option>
-        <?php
-        $roles = [
-          'admin'             => 'Customer Service',
-          'finance_manager'   => 'Finance Manager',
-          'finance_staff'     => 'Finance Staff',
-          'hr_manager'        => 'HR Manager',
-          'hr_staff'          => 'HR Staff',
-          'it_manager'        => 'IT Manager',
-          'it_staff'          => 'IT Staff',
-          'procurement'       => 'Procurement Officer',
-          'auditor'           => 'Auditor',
-        ];
-        foreach ($roles as $val => $label):
-          $sel = (($_POST['role'] ?? '') === $val) ? 'selected' : '';
-        ?>
-          <option value="<?= $val ?>" <?= $sel ?>><?= $label ?></option>
-        <?php endforeach; ?>
-      </select>
-    </div>
+    <label for="role">Role</label>
+<?php
+$roles = [
+    'Super Admin',
+    'Admin',
+    'Manager',
+    'Leasing Manager',
+    'Finance Manager',
+    'Finance Staff',
+    'Purchasing Manager',
+    'Purchasing Staff',
+    'HR',
+    'Facility Manager',
+    'Facility Staff',
+    'Teknisi',
+    'Customer Service',
+    'Pengunjung',
+    'Petugas Parkir',
+    'Event Manager',
+    'Event Organizer',
+    'Tenant Owner',
+    'Tenant Staff'
+];
+?>
 
-    <!-- Info: password otomatis -->
+<select id="role" name="role" required>
+
+    <option value="" disabled
+        <?= empty($_POST['role']) ? 'selected' : '' ?>>
+        Pilih role pengguna
+    </option>
+
+    <?php foreach ($roles as $r): ?>
+
+        <option
+            value="<?= $r ?>"
+            <?= (($_POST['role'] ?? '') === $r)
+                ? 'selected'
+                : '' ?>
+        >
+            <?= $r ?>
+        </option>
+
+    <?php endforeach; ?>
+
+</select>
+</div>
+
     <div class="info-box">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -333,9 +478,7 @@
         <line x1="12" y1="16" x2="12.01" y2="16"/>
       </svg>
       <span>
-        Sistem akan otomatis membuat <strong>password default</strong> dan mengirimkannya
-        ke email pengguna. Pengguna diwajibkan mengganti password saat pertama kali masuk
-        (<em>first_login = true</em>).
+        Sistem akan otomatis membuat <strong>password default</strong> dengan format <strong>username@123</strong>. Pengguna diwajibkan mengganti password saat pertama kali masuk ke sistem. Mohon untuk memberitahu pengguna dan selalu <strong>menjaga kerahasiaan.</strong>
       </span>
     </div>
 
