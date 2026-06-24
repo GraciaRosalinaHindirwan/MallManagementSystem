@@ -1,165 +1,165 @@
-<?php
-session_start();
-
-$file = '../../config/audit_log.json';
-
-$logs = [];
-
-if (file_exists($file)) {
-    $logs = json_decode(file_get_contents($file), true);
-    if (!is_array($logs)) $logs = [];
-}
-
-// urut terbaru
-usort($logs, function ($a, $b) {
-    return strtotime($b['tanggal']) - strtotime($a['tanggal']);
-});
-
-// filter user
-$filterUser = $_GET['user'] ?? '';
-if ($filterUser) {
-    $logs = array_filter($logs, function ($log) use ($filterUser) {
-        return strtolower($log['username']) === strtolower($filterUser);
-    });
-}
-
-// stats
-$totalLogs = count($logs);
-$totalUsers = count(array_unique(array_column($logs, 'username')));
-
-// clear log
-if (isset($_POST['clear_log'])) {
-    file_put_contents($file, json_encode([]));
-    header("Location: logs.php");
-    exit;
-}
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>Audit Log</title>
 
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
     <style>
-        body {
-            margin: 0;
-            font-family: Arial;
-            background: #eef2f7;
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Poppins',sans-serif;
         }
 
-        .container {
-            padding: 20px;
+        body{
+            background: linear-gradient(135deg,#021b45,#06265d,#04183d);
+            min-height:100vh;
+            color:white;
+            padding:30px;
+        }
+
+        .container{
+            width:100%;
+        }
+
+        /* BACK BUTTON */
+        .back-btn{
+            display:inline-block;
+            text-decoration:none;
+            color:#fff;
+            background:rgba(255,255,255,.08);
+            padding:14px 22px;
+            border-radius:12px;
+            margin-bottom:25px;
+            border:1px solid rgba(255,255,255,.1);
+        }
+
+        .back-btn:hover{
+            background:rgba(255,255,255,.15);
         }
 
         /* HEADER */
-        .header {
-            background: linear-gradient(90deg, #2c3e50, #34495e);
-            color: white;
-            padding: 18px;
-            text-align: center;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        .header{
+            background:linear-gradient(90deg,#063a7a,#0aa6b8);
+            border-radius:20px;
+            padding:35px;
+            margin-bottom:30px;
         }
 
-        .header h2 {
-            margin: 0;
-            font-size: 22px;
-            letter-spacing: 1px;
+        .header h1{
+            font-size:42px;
+            margin-bottom:8px;
         }
 
-        /* STATS */
-        .stats {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
+        .header p{
+            opacity:.8;
+            font-size:18px;
         }
 
-        .card {
-            flex: 1;
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        /* CARD */
+        .card{
+            background:rgba(8,36,89,.85);
+            border:1px solid rgba(255,255,255,.1);
+            border-radius:20px;
+            padding:30px;
+            margin-bottom:30px;
         }
 
-        .card h3 {
-            margin: 0;
-            font-size: 20px;
+        .card-title{
+            color:#19d3f3;
+            margin-bottom:25px;
+            font-size:24px;
+            font-weight:600;
         }
 
-        .card p {
-            margin: 5px 0 0;
-            color: gray;
+        /* FILTER */
+        .filter-form{
+            display:flex;
+            gap:15px;
         }
 
-        /* TOP BAR */
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+        .filter-form input{
+            flex:1;
+            background:#0b2c64;
+            border:1px solid rgba(255,255,255,.1);
+            color:white;
+            padding:18px;
+            border-radius:12px;
+            font-size:16px;
         }
 
-        input {
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
+        .filter-form button{
+            border:none;
+            background:#18d4e4;
+            color:white;
+            padding:18px 35px;
+            border-radius:12px;
+            cursor:pointer;
+            font-size:16px;
+            font-weight:600;
         }
 
-        button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .btn-red {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .btn-green {
-            background: #2ecc71;
-            color: white;
+        .filter-form button:hover{
+            opacity:.9;
         }
 
         /* TABLE */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        .table-header{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:20px;
         }
 
-        th {
-            background: #2c3e50;
-            color: white;
-            padding: 12px;
-            text-align: left;
+        .total-log{
+            background:rgba(255,255,255,.1);
+            padding:8px 15px;
+            border-radius:10px;
         }
 
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
+        table{
+            width:100%;
+            border-collapse:collapse;
         }
 
-        tr:hover {
-            background: #f6f9ff;
+        th{
+            text-align:left;
+            padding:20px;
+            color:#fff;
+            border-bottom:1px solid rgba(255,255,255,.1);
         }
 
-        .badge {
-            background: #dff0ff;
-            color: #0077cc;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
+        td{
+            padding:22px 20px;
+            border-bottom:1px solid rgba(255,255,255,.06);
         }
 
-        .activity {
-            font-weight: 500;
+        tr:hover{
+            background:rgba(255,255,255,.03);
+        }
+
+        .badge{
+            background:rgba(255,255,255,.08);
+            padding:8px 14px;
+            border-radius:30px;
+        }
+
+        .empty{
+            text-align:center;
+            padding:40px;
+        }
+
+        .clear-btn{
+            background:#e74c3c;
+            color:white;
+            border:none;
+            padding:12px 20px;
+            border-radius:10px;
+            cursor:pointer;
+            margin-top:20px;
         }
     </style>
 </head>
@@ -168,64 +168,103 @@ if (isset($_POST['clear_log'])) {
 
 <div class="container">
 
+    <a href="../dashboard/dashboard.php" class="back-btn">
+        <i class="fa fa-arrow-left"></i> Kembali ke Dashboard
+    </a>
+
     <!-- HEADER -->
     <div class="header">
-        <h2>📊 Audit Log Dashboard</h2>
+        <h1><i class="fa fa-clipboard-list"></i> Audit Log</h1>
+        <p>SISFO MALL</p>
     </div>
 
-    <!-- STATS -->
-    <div class="stats">
-        <div class="card">
-            <h3><?= $totalLogs ?></h3>
-            <p>Total Logs</p>
-        </div>
+    <!-- FILTER -->
+    <div class="card">
+        <h3 class="card-title">
+            <i class="fa fa-filter"></i> FILTER LOG
+        </h3>
 
-        <div class="card">
-            <h3><?= $totalUsers ?></h3>
-            <p>Active Users</p>
-        </div>
-    </div>
-
-    <!-- TOP BAR -->
-    <div class="topbar">
-
-        <form method="get">
-            <input type="text" name="user" placeholder="Filter username..."
+        <form method="GET" class="filter-form">
+            <input type="text"
+                   name="user"
+                   placeholder="Masukkan username..."
                    value="<?= htmlspecialchars($filterUser) ?>">
-            <button class="btn-green">Search</button>
-        </form>
 
-        <form method="post" onsubmit="return confirm('Yakin hapus semua log?')">
-            <button class="btn-red" name="clear_log">Clear All</button>
+            <button type="submit">
+                <i class="fa fa-search"></i> Search
+            </button>
         </form>
-
     </div>
 
     <!-- TABLE -->
-    <table>
-        <tr>
-            <th>No</th>
-            <th>User</th>
-            <th>Activity</th>
-            <th>Time</th>
-        </tr>
+    <div class="card">
 
-        <?php if (empty($logs)) : ?>
-            <tr>
-                <td colspan="4" style="text-align:center;">No logs found</td>
-            </tr>
-        <?php else : ?>
-            <?php $no = 1; foreach ($logs as $log) : ?>
+        <div class="table-header">
+            <h3 class="card-title">
+                <i class="fa fa-list"></i> DAFTAR LOG AKTIVITAS
+            </h3>
+
+            <div class="total-log">
+                Total <?= $totalLogs ?> log
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>User</th>
+                    <th>Aktivitas</th>
+                    <th>Waktu</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            <?php if(empty($logs)): ?>
+                <tr>
+                    <td colspan="4" class="empty">
+                        Tidak ada log ditemukan
+                    </td>
+                </tr>
+
+            <?php else: ?>
+                <?php $no=1; foreach($logs as $log): ?>
                 <tr>
                     <td><?= $no++ ?></td>
-                    <td><span class="badge"><?= htmlspecialchars($log['username']) ?></span></td>
-                    <td class="activity"><?= htmlspecialchars($log['aktivitas']) ?></td>
-                    <td><?= htmlspecialchars($log['tanggal']) ?></td>
-                </tr>
-            <?php endforeach; ?>
-        <?php endif; ?>
 
-    </table>
+                    <td>
+                        <span class="badge">
+                            <?= htmlspecialchars($log['username']) ?>
+                        </span>
+                    </td>
+
+                    <td>
+                        <?= htmlspecialchars($log['aktivitas']) ?>
+                    </td>
+
+                    <td>
+                        <?= date('d M Y H:i:s',
+                        strtotime($log['tanggal'])) ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+
+            </tbody>
+        </table>
+
+        <form method="POST"
+              onsubmit="return confirm('Yakin hapus semua log?')">
+
+            <button class="clear-btn"
+                    name="clear_log">
+                Hapus Semua Log
+            </button>
+
+        </form>
+
+    </div>
 
 </div>
 
