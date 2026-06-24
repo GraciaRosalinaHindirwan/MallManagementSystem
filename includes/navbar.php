@@ -7,7 +7,7 @@ $role = $_SESSION['role'] ?? 'Guest';
 
 // Bersihkan nama dari duplikat kata (Staff)/(Manager) biar rapi
 $user_name = $_SESSION['nama'] ?? 'User';
-$user_name = str_replace(['(Staff)', '(Manager)', 'Staff', 'Manager'], '', $user_name);
+$user_name = str_replace(['Staff', 'Manager', 'Staff', 'Manager'], '', $user_name);
 $user_name = trim($user_name);
 
 // Judul dinamis sesuai role di Topbar
@@ -86,6 +86,7 @@ $page_display_title = ($role === 'Finance Manager') ? 'Dashboard Manager' : 'Das
             width: 100vw;
         }
         
+        /* SINKRONISASI DENGAN TEMPLATE PATOKAN + LOCK NAVBAR */
         .topbar {
             background-color: #082A53;
             display: flex;
@@ -93,12 +94,12 @@ $page_display_title = ($role === 'Finance Manager') ? 'Dashboard Manager' : 'Das
             justify-content: space-between;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             
-            /* 🔥 BERHASIL DIKUNCI: FIXED STICKY TANPA MERUSAK STRUKTUR ASLI 🔥 */
+            /* Sifat penahan agar atas tidak bergerak */
             position: sticky;
             top: 0;
             z-index: 1020;
-            min-height: 75px;
-            padding: 12px 32px;
+            min-height: 70px;
+            padding: 0 32px;
         }
         
         .menu-toggle-btn {
