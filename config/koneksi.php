@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db_name = "mall_management";
+$db_name = "mall_erp";
 
 // Menghubungkan ke MySQL database
 $conn = new mysqli($host, $user, $pass, $db_name);
