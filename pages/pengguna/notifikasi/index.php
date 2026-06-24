@@ -468,5 +468,5 @@ $content = ob_get_clean();
 // LOAD TEMPLATE
 // ===============================
 
-include __DIR__ . '/../../../includes/08_navbar.php';
+include __DIR__ . '/../../../includes/08_nav_template.php';
 
