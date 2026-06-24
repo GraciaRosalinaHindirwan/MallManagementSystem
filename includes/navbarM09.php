@@ -1,50 +1,40 @@
 <?php
-$page_title  = $page_title  ?? 'Dashboard';
+$page_title  = $page_title  ?? 'Dashboard Admin';
 $active_page = $active_page ?? '';
 $user_name   = $user_name   ?? 'Guest';
-$role        = $role        ?? 'tenant';
+$role = $role ?? 'admin';
 
 $menu = [
     [
-        'section' => 'Tenant Lifecycle',
-        'roles'   => ['leasingManager', 'admin'],
-        'items' => [
-            ['key' => 'prospek',    'label' => 'Pendaftaran Prospek', 'href' => '/MallManagementSystem/pages/leasingManager/prospek_tenant.php',          'roles' => ['leasingManager', 'admin']],
-            ['key' => 'verifikasi', 'label' => 'Verifikasi Tenant',   'href' => '/MallManagementSystem/pages/leasingManager/verifikasi_data_tenant.php',  'roles' => ['leasingManager', 'admin']],
-            ['key' => 'renewal',    'label' => 'Renewal Kontrak',     'href' => '/MallManagementSystem/pages/leasingManager/renewal_kontrak.php',         'roles' => ['leasingManager', 'admin']],
-            ['key' => 'terminasi',  'label' => 'Terminasi Kontrak',   'href' => '/MallManagementSystem/pages/leasingManager/terminasi_kontrak.php',       'roles' => ['leasingManager', 'admin']],
+    'section' => 'Portal Admin',
+    'roles'   => ['admin'],
+    'items' => [
+        [
+            'key'   => 'rbac',
+            'label' => 'Kelola Akses Per Role',
+            'href'  => '../admin/rbac.php',
+            'roles' => ['admin']
+        ],
+        [
+            'key'   => 'regist-user',
+            'label' => 'Tambah User',
+            'href'  => '../../public/registUser.php',
+            'roles' => ['admin']
+        ],
+        [
+            'key'   => 'list-user',
+            'label' => 'Kelola User',
+            'href'  => '../admin/listUser.php',
+            'roles' => ['admin']
+        ],
+         [
+            'key'   => 'Reset Password',
+            'label' => 'Reset Password User',
+            'href'  => '../admin/adminResetPassword.php',
+            'roles' => ['admin']
         ],
     ],
-    [
-        'section' => 'Kontrak Sewa',
-        'roles'   => ['leasingManager', 'admin'],
-        'items' => [
-            ['key' => 'kontrak',    'label' => 'Buat Kontrak',         'href' => '/MallManagementSystem/pages/leasingManager/buat_kontrak.php',            'roles' => ['leasingManager', 'admin']],
-            ['key' => 'addendum',   'label' => 'Addendum Kontrak',     'href' => '/MallManagementSystem/pages/leasingManager/addendum_kontrak.php',        'roles' => ['leasingManager', 'admin']],
-            ['key' => 'dokumen',    'label' => 'Upload Dokumen Legal', 'href' => '/MallManagementSystem/pages/leasingManager/upload_dokumen.php',          'roles' => ['leasingManager', 'admin']],
-            ['key' => 'notifikasi', 'label' => 'Notifikasi Kontrak',   'href' => '/MallManagementSystem/pages/leasingManager/notifikasi_kontrak.php',      'roles' => ['leasingManager', 'financeManager', 'admin']],
-        ],
-    ],
-    [
-        'section' => 'Komponen Biaya',
-        'roles'   => ['financeManager', 'financeStaff', 'admin'],
-        'items' => [
-            ['key' => 'biaya',      'label' => 'Atur Komponen Biaya',  'href' => '/MallManagementSystem/pages/financeManager/komponen_biaya.php',          'roles' => ['financeStaff', 'financeManager', 'admin']],
-            ['key' => 'deposit',    'label' => 'Manajemen Deposit',    'href' => '/MallManagementSystem/pages/financeManager/deposit_tenant.php',          'roles' => ['financeStaff', 'financeManager', 'admin']],
-            ['key' => 'reminder',   'label' => 'Reminder Pembayaran',  'href' => '/MallManagementSystem/pages/financeManager/reminder_pembayaran.php',     'roles' => ['financeStaff', 'financeManager', 'admin']],
-            ['key' => 'piutang',    'label' => 'Monitoring Piutang',   'href' => '/MallManagementSystem/pages/financeManager/monitoring_piutang.php',      'roles' => ['financeManager', 'admin']],
-        ],
-    ],
-    [
-        'section' => 'Tenant Portal',
-        'roles'   => ['tenant'],
-        'items' => [
-            ['key' => 'portal-tagihan',  'label' => 'Tagihan & Pembayaran', 'href' => '/MallManagementSystem/pages/tenant/portal_tagihan.php',   'roles' => ['tenant']],
-            ['key' => 'portal-invoice',  'label' => 'Invoice & Kontrak',    'href' => '/MallManagementSystem/pages/tenant/portal_invoice.php',   'roles' => ['tenant']],
-            ['key' => 'portal-keluhan',  'label' => 'Tiket Keluhan',        'href' => '/MallManagementSystem/pages/tenant/portal_keluhan.php',   'roles' => ['tenant']],
-            ['key' => 'portal-renovasi', 'label' => 'Permohonan Renovasi',  'href' => '/MallManagementSystem/pages/tenant/portal_renovasi.php',  'roles' => ['tenant']],
-        ],
-    ],
+],
 ];
 
 /* Label & badge tampilan per role (untuk topbar) */
