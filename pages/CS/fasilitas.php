@@ -31,6 +31,7 @@ if ($conn) {
 
     $sql = "SELECT *
         FROM `03_assets`
+        WHERE " . implode(' AND ', $where) . "
         ORDER BY category ASC, name ASC";
 
     if (!empty($params)) {
@@ -138,7 +139,8 @@ ob_start();
                 default          => 'color:rgba(245,247,250,0.5); background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.1)'
             };
         ?>
-        <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:16px; transition:all 0.2s;"
+        <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:16px; transition:all 0.2s; cursor:pointer;"
+     onclick="openDetail(<?= htmlspecialchars(json_encode($fac), ENT_QUOTES) ?>)"
              onmouseover="this.style.borderColor='rgba(0,212,216,0.4)'"
              onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
             <div style="display:flex; align-items:start; justify-content:space-between; margin-bottom:8px;">
@@ -161,9 +163,69 @@ ob_start();
 <?php endforeach; ?>
 <?php endif; ?>
 
+<div id="detailModal" style="display:none; position:fixed; inset:0; z-index:999; align-items:center; justify-content:center; background:rgba(2,31,66,0.85); backdrop-filter:blur(4px);">
+    <div style="background:#102F5C; border:1px solid rgba(0,212,216,0.3); border-radius:16px; padding:28px; width:100%; max-width:420px; margin:16px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+            <h3>Detail Fasilitas</h3>
+            <button onclick="closeDetail()" style="background:none;border:none;color:white;cursor:pointer;">
+                ✕
+            </button>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px;">
+            <div>
+                <small>Nama Fasilitas</small>
+                <p id="m-name"></p>
+            </div>
+
+            <div>
+                <small>Kategori</small>
+                <p id="m-category"></p>
+            </div>
+
+            <div>
+                <small>Status</small>
+                <p id="m-status"></p>
+            </div>
+
+            <div>
+                <small>Lokasi</small>
+                <p id="m-location"></p>
+            </div>
+        </div>
+
+        <button onclick="closeDetail()" class="btn btn-primary" style="width:100%; margin-top:20px;">
+            Tutup
+        </button>
+    </div>
+</div>
+
 <?php
 $content = ob_get_clean();
-$extraScript = '';
+ob_start();
+?>
+<script>
+const modal = document.getElementById('detailModal');
+
+function openDetail(f) {
+    document.getElementById('m-name').textContent = f.name || '-';
+    document.getElementById('m-category').textContent = f.category || '-';
+    document.getElementById('m-status').textContent = f.status || '-';
+    document.getElementById('m-location').textContent = f.current_location || '-';
+
+    modal.style.display = 'flex';
+}
+
+function closeDetail() {
+    modal.style.display = 'none';
+}
+
+modal.addEventListener('click', function(e) {
+    if (e.target === modal) closeDetail();
+});
+</script>
+<?php
+$extraScript = ob_get_clean();
 $page_title  = 'Fasilitas Umum';
 $current_page = 'fasilitas';
 require_once __DIR__ . '/../../includes/navbarM05.php';
