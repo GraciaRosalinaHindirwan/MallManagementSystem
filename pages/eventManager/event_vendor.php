@@ -1,6 +1,36 @@
 <?php
 require_once __DIR__ . '/../../public/auth/checkSession.php';
-require_once 'event_data.php';
+require_once __DIR__ . '/../../config/konek.php';
+
+function getBookings($filter_status = null) {
+    global $conn;
+    $where = $filter_status ? "WHERE b.status = '" . mysqli_real_escape_string($conn, $filter_status) . "'" : "";
+    $result = mysqli_query($conn, "
+        SELECT b.*, a.nama_area, a.kapasitas,
+               u.full_name AS nama_pemohon
+        FROM 04_event_booking b
+        LEFT JOIN 04_event_areas a ON b.id_area = a.id_area
+        LEFT JOIN 09_users u ON b.id_user = u.id
+        $where
+        ORDER BY b.id_booking DESC
+    ");
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($result)) $rows[] = $row;
+    return $rows;
+}
+
+function getAllVendors() {
+    global $conn;
+    $result = mysqli_query($conn, "
+        SELECT v.*, b.nama_event
+        FROM 04_event_booking_vendor v
+        LEFT JOIN 04_event_booking b ON v.id_booking = b.id_booking
+        ORDER BY v.id DESC
+    ");
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($result)) $rows[] = $row;
+    return $rows;
+}
 
 if (!defined('BASE_URL')) {
     $project_root = realpath(__DIR__ . '/../..');

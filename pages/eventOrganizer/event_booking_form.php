@@ -424,9 +424,7 @@ ob_start();
         <div class="d-flex justify-content-between align-items-center pt-3"
              style="border-top:1px solid rgba(255,255,255,.1)">
             <small style="opacity:.45;font-size:11px"><i class="bi bi-info-circle me-1"></i>Pastikan data yang dimasukkan benar</small>
-            <button type="submit"
-                    style="background:linear-gradient(135deg,var(--accent),var(--secondary));color:#021F42;
-                           font-weight:600;border:none;padding:.65rem 2rem;border-radius:8px;cursor:pointer">
+            <button type="submit" class="btn-primary">
                 <i class="bi bi-send me-2"></i>Kirim Pengajuan
             </button>
         </div>

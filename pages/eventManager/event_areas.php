@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../public/auth/checkSession.php';
-require_once 'event_data.php';
+require_once __DIR__ . '/event_data.php';
 
 if (!defined('BASE_URL')) {
     $project_root = realpath(__DIR__ . '/../..');
@@ -64,7 +64,9 @@ ob_start();
 .em-btn-success { background:var(--success); color:#fff; }
 .em-btn-danger  { background:rgba(239,68,68,.18); border:1px solid rgba(239,68,68,.3); color:#fca5a5; }
 .em-btn-warn    { background:var(--secondary); color:#fff; }
+.em-btn-primary { background:var(--accent); color:#021F42; font-weight:700; }
 
+/* KPI */
 .ec-kpi-bar { display:flex; gap:.7rem; flex-wrap:wrap; margin-bottom:1.25rem; }
 .ec-kpi-item {
     background: var(--primary);
@@ -80,6 +82,7 @@ ob_start();
 .ec-kpi-val  { font-size: 1.1rem; font-weight: 800; line-height: 1; }
 .ec-kpi-lbl  { font-size: 11px; opacity: .45; margin-top: 2px; }
 
+/* Area rows */
 .ec-area-row {
     background: var(--primary-dark);
     border-radius: 10px;
@@ -99,6 +102,7 @@ ob_start();
     margin: 2px;
 }
 
+/* Toast */
 .ec-toast {
     position: fixed;
     top: 1.5rem; right: 1.5rem;

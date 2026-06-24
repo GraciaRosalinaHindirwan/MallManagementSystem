@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../../public/auth/checkSession.php';
 require_once '../../config/konek.php';
 
 function getAreas() {

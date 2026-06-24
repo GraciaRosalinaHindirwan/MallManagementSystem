@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../public/auth/checkSession.php';
-require_once 'event_data.php';
+require_once __DIR__ . '/event_data.php';
+
 
 if (!defined('BASE_URL')) {
     $project_root = realpath(__DIR__ . '/../..');
@@ -266,11 +267,7 @@ ob_start();
     align-items: center;
     padding: .55rem 0;
     border-bottom: 1px solid rgba(255,255,255,.05);
-    gap: .5rem;
 }
-.em-activity-row:last-child { border-bottom: none; }
-.em-activity-name { font-size: 13px; font-weight: 600; }
-.em-activity-type { font-size: 11px; opacity: .4; }
 </style>
 
 <div class="em-hero">
