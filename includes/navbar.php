@@ -21,7 +21,6 @@ $page_display_title = ($role === 'Finance Manager') ? 'Dashboard Manager' : 'Das
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- CSS DITARUH DI SINI LAGI BIAR AMAN SENTOSA GAK BAKAL PUTUS LINK -->
     <style>
         body {
             background-color: #021F42;
@@ -88,13 +87,18 @@ $page_display_title = ($role === 'Finance Manager') ? 'Dashboard Manager' : 'Das
         }
         
         .topbar {
-            height: 70px;
             background-color: #082A53;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 32px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            
+            /* 🔥 BERHASIL DIKUNCI: FIXED STICKY TANPA MERUSAK STRUKTUR ASLI 🔥 */
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            min-height: 75px;
+            padding: 12px 32px;
         }
         
         .menu-toggle-btn {
@@ -114,7 +118,6 @@ $page_display_title = ($role === 'Finance Manager') ? 'Dashboard Manager' : 'Das
 <body>
 
 <div class="layout">
-    <!-- SIDEBAR LEFT OFFCANVAS -->
     <div class="offcanvas offcanvas-start offcanvas-sidebar" data-bs-scroll="true" data-bs-backdrop="true" tabindex="-1" id="sidebarMenu">
         <div class="sidebar-brand">
             <i class="fa-solid fa-city"></i>
@@ -144,6 +147,9 @@ $page_display_title = ($role === 'Finance Manager') ? 'Dashboard Manager' : 'Das
                     <a href="../financeStaff/dashboardNonSewa.php" class="nav-sidebar-item <?= ($current_page == 'journalManagement.php') ? 'active' : '' ?>">
                         <i class="fa-solid fa-book"></i> Non-Sewa Management
                     </a>
+                     <a href="../financeStaff/bukuBesar.php" class="nav-sidebar-item <?= ($current_page == 'bukuBesar.php') ? 'active' : '' ?>">
+                        <i class="fa-solid fa-book"></i> Buku Besar
+                    </a>
                     <a href="../financeStaff/vendor_bill.php" class="nav-sidebar-item <?= ($current_page == 'vendor_bill.php') ? 'active' : '' ?>">
                         <i class="fa-solid fa-book"></i> Vendor Bills
                     </a>
@@ -171,7 +177,6 @@ $page_display_title = ($role === 'Finance Manager') ? 'Dashboard Manager' : 'Das
             </div>
         </div>
 
-        <!-- DETAIL ROLE DAN LOGOUT TUNGGAL DI KIRI BAWAH SIDEBAR -->
         <div style="padding: 24px; border-top: 1px solid rgba(255,255,255,0.05);">
             <div style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 8px;">
                 Role: <?= htmlspecialchars($role); ?>
@@ -182,11 +187,9 @@ $page_display_title = ($role === 'Finance Manager') ? 'Dashboard Manager' : 'Das
         </div>
     </div>
 
-    <!-- MAIN KONTEN WORKSPACE -->
     <main class="main-content">
         <div class="topbar">
             <div style="display: flex; align-items: center; gap: 15px;">
-                <!-- Tombol Garis Tiga Emas pemicu Offcanvas -->
                 <button type="button" class="menu-toggle-btn" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
                     <svg width="32" height="32" viewBox="0 0 61 61" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M7.625 43.2083H53.375M7.625 30.5H53.375M7.625 17.7916H53.375" stroke="#FFB62A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
@@ -197,7 +200,6 @@ $page_display_title = ($role === 'Finance Manager') ? 'Dashboard Manager' : 'Das
                 </span>
             </div>
             
-            <!-- HEADER KANAN ATAS -->
             <div style="display: flex; align-items: center; gap: 8px; color: #FFB62A; font-size: 15px; font-weight: 600;">
                  <i class="fa-solid fa-circle-user" style="font-size: 18px;"></i>
                  <span><?= htmlspecialchars($user_name); ?> (<?= ($role === 'Finance Manager') ? 'Manager' : 'Staff'; ?>)</span>
