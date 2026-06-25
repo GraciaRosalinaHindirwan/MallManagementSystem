@@ -1,20 +1,16 @@
 <?php
-$host   = 'localhost';
-$db     = 'mall_erp';
-$user   = 'root';
-$pass   = '';
-$charset= 'utf8mb4';
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db_name = "mall_erp";
 
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-$options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES   => false,
-];
+// Menghubungkan ke MySQL database
+$conn = new mysqli($host, $user, $pass, $db_name);
 
-try {
-    $pdo = new PDO($dsn, $user, $pass, $options);
-} catch (PDOException $e) {
-    http_response_code(500);
-    die(json_encode(['error' => 'Koneksi database gagal.']));
+// Cek koneksi, kalau gagal biar muncul pesan rapi
+if ($conn->connect_error) {
+    die("<div style='color: red; padding: 20px; font-weight: bold;'>
+            ⚠️ Koneksi Database Gagal: " . $conn->connect_error . "
+         </div>");
 }
+?>
