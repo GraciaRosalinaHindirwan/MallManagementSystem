@@ -2,6 +2,7 @@
 
 function simpanLog($username, $aktivitas)
 {
+    date_default_timezone_set('Asia/Jakarta');
     $file = __DIR__ . '/audit_log.json';
 
     if (!file_exists($file)) {
