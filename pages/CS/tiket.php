@@ -18,6 +18,35 @@ $kategori_label = [
     'other'    => ['label' => 'Lainnya',  'class' => 'bg-text/10 text-text/60'],
 ];
 
+function formatNomorWA(?string $no): string
+{
+    $no = preg_replace('/\D/', '', (string) $no); // sisakan digit saja
+    if ($no === '') {
+        return '';
+    }
+
+    if (str_starts_with($no, '0')) {
+        $no = '62' . substr($no, 1);
+    } elseif (!str_starts_with($no, '62')) {
+        $no = '62' . $no;
+    }
+
+    return $no;
+}
+
+/**
+ * Susun teks pesan konfirmasi penyelesaian keluhan untuk satu tiket.
+ */
+function buatPesanKonfirmasi(array $t, array $kat): string
+{
+    return "Halo {$t['pelapor']},\n\n"
+        . "Kami informasikan bahwa keluhan Anda dengan ID tiket *{$t['id']}* mengenai "
+        . "*{$kat['label']}* di lokasi *{$t['lokasi']}* telah *selesai* kami tangani.\n\n"
+        . "Terima kasih atas kesabaran dan kepercayaan Anda. Jika masih ada kendala terkait "
+        . "hal ini, jangan ragu untuk menghubungi kami kembali.\n\n"
+        . "Terima kasih";
+}
+
 $query = "
     SELECT t.*,
         wo.sla_target,
@@ -143,74 +172,147 @@ ob_start();
 
             <tbody class="divide-y divide-border">
                 <?php foreach ($tiket_list as $t):
+
                     $breach_row = $t['is_breach'] == 1;
+
                     $kat  = $kategori_label[$t['kategori']] ?? $kategori_label['other'];
                     $stat = $status_label[$t['status']] ?? $status_label['open'];
-                    $prio_class = match($t['priority']) {
+
+                    // WA Konfirmasi
+                    $wa_link = null;
+
+                    if (!empty($t['no_hp'])) {
+
+                        $nomorWA = formatNomorWA($t['no_hp']);
+
+                        if ($nomorWA !== '') {
+
+                            $pesan = buatPesanKonfirmasi($t, $kat);
+
+                            $wa_link = "https://wa.me/"
+                                . $nomorWA
+                                . "?text="
+                                . urlencode($pesan);
+                        }
+                    }
+
+                    $prio_class = match ($t['priority']) {
                         'Critical' => 'bg-danger/15 text-danger',
                         'High'     => 'bg-warning/15 text-warning',
                         'Low'      => 'bg-text/10 text-text/50',
                         default    => 'bg-accent/10 text-accent',
                     };
+
                 ?>
-                <tr class="tiket-row hover:bg-white/5 transition"
-                    data-status="<?= $t['status'] ?>"
-                    data-kategori="<?= $t['kategori'] ?>">
+                    <tr class="tiket-row hover:bg-white/5 transition"
+                        data-status="<?= $t['status'] ?>"
+                        data-kategori="<?= $t['kategori'] ?>">
 
-                    <td class="py-3 pr-4 font-mono text-caption text-accent">
-                        <?= htmlspecialchars($t['id']) ?>
-                        <?php if ($breach_row): ?>
-                            <i class="bi bi-exclamation-circle-fill text-danger ml-1"></i>
-                        <?php endif; ?>
-                    </td>
+                        <td class="py-3 pr-4 font-mono text-caption text-accent">
+                            <?= htmlspecialchars($t['id']) ?>
 
-                    <td class="py-3 pr-4 text-text/80"><?= htmlspecialchars($t['pelapor']) ?></td>
+                            <?php if ($breach_row): ?>
+                                <i class="bi bi-exclamation-circle-fill text-danger ml-1"></i>
+                            <?php endif; ?>
+                        </td>
 
-                    <td class="py-3 pr-4 text-text/60 text-caption max-w-[160px] truncate">
-                        <?= htmlspecialchars($t['lokasi']) ?>
-                    </td>
+                        <td class="py-3 pr-4 text-text/80">
+                            <?= htmlspecialchars($t['pelapor']) ?>
+                        </td>
 
-                    <td class="py-3 pr-4">
-                        <span class="px-2 py-0.5 rounded-full text-caption <?= $kat['class'] ?>">
-                            <?= $kat['label'] ?>
-                        </span>
-                    </td>
+                        <td class="py-3 pr-4 text-text/60 text-caption max-w-[160px] truncate">
+                            <?= htmlspecialchars($t['lokasi']) ?>
+                        </td>
 
-                    <td class="py-3 pr-4">
-                        <span class="px-2 py-0.5 rounded-full text-caption <?= $prio_class ?>">
-                            <?= htmlspecialchars($t['priority']) ?>
-                        </span>
-                    </td>
+                        <td class="py-3 pr-4">
+                            <span class="px-2 py-0.5 rounded-full text-caption <?= $kat['class'] ?>">
+                                <?= $kat['label'] ?>
+                            </span>
+                        </td>
 
-                    <td class="py-3 pr-4">
-                        <span class="px-2 py-0.5 rounded-full text-caption <?= $stat['class'] ?>">
-                            <?= $stat['label'] ?>
-                        </span>
-                    </td>
+                        <td class="py-3 pr-4">
+                            <span class="px-2 py-0.5 rounded-full text-caption <?= $prio_class ?>">
+                                <?= htmlspecialchars($t['priority']) ?>
+                            </span>
+                        </td>
 
-                    <td class="py-3 pr-4 text-caption">
-                        <?php if ($t['status'] === 'resolved'): ?>
-                            <span class="text-success">Selesai</span>
-                        <?php elseif ($t['sla_target'] === null): ?>
-                            <span class="text-text/30">—</span>
-                        <?php elseif ($breach_row): ?>
-                            <span class="text-danger">+<?= abs((int)$t['sisa_menit']) ?> mnt</span>
-                        <?php else: ?>
-                            <span class="text-text/50"><?= (int)$t['sisa_menit'] ?> mnt lagi</span>
-                        <?php endif; ?>
-                    </td>
+                        <td class="py-3 pr-4">
+                            <span class="px-2 py-0.5 rounded-full text-caption <?= $stat['class'] ?>">
+                                <?= $stat['label'] ?>
+                            </span>
+                        </td>
 
-                    <td class="py-3 pr-4 text-caption text-text/40">
-                        <?= date('Y-m-d H:i', strtotime($t['created_at'])) ?>
-                    </td>
+                        <td class="py-3 pr-4 text-caption">
+                            <?php if ($t['status'] === 'resolved'): ?>
 
-                    <td class="py-3">
-                        <a href="tiket-detail.php?id=<?= urlencode($t['id']) ?>"
-                           class="cs-btn bg-white/5 hover:bg-white/10 text-caption px-3 py-1 rounded-lg p-2">
-                            <i class="bi bi-eye"></i> Detail
-                        </a>
-                    </td>
-                </tr>
+                                <span class="text-success">
+                                    Selesai
+                                </span>
+
+                            <?php elseif ($t['sla_target'] === null): ?>
+
+                                <span class="text-text/30">—</span>
+
+                            <?php elseif ($breach_row): ?>
+
+                                <span class="text-danger">
+                                    +<?= abs((int)$t['sisa_menit']) ?> mnt
+                                </span>
+
+                            <?php else: ?>
+
+                                <span class="text-text/50">
+                                    <?= (int)$t['sisa_menit'] ?> mnt lagi
+                                </span>
+
+                            <?php endif; ?>
+                        </td>
+
+                        <td class="py-3 pr-4 text-caption text-text/40">
+                            <?= date('Y-m-d H:i', strtotime($t['created_at'])) ?>
+                        </td>
+
+                        <td class="py-3 flex items-center gap-2">
+
+                            <a href="tiket-detail.php?id=<?= urlencode($t['id']) ?>"
+                                class="cs-btn bg-white/5 hover:bg-white/10 text-caption px-3 py-1 rounded-lg p-2">
+
+                                <i class="bi bi-eye"></i>
+                                Detail
+                            </a>
+
+                            <?php if ($t['status'] === 'resolved'): ?>
+
+                                <?php if ($wa_link): ?>
+
+                                    <a href="<?= htmlspecialchars($wa_link) ?>"
+                                        target="_blank"
+                                        rel="noopener"
+
+                                        class="cs-btn bg-[#25D366] hover:bg-[#1fb958]
+                          text-white text-caption px-3 py-1 rounded-lg p-2">
+
+                                        <i class="bi bi-whatsapp"></i>
+                                        WA
+                                    </a>
+
+                                <?php else: ?>
+
+                                    <span class="cs-btn bg-white/5 text-text/30 px-3 py-1 rounded-lg p-2">
+
+                                        <i class="bi bi-whatsapp"></i>
+                                        Tanpa nomor
+
+                                    </span>
+
+                                <?php endif; ?>
+
+                            <?php endif; ?>
+
+                        </td>
+
+                    </tr>
+
                 <?php endforeach; ?>
             </tbody>
         </table>
