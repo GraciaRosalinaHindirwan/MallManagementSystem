@@ -871,6 +871,6 @@ window.onclick = function(event)
 
 $content = ob_get_clean();
 
-include '../../includes/navbar.php';
+include '../../includes/navbarM03(2).php';
 
 ?>
