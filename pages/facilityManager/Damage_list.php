@@ -8,7 +8,7 @@ require_once 'auth/checkSession.php';
 $page_title = "Damage List";
 $page = "damage_list";
 
-include '../config/konek.php';
+include '../../config/konek.php';
 
 // ============================================================
 // 1. SINKRONISASI AMAN (INSERT IGNORE)
@@ -546,7 +546,7 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-include "../includes/navbar.php";
+include "../../includes/navbar.php";
 ?>
 
 <!-- Toast Container -->
