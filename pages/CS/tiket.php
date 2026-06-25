@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config/koneksi.php';
+require_once __DIR__ . '/../../config/konek.php';
 // require_once __DIR__ . '/../../auth/checkSession.php';
 
 $pageTitle   = 'Semua Tiket — Customer Service';
@@ -18,19 +18,35 @@ $kategori_label = [
     'other'    => ['label' => 'Lainnya',  'class' => 'bg-text/10 text-text/60'],
 ];
 
-$tiket_list = $pdo->query("
-    SELECT *,
-        TIMESTAMPDIFF(MINUTE, created_at, NOW()) AS umur_menit
-    FROM `05_tiket`
-    ORDER BY created_at DESC
-")->fetchAll();
+$query = "
+    SELECT t.*,
+        wo.sla_target,
+        CASE
+            WHEN wo.sla_target IS NOT NULL
+            AND NOW() > wo.sla_target
+            AND t.status != 'resolved'
+            THEN 1
+            ELSE 0
+        END AS is_breach,
+        CASE
+            WHEN wo.sla_target IS NOT NULL
+            THEN TIMESTAMPDIFF(MINUTE, NOW(), wo.sla_target)
+            ELSE NULL
+        END AS sisa_menit
+    FROM `05_tiket` t
+    LEFT JOIN `03_damage_reports` dr ON dr.ticket_id = t.id
+    LEFT JOIN `03_work_orders` wo ON wo.report_id = dr.report_id
+    ORDER BY t.created_at DESC
+";
+
+$result = $conn->query($query);
+
+$tiket_list = $result->fetch_all(MYSQLI_ASSOC);
 
 $total       = count($tiket_list);
 $open        = count(array_filter($tiket_list, fn($t) => $t['status'] === 'open'));
 $in_progress = count(array_filter($tiket_list, fn($t) => $t['status'] === 'in_progress'));
-$breach      = count(array_filter($tiket_list, fn($t) =>
-    $t['umur_menit'] > $t['sla_menit'] && $t['status'] !== 'resolved'
-));
+$breach      = count(array_filter($tiket_list, fn($t) => $t['is_breach'] == 1));
 
 ob_start();
 ?>
@@ -88,14 +104,13 @@ ob_start();
         </div>
 
         <div class="flex items-center gap-2 flex-wrap">
-
             <select id="filter-status" class="cs-input text-caption py-1.5 w-auto rounded-lg p-2" style="background-color:#0B376D;color:#F5F7FA">
                 <option value="">Semua Status</option>
                 <option value="open">Open</option>
                 <option value="in_progress">Diproses</option>
                 <option value="resolved">Selesai</option>
             </select>
-            
+
             <select id="filter-kategori" class="cs-input text-caption py-1.5 w-auto rounded-lg p-2" style="background-color:#0B376D;color:#F5F7FA">
                 <option value="">Semua Kategori</option>
                 <option value="facility">Facility</option>
@@ -104,16 +119,13 @@ ob_start();
                 <option value="other">Lainnya</option>
             </select>
 
-            <a href="tiket-buat.php"
-               class="cs-btn bg-accent text-background hover:bg-accent/90 text-caption px-4 py-1.5">
+            <a href="tiket-buat.php" class="cs-btn bg-accent text-background hover:bg-accent/90 text-caption px-4 py-1.5">
                 <i class="bi bi-plus-lg"></i> Tiket Baru
             </a>
-
         </div>
     </div>
 
     <div class="overflow-x-auto">
-
         <table class="w-full text-label">
             <thead>
                 <tr class="border-b border-border text-text/50 text-caption">
@@ -130,14 +142,17 @@ ob_start();
             </thead>
 
             <tbody class="divide-y divide-border">
-
                 <?php foreach ($tiket_list as $t):
-                    $breach_row = $t['umur_menit'] > $t['sla_menit'] && $t['status'] !== 'resolved';
-                    $sisa = $t['sla_menit'] - $t['umur_menit'];
+                    $breach_row = $t['is_breach'] == 1;
                     $kat  = $kategori_label[$t['kategori']] ?? $kategori_label['other'];
                     $stat = $status_label[$t['status']] ?? $status_label['open'];
+                    $prio_class = match($t['priority']) {
+                        'Critical' => 'bg-danger/15 text-danger',
+                        'High'     => 'bg-warning/15 text-warning',
+                        'Low'      => 'bg-text/10 text-text/50',
+                        default    => 'bg-accent/10 text-accent',
+                    };
                 ?>
-
                 <tr class="tiket-row hover:bg-white/5 transition"
                     data-status="<?= $t['status'] ?>"
                     data-kategori="<?= $t['kategori'] ?>">
@@ -162,14 +177,6 @@ ob_start();
                     </td>
 
                     <td class="py-3 pr-4">
-                        <?php
-                        $prio_class = match($t['priority']) {
-                            'Critical' => 'bg-danger/15 text-danger',
-                            'High'     => 'bg-warning/15 text-warning',
-                            'Low'      => 'bg-text/10 text-text/50',
-                            default    => 'bg-accent/10 text-accent',
-                        };
-                        ?>
                         <span class="px-2 py-0.5 rounded-full text-caption <?= $prio_class ?>">
                             <?= htmlspecialchars($t['priority']) ?>
                         </span>
@@ -184,10 +191,12 @@ ob_start();
                     <td class="py-3 pr-4 text-caption">
                         <?php if ($t['status'] === 'resolved'): ?>
                             <span class="text-success">Selesai</span>
+                        <?php elseif ($t['sla_target'] === null): ?>
+                            <span class="text-text/30">—</span>
                         <?php elseif ($breach_row): ?>
-                            <span class="text-danger">+<?= abs($sisa) ?> mnt</span>
+                            <span class="text-danger">+<?= abs((int)$t['sisa_menit']) ?> mnt</span>
                         <?php else: ?>
-                            <span class="text-text/50"><?= $sisa ?> mnt</span>
+                            <span class="text-text/50"><?= (int)$t['sisa_menit'] ?> mnt lagi</span>
                         <?php endif; ?>
                     </td>
 
@@ -201,20 +210,14 @@ ob_start();
                             <i class="bi bi-eye"></i> Detail
                         </a>
                     </td>
-
                 </tr>
-
                 <?php endforeach; ?>
-
             </tbody>
         </table>
 
         <?php if (empty($tiket_list)): ?>
-            <p class="text-center text-caption text-text/30 py-10">
-                Belum ada tiket.
-            </p>
+            <p class="text-center text-caption text-text/30 py-10">Belum ada tiket.</p>
         <?php endif; ?>
-
     </div>
 </div>
 
@@ -227,21 +230,15 @@ $content .= <<<'HTML'
 function filterTiket() {
     const status   = document.getElementById('filter-status').value;
     const kategori = document.getElementById('filter-kategori').value;
-
     document.querySelectorAll('.tiket-row').forEach(row => {
         const matchStatus   = !status || row.dataset.status === status;
         const matchKategori = !kategori || row.dataset.kategori === kategori;
-
         row.style.display = (matchStatus && matchKategori) ? '' : 'none';
     });
 }
-
 document.getElementById('filter-status').addEventListener('change', filterTiket);
 document.getElementById('filter-kategori').addEventListener('change', filterTiket);
 </script>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
 <style type="text/tailwindcss">
 .cs-card { @apply bg-white/5 border border-white/10 rounded-xl p-4 shadow-lg; }
 .cs-input { @apply bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-text; }

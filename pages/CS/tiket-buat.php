@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config/koneksi.php';
+require_once __DIR__ . '/../../config/konek.php';
 // require_once __DIR__ . '/../../auth/checkSession.php';
 
 $pageTitle   = 'Buat Tiket Baru — Customer Service';
@@ -11,6 +11,22 @@ $kategori_list = [
     'cleaning' => 'Cleaning — Kebersihan',
     'other'    => 'Lainnya',
 ];
+
+$query = "
+    SELECT DISTINCT asset_code
+    FROM `05_tiket`
+    WHERE asset_code IS NOT NULL
+    AND asset_code != ''
+    ORDER BY asset_code ASC
+";
+
+$result = $conn->query($query);
+
+$asset_codes = [];
+
+while ($row = $result->fetch_assoc()) {
+    $asset_codes[] = $row['asset_code'];
+}
 
 $success = false;
 $errors  = [];
@@ -30,48 +46,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $deskripsi      = trim($_POST['deskripsi'] ?? '');
 
     $allowed_kat      = array_keys($kategori_list);
-    $allowed_priority = ['Critical','High','Medium','Low'];
+    $allowed_priority = ['Critical', 'High', 'Medium', 'Low'];
     if (!in_array($priority, $allowed_priority)) $priority = 'Medium';
     if ($severity_level < 1) $severity_level = 1;
     if ($severity_level > 10) $severity_level = 10;
 
-    if (!$nama_pelapor)                  $errors[] = 'Nama pelapor wajib diisi.';
-    if (!$lokasi)                        $errors[] = 'Lokasi kejadian wajib diisi.';
-    if (!$kategori || !in_array($kategori, $allowed_kat)) $errors[] = 'Kategori tiket wajib dipilih.';
-    if (!$deskripsi)                     $errors[] = 'Deskripsi masalah wajib diisi.';
+    if (!$nama_pelapor)                                     $errors[] = 'Nama pelapor wajib diisi.';
+    if (!$lokasi)                                           $errors[] = 'Lokasi kejadian wajib diisi.';
+    if (!$kategori || !in_array($kategori, $allowed_kat))   $errors[] = 'Kategori tiket wajib dipilih.';
+    if (!$deskripsi)                                        $errors[] = 'Deskripsi masalah wajib diisi.';
 
     if (empty($errors)) {
-        $stmt = $pdo->query("SELECT COUNT(*) FROM `05_tiket`");
-        $count = (int) $stmt->fetchColumn();
+        $result = $conn->query(
+            "SELECT COUNT(*) AS total FROM `05_tiket`"
+        );
+
+        $row = $result->fetch_assoc();
+
+        $count = (int)$row['total'];
         $new_id = 'TKT-' . str_pad($count + 1, 3, '0', STR_PAD_LEFT);
 
         $foto_paths = [];
         if (!empty($_FILES['foto']['name'][0])) {
-            $upload_dir = __DIR__ . '/uploads/tiket/';
+            $upload_dir = __DIR__ . '/../../storage/uploads/tiket/';
             if (!is_dir($upload_dir)) mkdir($upload_dir, 0755, true);
             foreach ($_FILES['foto']['tmp_name'] as $i => $tmp) {
                 if ($_FILES['foto']['error'][$i] === UPLOAD_ERR_OK) {
                     $ext      = pathinfo($_FILES['foto']['name'][$i], PATHINFO_EXTENSION);
                     $filename = $new_id . '_' . ($i + 1) . '.' . $ext;
                     move_uploaded_file($tmp, $upload_dir . $filename);
-                    $foto_paths[] = 'uploads/tiket/' . $filename;
+                    $foto_paths[] = 'storage/uploads/tiket/' . $filename;
                 }
             }
         }
 
         $foto_json = !empty($foto_paths) ? json_encode($foto_paths) : null;
-        $stmt = $pdo->prepare("
-            INSERT INTO `05_tiket` (
-                id, report_date, pelapor, no_hp, lokasi, floor_name, area_name,
-                asset_name, asset_code, kategori, damage_type, priority, severity_level,
-                deskripsi, foto
-            ) VALUES (?, CURDATE(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ");
-        $stmt->execute([
-            $new_id, $nama_pelapor, $no_hp, $lokasi, $floor_name, $area_name,
-            $asset_name, $asset_code, $kategori, $damage_type, $priority, $severity_level,
-            $deskripsi, $foto_json
-        ]);
+        $stmt = $conn->prepare("
+INSERT INTO `05_tiket` (
+    id, report_date, pelapor, no_hp,
+    lokasi, floor_name, area_name,
+    asset_name, asset_code, kategori,
+    damage_type, priority,
+    severity_level, deskripsi, foto
+)
+VALUES (?, CURDATE(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+");
+
+        $stmt->bind_param(
+            "ssssssssssssis",
+            $new_id,
+            $nama_pelapor,
+            $no_hp,
+            $lokasi,
+            $floor_name,
+            $area_name,
+            $asset_name,
+            $asset_code,
+            $kategori,
+            $damage_type,
+            $priority,
+            $severity_level,
+            $deskripsi,
+            $foto_json
+        );
+
+        $stmt->execute();
 
         $success = true;
     }
@@ -81,27 +120,27 @@ ob_start();
 ?>
 
 <?php if ($success): ?>
-<div class="flex items-center gap-3 bg-success/10 border border-success/30 text-success rounded-lg px-5 py-3">
-    <i class="bi bi-check-circle-fill text-lg"></i>
-    <div>
-        <p class="text-label font-semibold">Tiket berhasil dibuat!</p>
-        <p class="text-caption text-text/60">Tiket telah otomatis diteruskan ke departemen terkait.</p>
+    <div class="flex items-center gap-3 bg-success/10 border border-success/30 text-success rounded-lg px-5 py-3">
+        <i class="bi bi-check-circle-fill text-lg"></i>
+        <div>
+            <p class="text-label font-semibold">Tiket berhasil dibuat!</p>
+            <p class="text-caption text-text/60">Tiket telah otomatis diteruskan ke departemen terkait.</p>
+        </div>
+        <a href="tiket.php" class="ml-auto cs-btn bg-success/20 text-success hover:bg-success/30 text-caption px-3 py-1">
+            Lihat Semua Tiket
+        </a>
     </div>
-    <a href="tiket.php" class="ml-auto cs-btn bg-success/20 text-success hover:bg-success/30 text-caption px-3 py-1">
-        Lihat Semua Tiket
-    </a>
-</div>
 <?php endif; ?>
 
 <?php if (!empty($errors)): ?>
-<div class="flex items-start gap-3 bg-danger/10 border border-danger/30 text-danger rounded-lg px-5 py-3">
-    <i class="bi bi-exclamation-circle-fill text-lg mt-0.5"></i>
-    <ul class="text-label space-y-0.5">
-        <?php foreach ($errors as $e): ?>
-            <li><?= htmlspecialchars($e) ?></li>
-        <?php endforeach; ?>
-    </ul>
-</div>
+    <div class="flex items-start gap-3 bg-danger/10 border border-danger/30 text-danger rounded-lg px-5 py-3">
+        <i class="bi bi-exclamation-circle-fill text-lg mt-0.5"></i>
+        <ul class="text-label space-y-0.5">
+            <?php foreach ($errors as $e): ?>
+                <li><?= htmlspecialchars($e) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
 <?php endif; ?>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -180,8 +219,15 @@ ob_start();
                 </div>
                 <div class="space-y-1.5">
                     <label class="text-label font-medium">Kode Aset</label>
-                    <input type="text" name="asset_code" class="cs-input" placeholder="Contoh: AC-L2-01"
-                        value="<?= htmlspecialchars($_POST['asset_code'] ?? '') ?>" />
+                    <select name="asset_code" class="cs-input" style="background-color:#0B376D;color:#F5F7FA;">
+                        <option value="">-- Pilih kode aset --</option>
+                        <?php foreach ($asset_codes as $code): ?>
+                            <option value="<?= htmlspecialchars($code) ?>"
+                                <?= (($_POST['asset_code'] ?? '') === $code) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($code) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </div>
 
@@ -194,7 +240,7 @@ ob_start();
                 <div class="space-y-1.5">
                     <label class="text-label font-medium">Prioritas</label>
                     <select name="priority" class="cs-input" style="background-color:#0B376D;color:#F5F7FA;">
-                        <?php foreach (['Critical','High','Medium','Low'] as $p): ?>
+                        <?php foreach (['Critical', 'High', 'Medium', 'Low'] as $p): ?>
                             <option value="<?= $p ?>" <?= (($_POST['priority'] ?? 'Medium') === $p) ? 'selected' : '' ?>><?= $p ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -296,7 +342,7 @@ $content .= <<<'HTML'
                     primary: { DEFAULT: "#0B376D", dark: "#082A53" },
                     secondary: { DEFAULT: "#167E80", dark: "#0D4859" },
                     accent: "#00D4D8", success: "#22C55E", danger: "#EF4444", warning: "#F59E0B",
-                    background: "#021F42", 
+                    background: "#021F42",
                     surface: { raised: "rgba(255,255,255,0.05)" },
                     border: { DEFAULT: "rgba(255,255,255,0.1)", strong: "rgba(255,255,255,0.2)" },
                     text: { DEFAULT: "#F5F7FA", accent: "#FFB62A" }
