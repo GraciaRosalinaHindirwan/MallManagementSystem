@@ -9,5 +9,6 @@ while (true) {
 
     require_once __DIR__ . "/scripts/ReceiveContractNotificationScript.php";
     require_once __DIR__ . "/scripts/ReceiveFeedbackNotificationScript.php";
+    require_once __DIR__ . "/scripts/ReceivePaymentDueNotificationScript.php";
     sleep(60);
 }

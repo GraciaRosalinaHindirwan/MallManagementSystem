@@ -3,7 +3,7 @@
 session_start();
 
 // SIMULASI LOGIN (hapus saat integrasi login asli)
-$_SESSION['user_id'] = 32;
+$_SESSION['user_id'] = 1;
 $_SESSION['nama']    = 'Tester User';
 
 require_once __DIR__ . '/../../../config/konek.php';
