@@ -1,6 +1,45 @@
 <?php
 require_once '../../config/konek.php';
-require_once __DIR__ . '/../../public/auth/checkSession.php';
+// require_once __DIR__ . '/../../public/auth/checkSession.php';
+// if (!isset($_SESSION['user_id'])) {
+//     header("Location: ../auth/login.php");
+//     exit();
+// }
+
+// $role = $_SESSION['role'] ?? '';
+// $full_access_roles = ['Super Admin', 'Admin', 'Manager'];
+// $limited_access_roles = ['Finance Manager', 'Finance Staff', 'Leasing Manager', 'Event Manager', 'Facility Manager'];
+// if (in_array($role, $full_access_roles)) {
+//     // Tampilkan semua data
+//     $show_all_data = true;
+//     $show_download = true;
+// } elseif (in_array($role, $limited_access_roles)) {
+//     // Tampilkan data terbatas
+//     $show_all_data = false;
+//     $show_download = false; // Staff tidak boleh unduh laporan
+
+//     // Filter data berdasarkan role
+//     switch ($role) {
+//         case 'Finance Manager':
+//         case 'Finance Staff':
+//             // Hanya tampilkan data keuangan
+//             break;
+//         case 'Leasing Manager':
+//             // Hanya tampilkan data tenant
+//             break;
+//         case 'Event Manager':
+//             // Hanya tampilkan data event
+//             break;
+//         case 'Facility Manager':
+//             // Hanya tampilkan data maintenance
+//             break;
+//     }
+// } else {
+//     // Role lain tidak boleh akses
+//     header("Location: ../dashboard/08_dashboard.php");
+//     exit();
+// }
+
 
 // =====================================================
 // 1. OCCUPANCY RATE (REAL-TIME)
@@ -157,8 +196,8 @@ $user_name = "Manager";
 $menu_items = [
     ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard KPI', 'link' => '08_dashboard.php', 'active_page' => '08_dashboard'],
     ['icon' => 'fa-solid fa-chart-line', 'label' => 'Laporan', 'link' => '08_laporan.php', 'active_page' => '08_laporan'],
-    ['icon' => 'fa-solid fa-check-circle', 'label' => 'Approval', 'link' => '08_approval.php', 'active_page' => '08_approval'],
-    ['icon' => 'fa-solid fa-bell', 'label' => 'Notifikasi', 'link' => '08_notifikasi.php', 'active_page' => '08_notifikasi'],
+    ['icon' => 'fa-solid fa-check-circle', 'label' => 'Approval', 'link' => '08_approval.php', 'active_page' => 'myApproval'],
+    ['icon' => 'fa-solid fa-bell', 'label' => 'Notifikasi', 'link' => 'index.php', 'active_page' => 'index'],
 ];
 
 ob_start();
