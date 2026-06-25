@@ -1,3 +1,4 @@
 vendor/
 node_modules/
 mall_management.sql
+opencode.json

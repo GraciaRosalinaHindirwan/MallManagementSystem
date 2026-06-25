@@ -14,5 +14,3 @@ $users = $user_query->get_all();
 foreach ($users as $user) {
     $usecase->execute($user);
 }
-
-echo "new contract notification!";
