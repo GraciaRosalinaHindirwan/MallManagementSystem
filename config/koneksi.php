@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db_name = "mall_management";
+$db_name = "mall_erp";
 
 $conn = new mysqli($host, $user, $pass, $db_name);
 
@@ -11,4 +11,3 @@ if ($conn->connect_error) {
             ⚠️ Koneksi Database Gagal: " . $conn->connect_error . "
         </div>");
 }
-?>
