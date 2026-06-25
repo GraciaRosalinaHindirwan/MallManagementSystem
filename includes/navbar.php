@@ -14,8 +14,35 @@ if (!defined('BASE_URL')) {
 }
 
 // Edit di sini untuk mengubah nama department, menu di sidebar, dan nama user yang tampil di navbar
-$department_name = $department_name ?? 'Department ABC DEF'; 
+$department_name = $department_name ?? 'Department ABC DEF'; // Ganti kata-kata yang diapit petik satu
 $menu_items = $menu_items ?? [];
+// Contoh format menu_items:
+// $menu_items = [
+//     [
+//         'icon' => 'fa-solid fa-chart-line',
+//         'label' => 'Dashboard',
+//         'link' => 'dashboard.php',
+//         'active_page' => 'dashboard'
+//     ],
+//     [
+//         'icon' => 'fa-solid fa-file-invoice',
+//         'label' => 'Invoice',
+//         'link' => 'invoice/index.php',
+//         'active_page' => 'invoice'
+//     ],
+//     [
+//         'icon' => 'fa-solid fa-chart-pie',
+//         'label' => 'Laporan Keuangan',
+//         'link' => 'laporan/index.php',
+//         'active_page' => 'laporan'
+//     ],
+//     [
+//         'icon' => 'fa-solid fa-receipt',
+//         'label' => 'Transaksi',
+//         'link' => 'transaksi/index.php',
+//         'active_page' => 'transaksi'
+//     ],
+// ];
 $user_name = $user_name ?? 'Manager';
 $page_title = $page_title ?? 'Dashboard';
 ?>
@@ -34,6 +61,7 @@ $page_title = $page_title ?? 'Dashboard';
 <body>
 
     <div class="layout">
+        <!-- SIDEBAR -->
         <aside class="sidebar" id="sidebar">
             <button class="sidebar-close" id="sidebarClose">
                 <i class="fa-solid fa-times"></i>
@@ -65,6 +93,7 @@ $page_title = $page_title ?? 'Dashboard';
             </div>
         </aside>
 
+        <!-- MAIN CONTENT -->
         <main class="main-content">
             <div class="topbar">
                 <button class="menu-toggle" id="menuToggle">
@@ -84,3 +113,64 @@ $page_title = $page_title ?? 'Dashboard';
                     }
                     ?>
                 </div>
+                <?php require_once __DIR__ . '/footer.php'; ?>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        (function() {
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const body = document.body;
+
+            if (!menuToggle || !sidebar) {
+                return;
+            }
+
+            function openSidebar() {
+                sidebar.classList.add('open');
+                body.classList.add('sidebar-open');
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                body.classList.remove('sidebar-open');
+            }
+
+            menuToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openSidebar();
+            });
+
+            if (sidebarClose) {
+                sidebarClose.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeSidebar();
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 576) {
+                    closeSidebar();
+                }
+            });
+
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 576) {
+                    const isClickInsideSidebar = sidebar.contains(event.target);
+                    const isClickOnToggle = menuToggle.contains(event.target);
+
+                    if (!isClickInsideSidebar && !isClickOnToggle && sidebar.classList.contains('open')) {
+                        closeSidebar();
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>
