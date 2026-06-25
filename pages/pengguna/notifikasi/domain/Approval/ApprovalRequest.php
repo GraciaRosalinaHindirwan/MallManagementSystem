@@ -7,7 +7,7 @@ require_once __DIR__ . "/ApprovalRequestType.php";
 class ApprovalRequest
 {
     public int $approval_id;
-    public string $approval_number;
+    public string $request_number;
     public ApprovalRequestType $request_type;
     public string $title;
     public string $description;
@@ -23,7 +23,7 @@ class ApprovalRequest
 
     public function __construct(
         int $approval_id,
-        string $approval_number,
+        string $request_number,
         ApprovalRequestType $request_type,
         string $title,
         string $description,
@@ -39,7 +39,7 @@ class ApprovalRequest
 
     ) {
         $this->approval_id = $approval_id;
-        $this->approval_number = $approval_number;
+        $this->request_number = $request_number;
         $this->request_type = $request_type;
         $this->title = $title;
         $this->description = $description;
@@ -58,7 +58,7 @@ class ApprovalRequest
     {
         return new ApprovalRequest(
             approval_id: $approval_id,
-            approval_number: "",
+            request_number: "",
             request_type: ApprovalRequestType::Contract,
             title: "",
             description: "",

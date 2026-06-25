@@ -12,7 +12,7 @@ class NotificationLogTest extends TestCase
     #[Override]
     function setUp(): void
     {
-        $this->db = new mysqli("localhost", "root", "", "mall_management");
+        $this->db = new mysqli("localhost", "root", "", "mall_erp");
         $this->db->begin_transaction();
     }
 
@@ -21,11 +21,11 @@ class NotificationLogTest extends TestCase
         $log = new MysqlNotificationLogWriter($this->db);
 
         $log->insert(NotificationLog::pending(
-            new Recipient("email", "username"),
-            new NotificationContent("subject", "body", NotificationType::payment_due),
-            NotificationChannel::inapp,
-            "notif-1",
-            1
+            recipient: new Recipient("email", "username"),
+            content: new NotificationContent("subject", "body", NotificationType::payment_due),
+            user_id: 1,
+            channel: NotificationChannel::inapp,
+            notificationId: "notif-1",
         ));
 
         $stmt = $this->db->prepare("SELECT * FROM 08_notification_logs");
