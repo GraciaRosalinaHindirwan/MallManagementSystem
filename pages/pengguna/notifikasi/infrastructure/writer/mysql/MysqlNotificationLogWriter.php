@@ -33,7 +33,7 @@ class MysqlNotificationLogWriter implements INotificationLogWriter
         $notification_type = $log->notification_content->type->to_string();
         $status = $log->get_delivery_result_status()->to_string();
         $error_message = $log->get_error_messsage();
-        $sent_at = $log->get_sent_at();
+        $sent_at = $log->get_sent_at()->format("Y-m-d");
         $channel = $log->channel->to_string();
         $created_at = $log->created_at->format("Y-m-d");
 

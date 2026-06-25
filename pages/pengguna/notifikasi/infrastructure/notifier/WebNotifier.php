@@ -30,12 +30,16 @@ class WebNotifier implements INotifier
         $id = count($this->_notification_query->get_all());
         $this->_notification_writer->insert(Notification::create($id, $message));
 
-        $this->_logger->insert(NotificationLog::pending(
+        $log = NotificationLog::pending(
             new Recipient($user->email, $user->username),
             $message,
             $user->id,
             NotificationChannel::inapp,
             "NOTIF-" . $id,
-        ));
+        );
+
+        $log->mark_as_sent();
+
+        $this->_logger->insert($log);
     }
 }
