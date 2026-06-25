@@ -10,7 +10,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
     header("Location: ../../index.php"); 
     exit();
 }
-
+*/
 // Sesi default sementara tetap dibiarkan di bawahnya agar aman dicoba sekarang
 $_SESSION['role'] = 'financeStaff';
 $_SESSION['nama'] = 'Staff';
