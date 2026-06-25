@@ -165,7 +165,7 @@ http://localhost/mall-management/public
 - Pengunjung
 ## Development Notes
 
-This project is developed using **Native PHP** without a framework. Shared components such as headers, footers, navigation bars, and utility functions are stored in the `includes` directory and reused across pages using `include` or `require`.
+Proyek ini dikembangkan menggunakan PHP Native tanpa framework. Komponen yang digunakan bersama seperti header, footer, navbar, serta fungsi-fungsi pendukung disimpan dalam folder `includes` dan digunakan kembali pada berbagai halaman menggunakan `include` atau `require`.
 
 Example:
 

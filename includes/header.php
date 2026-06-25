@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+<<<<<<< HEAD
 
+=======
+>>>>>>> 566c94f9b4e907effbc09fbd6e3a4579cf056628
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,29 +17,41 @@
             --text-accent: #FFB62A;
             --sidebar-bg: #011630;
         }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 566c94f9b4e907effbc09fbd6e3a4579cf056628
         body {
             background-color: var(--primary-dark);
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
+<<<<<<< HEAD
             overflow-x: hidden;
         }
 
         /* Top Navbar Atas - Animasi Transisi Smooth */
+=======
+        }
+>>>>>>> 566c94f9b4e907effbc09fbd6e3a4579cf056628
         nav {
             background-color: #011630;
             padding: 15px 25px;
             display: flex;
             align-items: center;
+<<<<<<< HEAD
             gap: 15px;
+=======
+            gap: 20px;
+>>>>>>> 566c94f9b4e907effbc09fbd6e3a4579cf056628
             border-bottom: 2px solid var(--accent);
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1030;
+<<<<<<< HEAD
             transition: padding-left 0.3s ease-in-out;
         }
 
@@ -87,6 +102,24 @@
             transform: translateX(0) !important;
         }
 
+=======
+        }
+        .navbar-brand {
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 22px;
+        }
+        .offcanvas-sidebar {
+            width: 280px !important;
+            background-color: var(--sidebar-bg) !important;
+            border-right: 2px solid rgba(255,182,42,0.1) !important;
+        }
+        .content-wrapper {
+            margin-top: 75px; /* Memberikan ruang agar tidak tertutup top navbar */
+            padding: 30px;
+            min-height: calc(100vh - 75px);
+        }
+>>>>>>> 566c94f9b4e907effbc09fbd6e3a4579cf056628
         .nav-sidebar-item {
             display: flex;
             align-items: center;
@@ -100,18 +133,27 @@
             border-radius: 8px;
             margin: 2px 15px;
         }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 566c94f9b4e907effbc09fbd6e3a4579cf056628
         .nav-sidebar-item:hover {
             background: rgba(255, 255, 255, 0.05);
             color: #ffffff;
         }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 566c94f9b4e907effbc09fbd6e3a4579cf056628
         .nav-sidebar-item.active {
             background-color: rgba(0, 207, 213, 0.15) !important;
             color: #00cfd5 !important;
             font-weight: 600;
         }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 566c94f9b4e907effbc09fbd6e3a4579cf056628
         .table-custom {
             width: 100%;
             background-color: #032b5c;
@@ -120,13 +162,17 @@
             margin-top: 20px;
             border-collapse: collapse;
         }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 566c94f9b4e907effbc09fbd6e3a4579cf056628
         .table-custom th {
             background-color: #011630;
             color: var(--accent);
             padding: 15px;
             font-size: 14px;
         }
+<<<<<<< HEAD
 
         .table-custom td {
             padding: 15px;
@@ -148,4 +194,13 @@
     </style>
 </head>
 
+=======
+        .table-custom td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: #ffffff;
+        }
+    </style>
+</head>
+>>>>>>> 566c94f9b4e907effbc09fbd6e3a4579cf056628
 <body>
