@@ -25,7 +25,9 @@ class PendingApprovalRequestNotificationUsecaseTest extends TestCase
     public function setUp(): void
     {
         $this->user = new InMemoryUserQuery([
-            User::create_default(1, "user1", "user@gmail.com")
+            User::create_default(1, "user1", "user1@gmail.com"),
+            User::create_default(2, "user2", "user2@gmail.com"),
+            User::create_default(3, "user3", "user3@gmail.com")
         ]);
 
         $this->notifications = [];
@@ -86,5 +88,37 @@ class PendingApprovalRequestNotificationUsecaseTest extends TestCase
         $usecase->execute($this->user->get_by_id(1));
 
         $this->assertCount(1, $this->notifications);
+    }
+
+    public function testIfThereAreMultiplePendingApproval_ShouldNotifyEverything()
+    {
+        $approval_requests = new InMemoryApprovalRequestQuery([
+            ApprovalRequest::create_default(1, ApprovalRequestStatus::Pending),
+            ApprovalRequest::create_default(2, ApprovalRequestStatus::Pending),
+            ApprovalRequest::create_default(3, ApprovalRequestStatus::Rejected),
+        ]);
+
+        $usecase = new PendingApprovalRequestNotificationUsecase($approval_requests, $this->notifier);
+
+        $usecase->execute($this->user->get_by_id(1));
+
+        $this->assertCount(2, $this->notifications);
+    }
+
+    public function testNotifyingEveryUser_ShouldProduceTheCorrectAmountOfNotification()
+    {
+        $approval_requests = new InMemoryApprovalRequestQuery([
+            ApprovalRequest::create_default(1, ApprovalRequestStatus::Pending),
+            ApprovalRequest::create_default(2, ApprovalRequestStatus::Pending),
+            ApprovalRequest::create_default(3, ApprovalRequestStatus::Rejected),
+        ]);
+
+        $usecase = new PendingApprovalRequestNotificationUsecase($approval_requests, $this->notifier);
+
+        foreach ($this->user->get_all() as $user) {
+            $usecase->execute($user);
+        }
+
+        $this->assertCount(6, $this->notifications);
     }
 }

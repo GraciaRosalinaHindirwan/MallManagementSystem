@@ -2,8 +2,10 @@
 
 require_once __DIR__ . "/../../../domain/Approval/ApprovalRequest.php";
 
+require_once __DIR__ . "/../../queries/IApprovalRequestQuery.php";
 
-class MysqlApprovalRequestQuery
+
+class MysqlApprovalRequestQuery implements IApprovalRequestQuery
 {
     private mysqli $db;
 
