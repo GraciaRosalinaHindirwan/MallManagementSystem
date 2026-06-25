@@ -62,95 +62,164 @@ if ($result && $result->num_rows > 0) {
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+    :root {
+        /* colors */
+        --primary: #0B376D;
+        --primary-dark: #082A53;
+        --secondary: #167E80;
+        --secondary-dark: #0D4859;
+        --accent: #00D4D8;
+        --success: #22C55E;
+        --danger: #EF4444;
+
+        /* background */
+        --background: #021F42;
+
+        /* text colors */
+        --text: #F5F7FA;
+        --text-secondary: #B8C7D9;
+        --text-accent: #FFB62A;
+
+        /* Typography */
+        --font-family: 'Poppins', sans-serif;
+        --h1: 32px;
+        --h2: 24px;
+        --subheading: 20px;
+        --body: 16px;
+        --label: 14px;
+        --caption: 12px;
+    }
+
     body {
-        background-color: #f8f9fa;
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--background);
+        color: var(--text);
+        font-family: var(--font-family);
+        font-size: var(--body);
     }
+    
     .page-header h2 {
-        font-size: 1.5rem;
+        font-size: var(--h2);
         font-weight: 700;
-        color: #2c3e50;
+        color: var(--text);
     }
+    
     .info-card-custom {
-        background-color: #fff3cd;
-        border: 1px solid #ffe69c;
+        background-color: rgba(11, 55, 109, 0.4);
+        border: 1px solid rgba(0, 212, 216, 0.2);
         border-radius: 10px;
-        color: #664d03;
+        color: var(--text);
     }
+    
     .card-table-custom {
-        border: none;
+        background-color: var(--primary);
+        border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(149, 157, 165, 0.08) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
         overflow: hidden;
     }
+    
     .table-custom {
         margin-bottom: 0;
     }
+    
     .table-custom thead th {
-        background-color: #dc3545 !important; /* Crimson Red Urgensi */
-        color: #ffffff !important;
+        background-color: var(--primary-dark) !important;
+        color: var(--accent) !important;
         font-weight: 600;
         text-transform: uppercase;
-        font-size: 0.82rem;
+        font-size: var(--caption);
         letter-spacing: 0.5px;
         padding: 1.1rem 1.25rem;
-        border-bottom: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
+    
     .table-custom tbody td {
         padding: 1.1rem 1.25rem;
-        font-size: 0.92rem;
-        color: #495057;
-        border-bottom: 1px solid #eaecf4;
+        font-size: var(--label);
+        color: var(--text-secondary);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        background-color: transparent !important;
     }
-    .table-custom tbody tr:hover {
-        background-color: #fff5f5 !important; /* Tint merah tipis saat row di-hover */
-        transition: background-color 0.2s ease-in-out;
+    
+    .table-custom tbody tr {
+        background-color: transparent !important;
+    }
+    
+    .table-custom tbody tr:hover td {
+        background-color: rgba(255, 255, 255, 0.03) !important;
+        color: var(--text);
+        transition: all 0.2s ease-in-out;
     }
     
     /* Badge Status */
     .badge-alert {
         padding: 0.45em 0.85em;
         font-weight: 600;
-        font-size: 0.8rem;
+        font-size: var(--caption);
         border-radius: 6px;
     }
+    
     .badge-overdue {
-        background-color: #fce8e6;
-        color: #c5221f;
+        background-color: rgba(239, 68, 68, 0.15);
+        color: var(--danger);
+        border: 1px solid rgba(239, 68, 68, 0.3);
     }
+    
     .badge-warning-custom {
-        background-color: #fff3cd;
-        color: #664d03;
+        background-color: rgba(255, 182, 42, 0.15);
+        color: var(--text-accent);
+        border: 1px solid rgba(255, 182, 42, 0.3);
     }
     
     .invoice-code {
-        background-color: #f1f3f4;
-        color: #202124;
+        background-color: var(--primary-dark);
+        color: var(--accent);
         padding: 0.25rem 0.6rem;
         border-radius: 4px;
-        font-size: 0.85rem;
+        font-size: var(--caption);
         font-family: monospace;
         font-weight: 600;
+        border: 1px solid rgba(0, 212, 216, 0.15);
     }
+    
     .date-text-danger {
-        color: #d93025;
+        color: var(--danger);
         font-weight: 600;
+    }
+
+    .text-amount {
+        color: var(--text-accent) !important;
+    }
+
+    .text-brand {
+        color: var(--text) !important;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.6; }
+        100% { opacity: 1; }
+    }
+    .animate-pulse {
+        animation: pulse 2s infinite;
     }
 </style>
 
 <div class="container-fluid mt-4 px-4">
     <div class="d-flex justify-content-between align-items-center mb-4 page-header">
         <div>
-            <h2><i class="fa-solid fa-bell text-danger me-2"></i>Daftar Tagihan Jatuh Tempo (Collection Reminder)</h2>
+            <h2><i class="fa-solid fa-bell me-2" style="color: var(--danger);"></i>Daftar Tagihan Jatuh Tempo (Collection Reminder)</h2>
         </div>
     </div>
 
     <div class="card info-card-custom shadow-sm mb-4">
         <div class="card-body p-3 d-flex align-items-center">
-            <i class="fa-solid fa-triangle-exclamation fa-2x me-3 text-warning"></i>
+            <i class="fa-solid fa-triangle-exclamation fa-2x me-3" style="color: var(--text-accent);"></i>
             <div>
-                <h6 class="fw-bold mb-1">Monitoring Invoice Tenant Aktif</h6>
-                <p class="mb-0 small text-secondary-custom">Daftar di bawah ini memuat seluruh data invoice berjalan yang belum terselesaikan dan memerlukan tindak lanjut komunikasi penagihan.</p>
+                <h6 class="fw-bold mb-1" style="font-size: var(--body);">Monitoring Invoice Tenant Aktif</h6>
+                <p class="mb-0 small" style="color: var(--text-secondary); font-size: var(--caption);">Daftar di bawah ini memuat seluruh data invoice berjalan yang belum terselesaikan dan memerlukan tindak lanjut komunikasi penagihan.</p>
             </div>
         </div>
     </div>
@@ -189,19 +258,19 @@ if ($result && $result->num_rows > 0) {
                                 } else {
                                     $time_status = $days_left . " Hari Lagi";
                                     $badge_style = "badge-warning-custom";
-                                    $date_style = "text-dark fw-medium";
+                                    $date_style = "text-light fw-medium";
                                 }
                             ?>
                                 <tr>
                                     <td><span class="invoice-code"><?= htmlspecialchars($row['invoice_number']) ?></span></td>
-                                    <td><strong><?= htmlspecialchars($row['brand_name']) ?></strong></td>
+                                    <td><strong class="text-brand"><?= htmlspecialchars($row['brand_name']) ?></strong></td>
                                     <td>
-                                        <small class="text-muted">
-                                            <i class="fa-regular fa-calendar text-muted me-1"></i>
+                                        <small style="color: var(--text-secondary); font-size: var(--caption);">
+                                            <i class="fa-regular fa-calendar me-1" style="color: var(--text-secondary);"></i>
                                             <?= date('d/m/Y', strtotime($row['period_start'])) ?> s/d <?= date('d/m/Y', strtotime($row['period_end'])) ?>
                                         </small>
                                     </td>
-                                    <td class="text-end fw-bold text-danger">
+                                    <td class="text-end fw-bold text-amount">
                                         Rp <?= number_format($row['total_amount'], 0, ',', '.') ?>
                                     </td>
                                     <td>
@@ -218,8 +287,8 @@ if ($result && $result->num_rows > 0) {
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-success fw-bold">
-                                    <i class="fa-solid fa-circle-check d-block mb-2 fa-3x text-success"></i>
+                                <td colspan="6" class="text-center py-5 fw-bold" style="color: var(--success); font-size: var(--body);">
+                                    <i class="fa-solid fa-circle-check d-block mb-2 fa-3x" style="color: var(--success);"></i>
                                     Hebat! Semua tagihan tenant untuk bulan ini sudah lunas sepenuhnya.
                                 </td>
                             </tr>

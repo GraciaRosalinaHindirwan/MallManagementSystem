@@ -64,100 +64,164 @@ if ($result && $result->num_rows > 0) {
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+    :root {
+        /* colors */
+        --primary: #0B376D;
+        --primary-dark: #082A53;
+        --secondary: #167E80;
+        --secondary-dark: #0D4859;
+        --accent: #00D4D8;
+        --success: #22C55E;
+        --danger: #EF4444;
+
+        /* background */
+        --background: #021F42;
+
+        /* text colors */
+        --text: #F5F7FA;
+        --text-secondary: #B8C7D9;
+        --text-accent: #FFB62A;
+
+        /* Typography */
+        --font-family: 'Poppins', sans-serif;
+        --h1: 32px;
+        --h2: 24px;
+        --subheading: 20px;
+        --body: 16px;
+        --label: 14px;
+        --caption: 12px;
+    }
+
     body {
-        background-color: #f8f9fa;
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--background);
+        color: var(--text);
+        font-family: var(--font-family);
+        font-size: var(--body);
     }
+    
     .page-header h2 {
-        font-size: 1.5rem;
+        font-size: var(--h2);
         font-weight: 700;
-        color: #2c3e50;
+        color: var(--text);
     }
+
+    .page-header p {
+        font-size: var(--label);
+        color: var(--text-secondary) !important;
+    }
+    
     .card-table-custom {
-        border: none;
+        background-color: var(--primary);
+        border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(149, 157, 165, 0.08) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
         overflow: hidden;
     }
+    
     .table-custom {
         margin-bottom: 0;
     }
+    
     .table-custom thead th {
-        background-color: #198754 !important; /* Hijau Finansial Premium */
-        color: #ffffff !important;
+        background-color: var(--primary-dark) !important;
+        color: var(--accent) !important;
         font-weight: 600;
         text-transform: uppercase;
-        font-size: 0.82rem;
+        font-size: var(--caption);
         letter-spacing: 0.5px;
         padding: 1.1rem 1.25rem;
-        border-bottom: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
+    
     .table-custom tbody td {
         padding: 1.1rem 1.25rem;
-        font-size: 0.92rem;
-        color: #495057;
-        border-bottom: 1px solid #eaecf4;
+        font-size: var(--label);
+        color: var(--text-secondary);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        background-color: transparent !important;
     }
-    .table-custom tbody tr:hover {
-        background-color: #f3f7f4 !important; /* Efek hover hint hijau tipis */
-        transition: background-color 0.2s ease-in-out;
+    
+    .table-custom tbody tr {
+        background-color: transparent !important;
+    }
+
+    .table-custom tbody tr:hover td {
+        background-color: rgba(255, 255, 255, 0.03) !important;
+        color: var(--text);
+        transition: all 0.2s ease-in-out;
     }
     
     /* Modern Badge Status */
     .badge-status {
         padding: 0.45em 0.85em;
         font-weight: 600;
-        font-size: 0.8rem;
+        font-size: var(--caption);
         border-radius: 6px;
     }
     .badge-paid {
-        background-color: #e6f4ea;
-        color: #137333;
+        background-color: rgba(34, 197, 94, 0.15);
+        color: var(--success);
+        border: 1px solid rgba(34, 197, 94, 0.3);
     }
     .badge-unpaid {
-        background-color: #fce8e6;
-        color: #c5221f;
+        background-color: rgba(239, 68, 68, 0.15);
+        color: var(--danger);
+        border: 1px solid rgba(239, 68, 68, 0.3);
     }
     
     /* Tipe Deposit Styling */
     .deposit-type-text {
-        font-size: 0.88rem;
-        color: #5f6368;
+        font-size: var(--label);
+        color: var(--text-secondary);
         font-weight: 500;
     }
+    
     .contract-badge {
-        background-color: #f1f3f4;
-        color: #3c4043;
+        background-color: var(--primary-dark);
+        color: var(--accent);
         padding: 0.25rem 0.6rem;
         border-radius: 4px;
-        font-size: 0.85rem;
+        font-size: var(--caption);
         font-family: monospace;
+        border: 1px solid rgba(0, 212, 216, 0.2);
     }
     
     .btn-add-custom {
-        background-color: #198754;
-        border-color: #198754;
+        background-color: var(--secondary);
+        border-color: var(--secondary);
+        color: var(--text);
         font-weight: 600;
         padding: 0.55rem 1.25rem;
         border-radius: 8px;
-        font-size: 0.9rem;
-        box-shadow: 0 4px 12px rgba(25, 135, 84, 0.2);
+        font-size: var(--label);
+        box-shadow: 0 4px 12px rgba(22, 126, 128, 0.2);
         transition: all 0.2s ease-in-out;
     }
     .btn-add-custom:hover {
-        background-color: #157347;
+        background-color: var(--secondary-dark);
+        border-color: var(--secondary-dark);
+        color: var(--text);
         transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(25, 135, 84, 0.3);
+        box-shadow: 0 6px 16px rgba(13, 72, 89, 0.4);
+    }
+    
+    .text-amount {
+        color: var(--text-accent) !important;
+    }
+    .text-brand {
+        color: var(--text) !important;
     }
 </style>
 
 <div class="container-fluid mt-4 px-4">
     <div class="d-flex justify-content-between align-items-center mb-4 page-header">
         <div>
-            <h2><i class="fa-solid fa-vault me-2 text-success"></i>Pencatatan Jaminan / Deposit Tenant</h2>
+            <h2><i class="fa-solid fa-vault me-2" style="color: var(--accent);"></i>Pencatatan Jaminan / Deposit Tenant</h2>
             <p class="text-muted mb-0 mt-1 d-none d-sm-block">Gunakan daftar ini untuk memvalidasi uang jaminan (Security/Utility Deposit) yang sudah dibayarkan atau memerlukan pengembalian (*Refund*).</p>
         </div>
-        <a href="02_deposit_tambah.php" class="btn btn-success btn-add-custom"><i class="fa fa-plus me-1"></i> Tambah Deposit Baru</a>
+        <a href="02_deposit_tambah.php" class="btn btn-add-custom"><i class="fa fa-plus me-1"></i> Tambah Deposit Baru</a>
     </div>
 
     <div class="card card-table-custom shadow-sm">
@@ -178,15 +242,15 @@ if ($result && $result->num_rows > 0) {
                         <?php if (count($deposits) > 0): ?>
                             <?php foreach ($deposits as $row): ?>
                                 <tr>
-                                    <td><strong class="text-dark"><?= htmlspecialchars($row['brand_name']) ?></strong></td>
+                                    <td><strong class="text-brand"><?= htmlspecialchars($row['brand_name']) ?></strong></td>
                                     <td><span class="contract-badge"><?= htmlspecialchars($row['contract_number']) ?></span></td>
                                     <td>
                                         <span class="deposit-type-text">
-                                            <i class="fa-solid fa-shield-halved me-1 text-muted" style="font-size: 0.8rem;"></i> 
+                                            <i class="fa-solid fa-shield-halved me-1" style="font-size: 0.8rem; color: var(--text-secondary);"></i> 
                                             <?= htmlspecialchars($row['deposit_type']) ?>
                                         </span>
                                     </td>
-                                    <td class="text-end fw-bold text-success">
+                                    <td class="text-end fw-bold text-amount">
                                         Rp <?= number_format($row['amount'], 0, ',', '.') ?>
                                     </td>
                                     <td class="text-center">
@@ -200,17 +264,17 @@ if ($result && $result->num_rows > 0) {
                                     </td>
                                     <td>
                                         <?php if ($row['payment_date']): ?>
-                                            <small class="text-dark fw-medium"><i class="fa-regular fa-clock text-muted me-1"></i> <?= date('d F Y', strtotime($row['payment_date'])) ?></small>
+                                            <small class="fw-medium" style="color: var(--text);"><i class="fa-regular fa-clock me-1" style="color: var(--text-secondary);"></i> <?= date('d F Y', strtotime($row['payment_date'])) ?></small>
                                         <?php else: ?>
-                                            <span class="text-muted-light">—</span>
+                                            <span style="color: var(--text-secondary);">—</span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">
-                                    <i class="fa-solid fa-inbox d-block mb-2 fa-2x text-muted" style="opacity: 0.5;"></i>
+                                <td colspan="6" class="text-center py-5" style="color: var(--text-secondary);">
+                                    <i class="fa-solid fa-inbox d-block mb-2 fa-2x" style="opacity: 0.5; color: var(--text-secondary);"></i>
                                     Data deposit unit tidak tersedia.
                                 </td>
                             </tr>

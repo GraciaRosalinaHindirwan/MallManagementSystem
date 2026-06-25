@@ -46,95 +46,161 @@ ob_start();
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+    :root {
+        /* colors */
+        --primary: #0B376D;
+        --primary-dark: #082A53;
+        --secondary: #167E80;
+        --secondary-dark: #0D4859;
+        --accent: #00D4D8;
+        --success: #22C55E;
+        --danger: #EF4444;
+
+        /* background */
+        --background: #021F42;
+
+        /* text colors */
+        --text: #F5F7FA;
+        --text-secondary: #B8C7D9;
+        --text-accent: #FFB62A;
+
+        /* Typography */
+        --font-family: 'Poppins', sans-serif;
+    }
+
     body {
-        background-color: #f8f9fa;
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--background);
+        font-family: var(--font-family);
+        color: var(--text);
     }
+    
     .page-header h2 {
-        font-size: 1.5rem;
+        font-size: 24px; /* --h2 */
         font-weight: 700;
-        color: #2c3e50;
+        color: var(--text);
     }
+
     .card-table-custom {
-        border: none;
+        background-color: var(--primary-dark);
+        border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(149, 157, 165, 0.08) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
         overflow: hidden;
     }
+
     .table-custom {
         margin-bottom: 0;
+        color: var(--text-secondary);
     }
+
     .table-custom thead th {
-        background-color: #4e73df !important; /* Disamakan dengan header biru form */
-        color: #ffffff !important;
+        background-color: var(--primary) !important;
+        color: var(--text) !important;
         font-weight: 600;
         text-transform: uppercase;
-        font-size: 0.82rem;
+        font-size: 14px; /* --label */
         letter-spacing: 0.5px;
-        padding: 1rem 1.25rem;
-        border-bottom: none;
+        padding: 1.1rem 1.25rem;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.05);
     }
+
     .table-custom tbody td {
-        padding: 1rem 1.25rem;
-        font-size: 0.92rem;
-        color: #495057;
-        border-bottom: 1px solid #eaecf4;
+        padding: 1.1rem 1.25rem;
+        font-size: 16px; /* --body */
+        color: var(--text-secondary);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        background-color: transparent !important;
     }
-    .table-custom tbody tr:hover {
-        background-color: #f1f3f9 !important;
-        transition: background-color 0.2s ease-in-out;
+
+    .table-custom tbody tr {
+        background-color: transparent !important;
     }
-    /* Customizing Badge Styles agar terlihat modern (tidak monoton) */
-    .badge-charge {
-        padding: 0.45em 0.85em;
-        font-weight: 600;
-        font-size: 0.8rem;
-        border-radius: 6px;
-    }
-    .badge-fixed { background-color: #e8f0fe; color: #1a73e8; }
-    .badge-revenue { background-color: #e6f4ea; color: #137333; }
-    .badge-service { background-color: #fef7e0; color: #b06000; }
-    .badge-default { background-color: #f1f3f4; color: #5f6368; }
-    
-    .badge-cycle {
-        background-color: #eaeaea;
-        color: #444444;
-        font-weight: 500;
-        padding: 0.4em 0.7em;
-        border-radius: 4px;
-        font-size: 0.8rem;
-    }
-    .btn-add-custom {
-        background-color: #4e73df;
-        border-color: #4e73df;
-        font-weight: 600;
-        padding: 0.55rem 1.25rem;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        box-shadow: 0 4px 12px rgba(78, 115, 223, 0.2);
+
+    .table-custom tbody tr:hover td {
+        background-color: rgba(255, 255, 255, 0.03) !important;
+        color: var(--text) !important;
         transition: all 0.2s ease-in-out;
     }
-    .btn-add-custom:hover {
-        background-color: #2e59d9;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(78, 115, 223, 0.3);
-    }
-    .contract-number-text {
-        color: #4e73df;
+
+    /* Customizing Badge Styles - Neomorphic Dark/Glow style */
+    .badge-charge {
+        padding: 0.5em 0.9em;
         font-weight: 600;
+        font-size: 12px; /* --caption */
+        border-radius: 6px;
+    }
+    .badge-fixed { 
+        background-color: rgba(0, 212, 216, 0.15); 
+        color: var(--accent); 
+        border: 1px solid rgba(0, 212, 216, 0.3);
+    }
+    .badge-revenue { 
+        background-color: rgba(34, 197, 94, 0.15); 
+        color: var(--success); 
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    .badge-service { 
+        background-color: rgba(255, 182, 42, 0.15); 
+        color: var(--text-accent); 
+        border: 1px solid rgba(255, 182, 42, 0.3);
+    }
+    .badge-default { 
+        background-color: rgba(255, 255, 255, 0.1); 
+        color: var(--text-secondary); 
+    }
+    
+    .badge-cycle {
+        background-color: rgba(22, 126, 128, 0.2);
+        color: #167E80; /* --secondary */
+        border: 1px solid rgba(22, 126, 128, 0.4);
+        font-weight: 500;
+        padding: 0.4em 0.8em;
+        border-radius: 6px;
+        font-size: 12px; /* --caption */
+    }
+
+    .btn-add-custom {
+        background-color: var(--secondary);
+        border-color: var(--secondary);
+        color: var(--text);
+        font-weight: 600;
+        padding: 0.6rem 1.4rem;
+        border-radius: 8px;
+        font-size: 14px; /* --label */
+        box-shadow: 0 4px 12px rgba(22, 126, 128, 0.3);
+        transition: all 0.2s ease-in-out;
+    }
+
+    .btn-add-custom:hover {
+        background-color: var(--secondary-dark);
+        border-color: var(--secondary-dark);
+        color: var(--text);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(22, 126, 128, 0.4);
+    }
+
+    .contract-number-text {
+        color: var(--accent);
+        font-weight: 600;
+    }
+
+    .text-muted-custom {
+        color: var(--text-secondary) !important;
     }
 </style>
 
 <div class="container-fluid mt-4 px-4">
     <div class="d-flex justify-content-between align-items-center mb-4 page-header">
-        <h2><i class="fa-solid fa-money-check-dollar me-2 text-primary"></i>Komponen Biaya Kontrak Tenant</h2>
-        <a href="02_atur_biaya.php" class="btn btn-primary btn-add-custom"><i class="fa fa-plus me-1"></i> Atur Biaya Baru</a>
+        <h2><i class="fa-solid fa-money-check-dollar me-2" style="color: var(--accent);"></i>Komponen Biaya Kontrak Tenant</h2>
+        <a href="02_atur_biaya.php" class="btn btn-add-custom"><i class="fa fa-plus me-1"></i> Atur Biaya Baru</a>
     </div>
 
-    <div class="card card-table-custom shadow-sm">
+    <div class="card card-table-custom">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-custom table-hover align-middle">
+                <table class="table table-custom align-middle">
                     <thead>
                         <tr>
                             <th>No Kontrak</th>
@@ -157,14 +223,14 @@ ob_start();
                             ?>
                             <tr>
                                 <td><span class="contract-number-text"><?= $row['contract_number']; ?></span></td>
-                                <td><strong><?= $row['brand_name']; ?></strong></td>
+                                <td><strong style="color: var(--text);"><?= $row['brand_name']; ?></strong></td>
                                 <td><span class="badge badge-charge <?= $badge_class; ?>"><?= $charge_type; ?></span></td>
-                                <td><i class="fa-solid fa-circle-info text-muted me-1" style="font-size: 0.8rem;"></i> <?= $row['calculation_basis']; ?></td>
-                                <td class="text-end font-weight-bold">
+                                <td><i class="fa-solid fa-circle-info text-muted-custom me-1" style="font-size: 0.8rem;"></i> <?= $row['calculation_basis']; ?></td>
+                                <td class="text-end">
                                     <?php if ($row['calculation_basis'] == 'Percentage'): ?>
-                                        <span class="text-success fw-bold"><?= $row['amount_or_percentage']; ?> %</span>
+                                        <span class="fw-bold" style="color: var(--success);"><?= $row['amount_or_percentage']; ?> %</span>
                                     <?php else: ?>
-                                        <span class="fw-bold">Rp <?= number_format($row['amount_or_percentage'], 0, ',', '.'); ?></span>
+                                        <span class="fw-bold" style="color: var(--text);">Rp <?= number_format($row['amount_or_percentage'], 0, ',', '.'); ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">
@@ -174,8 +240,8 @@ ob_start();
                             <?php endwhile; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="6" class="text-center py-4 text-muted">
-                                    <i class="fa-solid fa-folder-open d-block mb-2 fa-2x"></i> Belum ada data komponen biaya yang diatur.
+                                <td colspan="6" class="text-center py-5 text-muted-custom">
+                                    <i class="fa-solid fa-folder-open d-block mb-3 fa-2x" style="color: var(--text-secondary);"></i> Belum ada data komponen biaya yang diatur.
                                 </td>
                             </tr>
                         <?php endif; ?>

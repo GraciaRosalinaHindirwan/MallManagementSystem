@@ -61,93 +61,169 @@ ob_start();
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+    :root {
+        /* colors */
+        --primary: #0B376D;
+        --primary-dark: #082A53;
+
+        --secondary: #167E80;
+        --secondary-dark: #0D4859;
+
+        --accent: #00D4D8;
+        --success: #22C55E;
+        --danger: #EF4444;
+
+        /* background */
+        --background: #021F42;
+
+        /* text colors */
+        --text: #F5F7FA;
+        --text-secondary: #B8C7D9;
+        --text-accent: #FFB62A;
+
+        /* Typography */
+        --font-family: 'Poppins', sans-serif;
+        --h1: 32px;
+        --h2: 24px;
+        --subheading: 20px;
+        --body: 16px;
+        --label: 14px;
+        --caption: 12px;
+    }
+
     body {
-        background-color: #f8f9fa;
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--background);
+        color: var(--text);
+        font-family: var(--font-family);
+        font-size: var(--body);
     }
+
     .card-custom {
-        border: none;
+        border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(149, 157, 165, 0.15) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
         overflow: hidden;
+        background-color: var(--primary-dark);
     }
+
     .card-header-custom {
-        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%) !important;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
         padding: 1.25rem 1.5rem;
-        border-bottom: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
+
     .card-header-custom h5 {
-        font-size: 1.15rem;
+        font-size: var(--subheading);
         font-weight: 600;
         letter-spacing: 0.5px;
+        color: var(--text);
     }
+
     .card-body-custom {
         padding: 2rem 2.5rem;
-        background-color: #ffffff;
+        background-color: rgba(11, 55, 109, 0.4); /* Blend smooth dengan primary */
     }
+
     .form-label-custom {
-        font-size: 0.9rem;
+        font-size: var(--label);
+        font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.6px;
-        color: #495057;
+        color: var(--text-secondary);
         margin-bottom: 0.5rem;
     }
+
     .form-control-custom {
+        background-color: var(--background);
+        color: var(--text);
         border-radius: 8px;
         padding: 0.6rem 1rem;
-        border: 1px solid #d1d3e2;
-        font-size: 0.95rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: var(--body);
         transition: all 0.2s ease-in-out;
     }
+
+    /* Memastikan dropdown bawaan browser di dark mode tidak rusak */
+    .form-control-custom option {
+        background-color: var(--background);
+        color: var(--text);
+    }
+
     .form-control-custom:focus {
-        border-color: #bac8f3;
-        box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.15);
-        background-color: #fff;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 0.25rem rgba(0, 212, 216, 0.15);
+        background-color: var(--background);
+        color: var(--text);
     }
+
     .input-group-text-custom {
-        background-color: #eaecf4;
-        border: 1px solid #d1d3e2;
+        background-color: var(--primary);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px 0 0 8px;
-        color: #495057;
-        font-weight: 500;
+        color: var(--text-accent);
+        font-weight: 600;
     }
+
     .input-group .form-control-custom {
         border-radius: 0 8px 8px 0;
     }
+
     .btn-custom-primary {
-        background-color: #4e73df;
-        border-color: #4e73df;
+        background-color: var(--secondary);
+        border-color: var(--secondary);
+        color: var(--text);
         padding: 0.6rem 1.5rem;
         border-radius: 8px;
         font-weight: 600;
-        font-size: 0.95rem;
-        transition: all 0.2rem;
+        font-size: var(--body);
+        transition: all 0.2s ease-in-out;
     }
+
     .btn-custom-primary:hover {
-        background-color: #2e59d9;
-        border-color: #2653d4;
+        background-color: var(--secondary-dark);
+        border-color: var(--secondary-dark);
+        color: var(--text);
     }
+
     .btn-custom-secondary {
-        background-color: #eaecf4;
-        border-color: #eaecf4;
-        color: #5a5c69;
+        background-color: rgba(255, 255, 255, 0.08);
+        border-color: transparent;
+        color: var(--text-secondary);
         padding: 0.6rem 1.5rem;
         border-radius: 8px;
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: var(--body);
+        transition: all 0.2s ease-in-out;
     }
+
     .btn-custom-secondary:hover {
-        background-color: #dddfeb;
-        color: #5a5c69;
+        background-color: rgba(255, 255, 255, 0.15);
+        color: var(--text);
     }
+
+    /* Kustomisasi alert Bootstrap biar menyatu dengan tema */
+    .alert-success {
+        background-color: rgba(34, 197, 94, 0.15);
+        border: 1px solid var(--success);
+        color: #aeebd0;
+    }
+
+    .alert-danger {
+        background-color: rgba(239, 68, 68, 0.15);
+        border: 1px solid var(--danger);
+        color: #fbcbc4;
+    }
+
     .alert {
         border-radius: 8px;
-        font-size: 0.95rem;
-        border: none;
+        font-size: var(--body);
     }
+
     .small-info {
-        font-size: 0.8rem;
-        color: #858796;
+        font-size: var(--caption);
+        color: var(--text-secondary);
         margin-top: 0.25rem;
     }
 </style>
@@ -166,7 +242,7 @@ ob_start();
                     <form action="" method="POST">
                         
                         <div class="mb-4">
-                            <label for="id_contract" class="form-label form-label-custom font-weight-bold">Kontrak / Tenant Aktif</label>
+                            <label for="id_contract" class="form-label form-label-custom">Kontrak / Tenant Aktif</label>
                             <select class="form-select form-control-custom" id="id_contract" name="id_contract" required>
                                 <option value="">-- Pilih Kontrak Tenant --</option>
                                 <?php while($row = $result_kontrak->fetch_assoc()): ?>
@@ -178,7 +254,7 @@ ob_start();
                         </div>
 
                         <div class="mb-4">
-                            <label for="charge_type" class="form-label form-label-custom font-weight-bold">Jenis Komponen Biaya (Charge Type)</label>
+                            <label for="charge_type" class="form-label form-label-custom">Jenis Komponen Biaya (Charge Type)</label>
                             <select class="form-select form-control-custom" id="charge_type" name="charge_type" required>
                                 <option value="">-- Pilih Jenis Biaya --</option>
                                 <option value="Fixed Rent">Fixed Rent (Sewa Tetap)</option>
@@ -190,7 +266,7 @@ ob_start();
                         </div>
 
                         <div class="mb-4">
-                            <label for="calculation_basis" class="form-label form-label-custom font-weight-bold">Dasar Perhitungan (Calculation Basis)</label>
+                            <label for="calculation_basis" class="form-label form-label-custom">Dasar Perhitungan (Calculation Basis)</label>
                             <select class="form-select form-control-custom" id="calculation_basis" name="calculation_basis" required>
                                 <option value="">-- Pilih Dasar Hitung --</option>
                                 <option value="Per Sqm">Per Meter Persegi (Per Sqm)</option>
@@ -200,7 +276,7 @@ ob_start();
                         </div>
 
                         <div class="mb-4">
-                            <label for="amount_or_percentage" class="form-label form-label-custom font-weight-bold">Nilai Nominal (Rupiah) / Persentase (%)</label>
+                            <label for="amount_or_percentage" class="form-label form-label-custom">Nilai Nominal (Rupiah) / Persentase (%)</label>
                             <div class="input-group">
                                 <span class="input-group-text input-group-text-custom">Rp / %</span>
                                 <input type="number" step="0.01" class="form-control form-control-custom" id="amount_or_percentage" name="amount_or_percentage" placeholder="Contoh: 150000000 atau 10.5" required>
@@ -209,7 +285,7 @@ ob_start();
                         </div>
 
                         <div class="mb-4">
-                            <label for="billing_cycle" class="form-label form-label-custom font-weight-bold">Siklus Penagihan (Billing Cycle)</label>
+                            <label for="billing_cycle" class="form-label form-label-custom">Siklus Penagihan (Billing Cycle)</label>
                             <select class="form-select form-control-custom" id="billing_cycle" name="billing_cycle" required>
                                 <option value="Monthly">Bulanan (Monthly)</option>
                                 <option value="Quarterly">Tiga Bulanan (Quarterly)</option>
