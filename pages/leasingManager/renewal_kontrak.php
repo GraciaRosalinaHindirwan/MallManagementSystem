@@ -1,5 +1,5 @@
 <?php
-
+require_once '../../auth/checkSession.php';
 require '../../config/conn.php';
 
 $page_title = 'Renewal Kontrak';
