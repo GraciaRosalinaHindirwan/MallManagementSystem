@@ -1,7 +1,30 @@
 <?php
 session_start();
 require_once '../../config/konek.php';
-// require_once __DIR__ . '/../../public/auth/checkSession.php';
+require_once __DIR__ . '/../../public/auth/checkSession.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../auth/index.php");
+    exit();
+}
+
+if (!isset($conn) || !$conn) {
+    die("Koneksi database gagal!");
+}
+
+$role = $_SESSION['role'] ?? '';
+$manager_roles = [
+    'Leasing Manager',
+    'Finance Manager',
+    'Manager',
+    'Purchasing Manager',
+    'Facility Manager',
+    'Event Manager'
+];
+
+if (!in_array($role, $manager_roles)) {
+    header("Location: ../approver/myApproval.php");
+    exit();
+}
 
 $data = $conn->query("
 SELECT *
@@ -12,33 +35,39 @@ ORDER BY approved_at DESC
 
 $current_page = 'notificationList';
 $department_name = "BI, Workflow & Notification";
-$user_name = $_SESSION['full_name'] ?? 'Manager';
+$user_name = $_SESSION['full_name'] ?? '';
 $page_title = "Audit Log";
 
 $menu_items = [
     [
-        'icon' => 'fa-solid fa-chart-line',
+        'icon' => 'fa-solid fa-gauge',
         'label' => 'Dashboard KPI',
-        'link' => '08_dashboard.php',
-        'active_page' => 'dashboard'
+        'link' => '../manager/08_dashboard.php',
+        'active_page' => '08_dashboard'
     ],
     [
-        'icon' => 'fa-solid fa-file-alt',
+        'icon' => 'fa-solid fa-chart-line',
         'label' => 'Laporan',
-        'link' => '08_laporan.php',
-        'active_page' => 'laporan'
+        'link' => '../manager/08_laporan.php',
+        'active_page' => '08_laporan'
     ],
     [
         'icon' => 'fa-solid fa-check-circle',
         'label' => 'Approval',
+        'link' => 'approvalList.php',
+        'active_page' => 'approvalList'
+    ],
+    [
+        'icon' => 'fa-solid fa-clock-rotate-left',
+        'label' => 'Audit Log',
         'link' => 'auditLog.php',
         'active_page' => 'auditLog'
     ],
     [
         'icon' => 'fa-solid fa-bell',
         'label' => 'Notifikasi',
-        'link' => 'notifikasiList.php',
-        'active_page' => 'notifikasi'
+        'link' => '../pengguna/index.php',
+        'active_page' => 'index'
     ],
 ];
 
@@ -53,23 +82,6 @@ ob_start();
         --danger: #EF4444;
         --background: #021F42;
     }
-
-    /* * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Poppins', sans-serif;
-    }
-
-    body {
-        background: var(--background);
-        padding: 40px;
-    }
-
-    .container {
-        max-width: 1400px;
-        margin: auto;
-    } */
 
     .card {
         background: white;

@@ -1,6 +1,28 @@
 <?php
 session_start();
 require_once '../../config/konek.php';
+require_once __DIR__ . '/../../public/auth/checkSession.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../auth/index.php");
+    exit();
+}
+
+if (!isset($conn) || !$conn) {
+    die("Koneksi database gagal!");
+}
+
+$role = $_SESSION['role'] ?? '';
+$staff_roles = [
+    'Finance Staff',
+    'Purchasing Staff',
+    'Facility Staff',
+    'Tenant Staff'
+];
+
+if (!in_array($role, $staff_roles)) {
+    header("Location: ../manager/08_dashboard.php");
+    exit();
+}
 
 $data = $conn->query("
     SELECT *
@@ -8,18 +30,12 @@ $data = $conn->query("
     ORDER BY approval_id DESC
 ");
 
-$role = $_SESSION['role'] ?? 'Staff';
-if ($role != 'Staff') {
-    header("Location: approvalList.php");
-    exit();
-}
-
 // =============================================
 // VARIABEL UNTUK TEMPLATE
 // =============================================
 $department_name = "BI, Workflow & Notification";
 $page_title = "My Approval";
-$user_name = $_SESSION['full_name'] ?? 'Staff';
+$user_name = $_SESSION['full_name'] ?? '';
 $current_page = 'myApproval';
 
 // =============================================
@@ -27,28 +43,22 @@ $current_page = 'myApproval';
 // =============================================
 $menu_items = [
     [
-        'icon' => 'fa-solid fa-gauge',
-        'label' => 'Dashboard KPI',
-        'link' => '08_dashboard.php',
-        'active_page' => '08_dashboard'
-    ],
-    [
-        'icon' => 'fa-solid fa-chart-line',
-        'label' => 'Laporan',
-        'link' => '08_laporan.php',
-        'active_page' => '08_laporan'
-    ],
-    [
         'icon' => 'fa-solid fa-check-circle',
         'label' => 'Approval',
         'link' => 'myApproval.php',
         'active_page' => 'myApproval'
     ],
     [
+        'icon' => 'fa-solid fa-file-circle-plus',
+        'label' => 'Create Approval',
+        'link' => 'createApproval.php',
+        'active_page' => 'createApproval'
+    ],
+    [
         'icon' => 'fa-solid fa-bell',
         'label' => 'Notifikasi',
-        'link' => '08_notifikasi.php',
-        'active_page' => '08_notifikasi'
+        'link' => '../pengguna/index.php',
+        'active_page' => 'index'
     ],
 ];
 
@@ -161,24 +171,6 @@ ob_start();
         --text: #F5F7FA;
     }
 
-    /* * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Poppins', sans-serif;
-    }
-
-    body {
-        background: var(--background);
-        min-height: 100vh;
-        padding: 40px;
-    }
-
-    .container {
-        max-width: 1200px;
-        margin: auto;
-    } */
-
     .header {
         display: flex;
         justify-content: space-between;
@@ -247,6 +239,7 @@ ob_start();
     td {
         padding: 14px;
         border-bottom: 1px solid #e5e7eb;
+        color: var(--primary-dark);
     }
 
     tr:hover {
