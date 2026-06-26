@@ -10,7 +10,7 @@
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0b192c; /* Warna background utama (Navy Gelap) */
+           background-color: #0b192c; /* Warna background utama (Navy Gelap) */
             color: #e2e8f0;
             display: flex;
             height: 100vh;
