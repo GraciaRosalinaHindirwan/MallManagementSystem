@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit6be2ba73a35083ff7c080e7028fc0b8f
+class ComposerStaticInitac2d307f4ed514763a8119f3523066bb
 {
     public static $files = array (
         '72243e5536b63e298acb6476f01f1aff' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/special_cases.php',
@@ -89,29 +89,16 @@ class ComposerStaticInit6be2ba73a35083ff7c080e7028fc0b8f
         '356736db98a6834f0a886b8d509b0ecd' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/zlib.php',
         '0174385c3be07e86008907d06ee66531' => __DIR__ . '/..' . '/sabberworm/php-css-parser/src/Rule/Rule.php',
         '98aea6e41b9cb79b379b10f37ba1f0b7' => __DIR__ . '/..' . '/sabberworm/php-css-parser/src/RuleSet/RuleContainer.php',
-        '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
-        'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
-        'Z' =>
-        array (
-            'ZipStream\\' => 10,
-        ),
         'S' =>
         array (
             'Svg\\' => 4,
             'Sabberworm\\CSS\\' => 15,
         ),
-        'P' =>
-        array (
-            'Psr\\SimpleCache\\' => 16,
-            'PhpParser\\' => 10,
-            'PhpOffice\\PhpSpreadsheet\\' => 25,
-        ),
         'M' =>
         array (
-            'Matrix\\' => 7,
             'Masterminds\\' => 12,
         ),
         'F' =>
@@ -121,20 +108,25 @@ class ComposerStaticInit6be2ba73a35083ff7c080e7028fc0b8f
         'D' =>
         array (
             'Dompdf\\' => 7,
-            'DeepCopy\\' => 9,
-        ),
-        'C' =>
+class ComposerStaticInitfbee484fbcb98ba45566f17e8eb69e9b
+{
+    public static $files = array (
+        '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
+        'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
+    );
+
+    public static $prefixLengthsPsr4 = array (
+        'P' =>
         array (
-            'Composer\\Pcre\\' => 14,
-            'Complex\\' => 8,
+            'PhpParser\\' => 10,
+        ),
+        'D' =>
+        array (
+            'DeepCopy\\' => 9,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'ZipStream\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
-        ),
         'Svg\\' =>
         array (
             0 => __DIR__ . '/..' . '/dompdf/php-svg-lib/src/Svg',
@@ -142,22 +134,6 @@ class ComposerStaticInit6be2ba73a35083ff7c080e7028fc0b8f
         'Sabberworm\\CSS\\' =>
         array (
             0 => __DIR__ . '/..' . '/sabberworm/php-css-parser/src',
-        ),
-        'Psr\\SimpleCache\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
-        ),
-        'PhpParser\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/nikic/php-parser/lib/PhpParser',
-        ),
-        'PhpOffice\\PhpSpreadsheet\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
-        ),
-        'Matrix\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
         ),
         'Masterminds\\' =>
         array (
@@ -170,24 +146,102 @@ class ComposerStaticInit6be2ba73a35083ff7c080e7028fc0b8f
         'Dompdf\\' =>
         array (
             0 => __DIR__ . '/..' . '/dompdf/dompdf/src',
+        'PhpParser\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/nikic/php-parser/lib/PhpParser',
         ),
         'DeepCopy\\' =>
         array (
             0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
-        ),
-        'Composer\\Pcre\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/composer/pcre/src',
-        ),
-        'Complex\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/markbaker/complex/classes/src',
         ),
     );
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Dompdf\\Cpdf' => __DIR__ . '/..' . '/dompdf/dompdf/lib/Cpdf.php',
+        'Safe\\DateTime' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/DateTime.php',
+        'Safe\\DateTimeImmutable' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/DateTimeImmutable.php',
+        'Safe\\Exceptions\\ApacheException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ApacheException.php',
+        'Safe\\Exceptions\\ApcuException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ApcuException.php',
+        'Safe\\Exceptions\\ArrayException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ArrayException.php',
+        'Safe\\Exceptions\\Bzip2Exception' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/Bzip2Exception.php',
+        'Safe\\Exceptions\\CalendarException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/CalendarException.php',
+        'Safe\\Exceptions\\ClassobjException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ClassobjException.php',
+        'Safe\\Exceptions\\ComException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ComException.php',
+        'Safe\\Exceptions\\CubridException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/CubridException.php',
+        'Safe\\Exceptions\\CurlException' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/Exceptions/CurlException.php',
+        'Safe\\Exceptions\\DatetimeException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/DatetimeException.php',
+        'Safe\\Exceptions\\DirException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/DirException.php',
+        'Safe\\Exceptions\\EioException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/EioException.php',
+        'Safe\\Exceptions\\ErrorfuncException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ErrorfuncException.php',
+        'Safe\\Exceptions\\ExecException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ExecException.php',
+        'Safe\\Exceptions\\FileinfoException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/FileinfoException.php',
+        'Safe\\Exceptions\\FilesystemException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/FilesystemException.php',
+        'Safe\\Exceptions\\FilterException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/FilterException.php',
+        'Safe\\Exceptions\\FpmException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/FpmException.php',
+        'Safe\\Exceptions\\FtpException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/FtpException.php',
+        'Safe\\Exceptions\\FunchandException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/FunchandException.php',
+        'Safe\\Exceptions\\GettextException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/GettextException.php',
+        'Safe\\Exceptions\\GmpException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/GmpException.php',
+        'Safe\\Exceptions\\GnupgException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/GnupgException.php',
+        'Safe\\Exceptions\\HashException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/HashException.php',
+        'Safe\\Exceptions\\IbaseException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/IbaseException.php',
+        'Safe\\Exceptions\\IbmDb2Exception' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/IbmDb2Exception.php',
+        'Safe\\Exceptions\\IconvException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/IconvException.php',
+        'Safe\\Exceptions\\ImageException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ImageException.php',
+        'Safe\\Exceptions\\ImapException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ImapException.php',
+        'Safe\\Exceptions\\InfoException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/InfoException.php',
+        'Safe\\Exceptions\\InotifyException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/InotifyException.php',
+        'Safe\\Exceptions\\JsonException' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/Exceptions/JsonException.php',
+        'Safe\\Exceptions\\LdapException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/LdapException.php',
+        'Safe\\Exceptions\\LibxmlException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/LibxmlException.php',
+        'Safe\\Exceptions\\LzfException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/LzfException.php',
+        'Safe\\Exceptions\\MailparseException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/MailparseException.php',
+        'Safe\\Exceptions\\MbstringException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/MbstringException.php',
+        'Safe\\Exceptions\\MiscException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/MiscException.php',
+        'Safe\\Exceptions\\MysqlException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/MysqlException.php',
+        'Safe\\Exceptions\\MysqliException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/MysqliException.php',
+        'Safe\\Exceptions\\NetworkException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/NetworkException.php',
+        'Safe\\Exceptions\\Oci8Exception' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/Oci8Exception.php',
+        'Safe\\Exceptions\\OpcacheException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/OpcacheException.php',
+        'Safe\\Exceptions\\OpensslException' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/Exceptions/OpensslException.php',
+        'Safe\\Exceptions\\OutcontrolException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/OutcontrolException.php',
+        'Safe\\Exceptions\\PcntlException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/PcntlException.php',
+        'Safe\\Exceptions\\PcreException' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/Exceptions/PcreException.php',
+        'Safe\\Exceptions\\PgsqlException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/PgsqlException.php',
+        'Safe\\Exceptions\\PosixException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/PosixException.php',
+        'Safe\\Exceptions\\PsException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/PsException.php',
+        'Safe\\Exceptions\\PspellException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/PspellException.php',
+        'Safe\\Exceptions\\ReadlineException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ReadlineException.php',
+        'Safe\\Exceptions\\RnpException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/RnpException.php',
+        'Safe\\Exceptions\\RpminfoException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/RpminfoException.php',
+        'Safe\\Exceptions\\RrdException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/RrdException.php',
+        'Safe\\Exceptions\\SafeExceptionInterface' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/Exceptions/SafeExceptionInterface.php',
+        'Safe\\Exceptions\\SemException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SemException.php',
+        'Safe\\Exceptions\\SessionException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SessionException.php',
+        'Safe\\Exceptions\\ShmopException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ShmopException.php',
+        'Safe\\Exceptions\\SimplexmlException' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/Exceptions/SimplexmlException.php',
+        'Safe\\Exceptions\\SocketsException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SocketsException.php',
+        'Safe\\Exceptions\\SodiumException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SodiumException.php',
+        'Safe\\Exceptions\\SolrException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SolrException.php',
+        'Safe\\Exceptions\\SplException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SplException.php',
+        'Safe\\Exceptions\\SqlsrvException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SqlsrvException.php',
+        'Safe\\Exceptions\\SsdeepException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SsdeepException.php',
+        'Safe\\Exceptions\\Ssh2Exception' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/Ssh2Exception.php',
+        'Safe\\Exceptions\\StreamException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/StreamException.php',
+        'Safe\\Exceptions\\StringsException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/StringsException.php',
+        'Safe\\Exceptions\\SwooleException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SwooleException.php',
+        'Safe\\Exceptions\\UodbcException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/UodbcException.php',
+        'Safe\\Exceptions\\UopzException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/UopzException.php',
+        'Safe\\Exceptions\\UrlException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/UrlException.php',
+        'Safe\\Exceptions\\VarException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/VarException.php',
+        'Safe\\Exceptions\\XdiffException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/XdiffException.php',
+        'Safe\\Exceptions\\XmlException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/XmlException.php',
+        'Safe\\Exceptions\\XmlrpcException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/XmlrpcException.php',
+        'Safe\\Exceptions\\YamlException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/YamlException.php',
+        'Safe\\Exceptions\\YazException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/YazException.php',
+        'Safe\\Exceptions\\ZipException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ZipException.php',
+        'Safe\\Exceptions\\ZlibException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ZlibException.php',
         'PHPUnit\\Event\\Application\\Finished' => __DIR__ . '/..' . '/phpunit/phpunit/src/Event/Events/Application/Finished.php',
         'PHPUnit\\Event\\Application\\FinishedSubscriber' => __DIR__ . '/..' . '/phpunit/phpunit/src/Event/Events/Application/FinishedSubscriber.php',
         'PHPUnit\\Event\\Application\\Started' => __DIR__ . '/..' . '/phpunit/phpunit/src/Event/Events/Application/Started.php',
@@ -1197,89 +1251,6 @@ class ComposerStaticInit6be2ba73a35083ff7c080e7028fc0b8f
         'PharIo\\Version\\VersionConstraintParser' => __DIR__ . '/..' . '/phar-io/version/src/VersionConstraintParser.php',
         'PharIo\\Version\\VersionConstraintValue' => __DIR__ . '/..' . '/phar-io/version/src/VersionConstraintValue.php',
         'PharIo\\Version\\VersionNumber' => __DIR__ . '/..' . '/phar-io/version/src/VersionNumber.php',
-        'Safe\\DateTime' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/DateTime.php',
-        'Safe\\DateTimeImmutable' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/DateTimeImmutable.php',
-        'Safe\\Exceptions\\ApacheException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ApacheException.php',
-        'Safe\\Exceptions\\ApcuException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ApcuException.php',
-        'Safe\\Exceptions\\ArrayException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ArrayException.php',
-        'Safe\\Exceptions\\Bzip2Exception' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/Bzip2Exception.php',
-        'Safe\\Exceptions\\CalendarException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/CalendarException.php',
-        'Safe\\Exceptions\\ClassobjException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ClassobjException.php',
-        'Safe\\Exceptions\\ComException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ComException.php',
-        'Safe\\Exceptions\\CubridException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/CubridException.php',
-        'Safe\\Exceptions\\CurlException' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/Exceptions/CurlException.php',
-        'Safe\\Exceptions\\DatetimeException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/DatetimeException.php',
-        'Safe\\Exceptions\\DirException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/DirException.php',
-        'Safe\\Exceptions\\EioException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/EioException.php',
-        'Safe\\Exceptions\\ErrorfuncException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ErrorfuncException.php',
-        'Safe\\Exceptions\\ExecException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ExecException.php',
-        'Safe\\Exceptions\\FileinfoException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/FileinfoException.php',
-        'Safe\\Exceptions\\FilesystemException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/FilesystemException.php',
-        'Safe\\Exceptions\\FilterException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/FilterException.php',
-        'Safe\\Exceptions\\FpmException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/FpmException.php',
-        'Safe\\Exceptions\\FtpException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/FtpException.php',
-        'Safe\\Exceptions\\FunchandException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/FunchandException.php',
-        'Safe\\Exceptions\\GettextException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/GettextException.php',
-        'Safe\\Exceptions\\GmpException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/GmpException.php',
-        'Safe\\Exceptions\\GnupgException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/GnupgException.php',
-        'Safe\\Exceptions\\HashException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/HashException.php',
-        'Safe\\Exceptions\\IbaseException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/IbaseException.php',
-        'Safe\\Exceptions\\IbmDb2Exception' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/IbmDb2Exception.php',
-        'Safe\\Exceptions\\IconvException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/IconvException.php',
-        'Safe\\Exceptions\\ImageException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ImageException.php',
-        'Safe\\Exceptions\\ImapException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ImapException.php',
-        'Safe\\Exceptions\\InfoException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/InfoException.php',
-        'Safe\\Exceptions\\InotifyException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/InotifyException.php',
-        'Safe\\Exceptions\\JsonException' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/Exceptions/JsonException.php',
-        'Safe\\Exceptions\\LdapException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/LdapException.php',
-        'Safe\\Exceptions\\LibxmlException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/LibxmlException.php',
-        'Safe\\Exceptions\\LzfException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/LzfException.php',
-        'Safe\\Exceptions\\MailparseException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/MailparseException.php',
-        'Safe\\Exceptions\\MbstringException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/MbstringException.php',
-        'Safe\\Exceptions\\MiscException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/MiscException.php',
-        'Safe\\Exceptions\\MysqlException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/MysqlException.php',
-        'Safe\\Exceptions\\MysqliException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/MysqliException.php',
-        'Safe\\Exceptions\\NetworkException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/NetworkException.php',
-        'Safe\\Exceptions\\Oci8Exception' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/Oci8Exception.php',
-        'Safe\\Exceptions\\OpcacheException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/OpcacheException.php',
-        'Safe\\Exceptions\\OpensslException' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/Exceptions/OpensslException.php',
-        'Safe\\Exceptions\\OutcontrolException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/OutcontrolException.php',
-        'Safe\\Exceptions\\PcntlException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/PcntlException.php',
-        'Safe\\Exceptions\\PcreException' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/Exceptions/PcreException.php',
-        'Safe\\Exceptions\\PgsqlException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/PgsqlException.php',
-        'Safe\\Exceptions\\PosixException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/PosixException.php',
-        'Safe\\Exceptions\\PsException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/PsException.php',
-        'Safe\\Exceptions\\PspellException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/PspellException.php',
-        'Safe\\Exceptions\\ReadlineException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ReadlineException.php',
-        'Safe\\Exceptions\\RnpException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/RnpException.php',
-        'Safe\\Exceptions\\RpminfoException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/RpminfoException.php',
-        'Safe\\Exceptions\\RrdException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/RrdException.php',
-        'Safe\\Exceptions\\SafeExceptionInterface' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/Exceptions/SafeExceptionInterface.php',
-        'Safe\\Exceptions\\SemException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SemException.php',
-        'Safe\\Exceptions\\SessionException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SessionException.php',
-        'Safe\\Exceptions\\ShmopException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ShmopException.php',
-        'Safe\\Exceptions\\SimplexmlException' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/Exceptions/SimplexmlException.php',
-        'Safe\\Exceptions\\SocketsException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SocketsException.php',
-        'Safe\\Exceptions\\SodiumException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SodiumException.php',
-        'Safe\\Exceptions\\SolrException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SolrException.php',
-        'Safe\\Exceptions\\SplException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SplException.php',
-        'Safe\\Exceptions\\SqlsrvException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SqlsrvException.php',
-        'Safe\\Exceptions\\SsdeepException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SsdeepException.php',
-        'Safe\\Exceptions\\Ssh2Exception' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/Ssh2Exception.php',
-        'Safe\\Exceptions\\StreamException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/StreamException.php',
-        'Safe\\Exceptions\\StringsException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/StringsException.php',
-        'Safe\\Exceptions\\SwooleException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/SwooleException.php',
-        'Safe\\Exceptions\\UodbcException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/UodbcException.php',
-        'Safe\\Exceptions\\UopzException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/UopzException.php',
-        'Safe\\Exceptions\\UrlException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/UrlException.php',
-        'Safe\\Exceptions\\VarException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/VarException.php',
-        'Safe\\Exceptions\\XdiffException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/XdiffException.php',
-        'Safe\\Exceptions\\XmlException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/XmlException.php',
-        'Safe\\Exceptions\\XmlrpcException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/XmlrpcException.php',
-        'Safe\\Exceptions\\YamlException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/YamlException.php',
-        'Safe\\Exceptions\\YazException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/YazException.php',
-        'Safe\\Exceptions\\ZipException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ZipException.php',
-        'Safe\\Exceptions\\ZlibException' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/Exceptions/ZlibException.php',
         'SebastianBergmann\\CliParser\\AmbiguousOptionException' => __DIR__ . '/..' . '/sebastian/cli-parser/src/exceptions/AmbiguousOptionException.php',
         'SebastianBergmann\\CliParser\\Exception' => __DIR__ . '/..' . '/sebastian/cli-parser/src/exceptions/Exception.php',
         'SebastianBergmann\\CliParser\\OptionDoesNotAllowArgumentException' => __DIR__ . '/..' . '/sebastian/cli-parser/src/exceptions/OptionDoesNotAllowArgumentException.php',
@@ -1501,9 +1472,12 @@ class ComposerStaticInit6be2ba73a35083ff7c080e7028fc0b8f
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit6be2ba73a35083ff7c080e7028fc0b8f::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit6be2ba73a35083ff7c080e7028fc0b8f::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit6be2ba73a35083ff7c080e7028fc0b8f::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitac2d307f4ed514763a8119f3523066bb::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitac2d307f4ed514763a8119f3523066bb::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitac2d307f4ed514763a8119f3523066bb::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitfbee484fbcb98ba45566f17e8eb69e9b::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitfbee484fbcb98ba45566f17e8eb69e9b::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitfbee484fbcb98ba45566f17e8eb69e9b::$classMap;
 
         }, null, ClassLoader::class);
     }

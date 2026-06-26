@@ -154,6 +154,7 @@ abstract class CSSBlockList extends CSSList
                     }
                     $targetSpecificity = (int) $targetSpecificity;
                     $selectorSpecificity = $selector->getSpecificity();
+                    $comparatorMatched = false;
                     switch ($comparator) {
                         case '<=':
                             $comparatorMatched = $selectorSpecificity <= $targetSpecificity;
