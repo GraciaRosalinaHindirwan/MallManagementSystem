@@ -203,5 +203,10 @@ ob_start();
 
 <?php 
 $content = ob_get_clean();
+<<<<<<< HEAD
 require_once '../../includes/navbarMO6.php'; 
 ?>
+=======
+require_once '../../includes/navbar.php'; 
+?>
+>>>>>>> 2a848521197e55168c424d1998caff6237903708
