@@ -6,15 +6,15 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 /*
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Purchasing Manager') {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'purchasingManager') {
     header("Location: ../../index.php"); 
     exit();
 }
 */
 
 // Sesi default sementara agar aman dicoba dan tidak merusak sidebar
-$_SESSION['role'] = 'Purchasing Manager';
-$_SESSION['nama'] = 'Eva (Manager)';
+$_SESSION['role'] = 'purchasingManager';
+$_SESSION['nama'] = 'Manager';
 
 // Panggil file koneksi terpusat menggunakan __DIR__ agar mutlak dan aman
 if (file_exists(__DIR__ . '/../../config/konek.php')) {
