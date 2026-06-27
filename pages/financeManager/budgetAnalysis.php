@@ -144,4 +144,3 @@ if ($result && $result->num_rows > 0) {
     </div>
 </div>
 
-<?php include __DIR__ . '/../../includes/footer.php'; ?>

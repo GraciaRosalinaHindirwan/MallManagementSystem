@@ -191,5 +191,3 @@ if ($result && $result->num_rows > 0) {
         <p class="mb-0 small">Sistem mendeteksi data secara dinamis dari database Anda. Jika akun pajak belum terisi, otomatis menampilkan rekapitulasi estimasi pajak dari mutasi jurnal umum aktif.</p>
     </div>
 </div>
-
-<?php include __DIR__ . '/../../includes/footer.php'; ?>

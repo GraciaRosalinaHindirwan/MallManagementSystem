@@ -118,4 +118,3 @@ if ($total_piutang_count == 0 && $total_masuk_count == 0) {
     </div>
 </div>
 
-<?php require_once '../../includes/footer.php'; ?>
