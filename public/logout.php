@@ -17,4 +17,8 @@ session_destroy();
 
 // Tendang balik ke halaman login utama (index.php di folder public)
 header("Location: index.php");
+<<<<<<< HEAD
 exit();
+=======
+exit();
+>>>>>>> main
