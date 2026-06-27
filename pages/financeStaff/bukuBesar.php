@@ -5,7 +5,6 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start(); 
 }
 
-// ── PROTEKSI AUTHENTICATION (SIAP PAKAI) ──
 /*
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
     header("Location: ../../index.php"); 
