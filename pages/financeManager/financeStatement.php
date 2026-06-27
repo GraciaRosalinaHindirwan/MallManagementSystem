@@ -379,5 +379,3 @@ $total_ekuitas += $laba_bersih;
     <?php endif; ?>
 
 </div>
-
-<?php require_once '../../includes/footer.php'; ?>
