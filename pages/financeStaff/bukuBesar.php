@@ -1,11 +1,19 @@
 <?php
 /** @var mysqli $conn */
+<<<<<<< Updated upstream
 
 if (session_status() == PHP_SESSION_NONE) { 
     session_start(); 
 }
 
 // ── PROTEKSI AUTHENTICATION (SIAP PAKAI) ──
+=======
+
+if (session_status() == PHP_SESSION_NONE) { 
+    session_start(); 
+}
+
+>>>>>>> Stashed changes
 /*
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
     header("Location: ../../index.php"); 
@@ -184,4 +192,8 @@ ob_start();
 <?php 
 $content = ob_get_clean();
 require_once '../../includes/navbarMO6.php'; 
+<<<<<<< Updated upstream
 ?>
+=======
+?>
+>>>>>>> Stashed changes

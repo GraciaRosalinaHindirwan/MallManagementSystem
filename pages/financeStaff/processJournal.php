@@ -1,4 +1,5 @@
 <?php
+<<<<<<< Updated upstream
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -14,6 +15,11 @@ if (file_exists('../../config/konek.php')) {
 }
 
 date_default_timezone_set('Asia/Jakarta');
+=======
+/** @var mysqli $conn */
+if (session_status() == PHP_SESSION_NONE) { session_start(); }
+require_once '../../config/koneksi.php'; 
+>>>>>>> Stashed changes
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tanggal    = trim($_POST['tanggal']);

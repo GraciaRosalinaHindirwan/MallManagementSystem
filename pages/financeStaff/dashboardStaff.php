@@ -1,5 +1,9 @@
 <?php
+<<<<<<< Updated upstream
 /** @var mysqli $conn */ //
+=======
+/** @var mysqli $conn */ // Memberitahu VS Code kalau $conn itu objek database sah!
+>>>>>>> Stashed changes
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
