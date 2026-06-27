@@ -109,9 +109,6 @@ if ($cek_lines && $cek_lines->num_rows > 0) {
     }
 }
 
-// =========================================================================
-// LOGIKA FALLBACK BACKEND AUTOMATIC FILLER
-// =========================================================================
 if ($total_aset <= 0 || empty($data_neraca['liabilitas']) || empty($data_labarugi['pendapatan']) || empty($data_labarugi['beban'])) {
     $data_neraca = ['aset' => [], 'liabilitas' => [], 'ekuitas' => []];
     $data_labarugi = ['pendapatan' => [], 'beban' => []];
@@ -148,9 +145,6 @@ if ($total_aset <= 0 || empty($data_neraca['liabilitas']) || empty($data_labarug
 $laba_bersih = $total_pendapatan - $total_beban;
 $total_ekuitas += $laba_bersih;
 
-// ==========================================
-// CONFIG MASTER DATA SIDEBAR & NAVBAR LAYOUT TIM
-// ==========================================
 $department_name = "Finance Department (Manager Dashboard)";
 $user_name = $_SESSION['nama'];
 $page_title = "Financial Statement";
