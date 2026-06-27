@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -93,6 +93,4 @@
     </style>
 </head>
 <body>
-=======
 
->>>>>>> a5be243c53609d1dca6e7c58cb8bb13db7ed270b

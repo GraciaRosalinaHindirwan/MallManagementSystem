@@ -1,14 +1,30 @@
 <?php
-/**
- * PBI-M04-01-03
- * Finance Staff: Hitung & terbitkan invoice utilitas ke tenant secara periodik
- */
-session_start();
+/** @var mysqli $conn */ // Memberitahu VS Code kalau $conn itu objek database sah!
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
+    // Jika bukan Finance Staff, tendang kembali ke halaman utama login
+    header("Location: ../../index.php"); 
+    exit();
+}
+*/
+
+// Sesi default sementara dibiarkan aktif agar aman dicoba langsung sekarang
+$_SESSION['role'] = 'financeStaff';
+$_SESSION['nama'] = 'Finance Staff';
+
+// HAPUS BARIS INI (Sudah dihapus): session_start();
 require_once __DIR__ . '/../../config/konek.php';
 
 $success_msg = $error_msg = '';
 
-// ── Proses POST ──────────────────────────────────────────────────────────────
+
+$success_msg = $error_msg = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'terbitkan') {
         $id = (int)$_POST['id_invoice'];
@@ -67,13 +83,54 @@ $meters_dd = $conn->query("
     ORDER BY u.unit_code
 ");
 
-// ── Variabel template ────────────────────────────────────────────────────────
 $department_name = 'Utility Management';
 $page_title      = 'Invoice Utilitas';
 $user_name       = $_SESSION['nama'] ?? ($_SESSION['username'] ?? 'Finance Staff');
 $menu_items = [
-    ['icon'=>'fa-solid fa-file-invoice-dollar', 'label'=>'Invoice Utilitas', 'link'=>'../../pages/financeStaff/utility_invoice.php', 'active_page'=>'utility_invoice']
+    [
+        'icon'        => 'fa-solid fa-gauge',
+        'label'       => 'Dashboard Staff',
+        'link'        => 'dashboardStaff.php',
+        'active_page' => 'Dashboard Staff'
+    ],
+    [
+        'icon'        => 'fa-solid fa-file-invoice',
+        'label'       => 'Invoice Management',
+        'link'        => 'invoiceManagement.php',
+        'active_page' => 'Invoice Management'
+    ],
+    [
+        'icon'        => 'fa-solid fa-bolt-lightning', 
+        'label'       => 'Invoice Utilitas (Air/Listrik)',
+        'link'        => 'utility_invoice.php', 
+        'active_page' => 'utility_invoice'
+    ],
+    [
+        'icon'        => 'fa-solid fa-cash-register',
+        'label'       => 'Billing System',
+        'link'        => 'billingManagement.php',
+        'active_page' => 'Billing System'
+    ],
+    [
+        'icon'        => 'fa-solid fa-file-invoice-dollar',
+        'label'       => 'Vendor Bill',
+        'link'        => 'vendor_bill.php', 
+        'active_page' => 'Vendor Bill'
+    ],
+    [
+        'icon'        => 'fa-solid fa-book',
+        'label'       => 'Jurnal Otomatis',
+        'link'        => 'journalManagement.php',
+        'active_page' => 'Jurnal Otomatis'
+    ],
+    [
+        'icon'        => 'fa-solid fa-folder-open',
+        'label'       => 'Dashboard Non Sewa',
+        'link'        => 'dashboardNonSewa.php',
+        'active_page' => 'Dashboard Non Sewa'
+    ]
 ];
+
 
 $statusBadge = ['draft'=>'badge-secondary','terbit'=>'badge-info','paid'=>'badge-success','overdue'=>'badge-danger'];
 $statusLabel = ['draft'=>'📝 Draft','terbit'=>'📄 Terbit','paid'=>'✅ Lunas','overdue'=>'🔴 Overdue'];
@@ -265,5 +322,5 @@ document.querySelectorAll('.modal-overlay').forEach(el =>
 <?php
 $content = ob_get_clean();
 $conn->close();
-require_once __DIR__ . '/../../includes/navbar.php';
+require_once __DIR__ . '/../../includes/navbarMO6.php';
 ?>

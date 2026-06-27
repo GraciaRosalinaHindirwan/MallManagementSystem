@@ -1,35 +1,33 @@
 <?php
-/** @var mysqli $conn */ 
+/** @var mysqli $conn */ // Memberitahu VS Code kalau $conn itu objek database sah!
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
 /*
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
+    // Jika bukan Finance Staff, tendang kembali ke halaman utama login
     header("Location: ../../index.php"); 
     exit();
 }
 */
 
-// Sesi default sementara tetap dibiarkan di bawahnya agar aman dicoba sekarang
 $_SESSION['role'] = 'financeStaff';
-$_SESSION['nama'] = 'Staff';
+$_SESSION['nama'] = 'Finance Staff';
 
 // 1. Cek file koneksi
-if (file_exists('../../config/koneksi.php')) {
-    require_once '../../config/koneksi.php';
+if (file_exists('../../config/konek.php')) {
+    require_once '../../config/konek.php';
 } elseif (file_exists('../../config/connection.php')) {
     require_once '../../config/connection.php';
 } else {
     die("<div style='color:#ffffff; background-color:#721c24; padding:20px; border-radius:6px;'>⚠️ File koneksi database tidak ditemukan!</div>");
 }
 
-require_once '../../includes/header.php';
-require_once '../../includes/navbar.php';
-
 // 2. DETEKSI KOLOM SECARA AGRESIF AGAR AMAN DARI STRUKTUR KEPOTONG
-$kolom_tanggal = 'id'; // Fallback paling aman jika kolom tanggal tidak ada
-$kolom_bukti   = 'id'; // Fallback jika tidak ada kolom teks bukti
+$kolom_tanggal = 'id'; 
+$kolom_bukti   = 'id'; 
 $kolom_ket     = 'id'; 
 
 $cek_kolom = $conn->query("SHOW COLUMNS FROM 06_journal_entries");
@@ -39,13 +37,11 @@ if ($cek_kolom) {
         $list_kolom[] = strtolower($k['Field']);
     }
     
-    // Deteksi Kolom Tanggal
     if (in_array('entry_date', $list_kolom)) { $kolom_tanggal = 'entry_date'; }
     elseif (in_array('date', $list_kolom)) { $kolom_tanggal = 'date'; }
     elseif (in_array('created_at', $list_kolom)) { $kolom_tanggal = 'created_at'; }
     elseif (in_array('tanggal', $list_kolom)) { $kolom_tanggal = 'tanggal'; }
     
-    // Deteksi Kolom No Bukti / Invoice Reference
     if (in_array('reference_number', $list_kolom)) { $kolom_bukti = 'reference_number'; }
     elseif (in_array('invoice_number', $list_kolom)) { $kolom_bukti = 'invoice_number'; }
     elseif (in_array('no_bukti', $list_kolom)) { $kolom_bukti = 'no_bukti'; }
@@ -56,7 +52,6 @@ if ($cek_kolom) {
         $kolom_bukti = $list_kolom[2] ?? $list_kolom[1] ?? 'id';
     }
 
-    // Deteksi Kolom Keterangan / Deskripsi
     if (in_array('description', $list_kolom)) { $kolom_ket = 'description'; }
     elseif (in_array('keterangan', $list_kolom)) { $kolom_ket = 'keterangan'; }
     elseif (in_array('notes', $list_kolom)) { $kolom_ket = 'notes'; }
@@ -69,7 +64,6 @@ if ($cek_kolom) {
 $jurnals = false;
 $error_msg = null;
 
-// Cek apakah tabel journal_lines ada, jika tidak ada, bypass error
 $cek_lines = $conn->query("SHOW TABLES LIKE '06_journal_lines'");
 if ($cek_lines && $cek_lines->num_rows > 0) {
     $query_jurnal = "SELECT 
@@ -93,25 +87,84 @@ if ($cek_lines && $cek_lines->num_rows > 0) {
 } else {
     $error_msg = "Tabel `06_journal_lines` tidak ditemukan di database Anda (kemungkinan besar skrip SQL terpotong saat import).";
 }
+
+// ==========================================
+// CONFIG MASTER UNTUK REQUIRE NAVBAR MENTAHAN
+// ==========================================
+$department_name = "Finance Department";
+$user_name = $_SESSION['nama'] ?? "Finance Staff";
+$page_title = "Log Otomasi Jurnal M06";
+$menu_items = [
+    [
+        'icon'        => 'fa-solid fa-gauge',
+        'label'       => 'Dashboard Staff',
+        'link'        => 'dashboardStaff.php',
+        'active_page' => 'Dashboard Staff'
+    ],
+    [
+        'icon'        => 'fa-solid fa-file-invoice',
+        'label'       => 'Invoice Management',
+        'link'        => 'invoiceManagement.php',
+        'active_page' => 'Invoice Management'
+    ],
+    [
+        'icon'        => 'fa-solid fa-bolt-lightning', 
+        'label'       => 'Invoice Utilitas (Air/Listrik)',
+        'link'        => 'utility_invoice.php', 
+        'active_page' => 'utility_invoice'
+    ],
+    [
+        'icon'        => 'fa-solid fa-cash-register',
+        'label'       => 'Billing System',
+        'link'        => 'billingManagement.php',
+        'active_page' => 'Billing System'
+    ],
+    [
+        'icon'        => 'fa-solid fa-file-invoice-dollar',
+        'label'       => 'Vendor Bill',
+        'link'        => 'vendor_bill.php', 
+        'active_page' => 'Vendor Bill'
+    ],
+    [
+        'icon'        => 'fa-solid fa-book',
+        'label'       => 'Jurnal Otomatis',
+        'link'        => 'journalManagement.php',
+        'active_page' => 'Jurnal Otomatis'
+    ],
+    [
+        'icon'        => 'fa-solid fa-folder-open',
+        'label'       => 'Dashboard Non Sewa',
+        'link'        => 'dashboardNonSewa.php',
+        'active_page' => 'Dashboard Non Sewa'
+    ]
+];
+
+ob_start();
 ?>
 
-<div class="content-container" style="padding: 20px; background: var(--bg-primary); min-height: 80vh; color: #ffffff;">
-    
-    <div class="mb-4" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
-        <h1 style="color: var(--text-accent); font-size: var(--h1); margin: 0; font-weight: 700;">Log Otomasi Jurnal</h1>
-        <p style="margin: 5px 0 0 0; font-size: 14px; color: #cbd5e1;">
-            Sistem Pencatatan Akuntansi Berpasangan Otomatis *(Double-Entry Ledger System)*
-        </p>
-    </div>
+<style>
+    :root {
+        --bg-primary: #021F42 !important;
+        --text-accent: #FFB62A !important;
+    }
+    body, .layout, .main-content, .content-body { background-color: #021F42 !important; color: #fff !important; }
+    .sidebar { background-color: #011630 !important; }
+    .topbar { background-color: #011630 !important; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .table-responsive-custom { background: #011630; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); padding: 15px; margin-top: 10px; }
+    .table-custom { width: 100%; color: #fff; border-collapse: collapse; text-align: left; }
+    .table-custom th { color: #FFB62A; border-bottom: 2px solid rgba(255,255,255,0.1); padding: 12px; font-size: 14px; }
+    .table-custom td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+</style>
 
-    <div style="display: flex; gap: 15px; margin-bottom: 25px; max-width: 500px;">
-        <div class="card-simple" style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); padding: 12px 16px; border-radius: 6px;">
+<div class="container-fluid" style="text-align: left;">
+    <div style="display: flex; gap: 15px; margin-bottom: 20px; max-width: 500px;">
+        <div style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); padding: 12px 16px; border-radius: 6px;">
             <small style="color: #a0aec0; display: block; margin-bottom: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px;">SISTEM JURNAL</small>
             <span style="color: #ffffff; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Aktif & Otomatis
             </span>
         </div>
-        <div class="card-simple" style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); padding: 12px 16px; border-radius: 6px;">
+        <div style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); padding: 12px 16px; border-radius: 6px;">
             <small style="color: #a0aec0; display: block; margin-bottom: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px;">BASIS AKUNTANSI</small>
             <span style="color: #ffffff; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-scale-balanced" style="color: #3b82f6;"></i> Double-Entry (PSAK)
@@ -119,62 +172,55 @@ if ($cek_lines && $cek_lines->num_rows > 0) {
         </div>
     </div>
 
-    <div class="table-responsive" style="background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden;">
-        <table class="table-custom" style="width: 100%; border-collapse: collapse; margin: 0; color: #ffffff;">
+    <div class="table-responsive-custom">
+        <table class="table-custom">
             <thead>
-                <tr style="background: rgba(255,255,255,0.04); text-align: left; border-bottom: 2px solid rgba(255,255,255,0.1);">
-                    <th style="padding: 15px 12px; color: var(--text-accent); font-weight: 600; font-size: 14px;">Tanggal</th>
-                    <th style="padding: 15px 12px; color: var(--text-accent); font-weight: 600; font-size: 14px;">No Bukti / Invoice</th>
-                    <th style="padding: 15px 12px; color: var(--text-accent); font-weight: 600; font-size: 14px;">Keterangan Transaksi</th>
-                    <th style="padding: 15px 12px; color: var(--text-accent); font-weight: 600; font-size: 14px;">Kode Akun</th>
-                    <th style="padding: 15px 12px; color: var(--text-accent); font-weight: 600; font-size: 14px;">Nama Akun Akuntansi</th>
-                    <th style="padding: 15px 12px; color: var(--text-accent); font-weight: 600; font-size: 14px; text-align: right;">Debit</th>
-                    <th style="padding: 15px 12px; color: var(--text-accent); font-weight: 600; font-size: 14px; text-align: right;">Kredit</th>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>No Bukti / Invoice</th>
+                    <th>Keterangan Transaksi</th>
+                    <th>Kode Akun</th>
+                    <th>Nama Akun Akuntansi</th>
+                    <th style="text-align: right;">Debit</th>
+                    <th style="text-align: right;">Kredit</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if($jurnals && $jurnals->num_rows > 0): ?>
                     <?php while($row = $jurnals->fetch_assoc()): ?>
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
-                        
-                        <td style="padding: 12px; font-size: 13px; color: #cbd5e1;">
+                    <tr>
+                        <td style="color: #cbd5e1;">
                             <?= (strtotime($row['tgl_jurnal'])) ? date('d M Y', strtotime($row['tgl_jurnal'])) : $row['tgl_jurnal']; ?>
                         </td>
-                        
-                        <td style="padding: 12px;">
-                            <span class="badge" style="background: rgba(255,255,255,0.1); color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                        <td>
+                            <span style="background: rgba(255,255,255,0.1); color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
                                 <?= $row['bukti_jurnal'] ?? '-'; ?>
                             </span>
                         </td>
-                        
-                        <td style="padding: 12px; font-size: 13px; color: #cbd5e1; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <td style="color: #cbd5e1; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <?= $row['ket_jurnal'] ?? '-'; ?>
                         </td>
-                        
-                        <td style="padding: 12px;">
-                            <code style="color: var(--accent); font-size: 13px; font-family: monospace; background: rgba(241,196,15,0.05); padding: 2px 6px; border-radius: 4px;">
+                        <td>
+                            <code style="color: #FFB62A; font-size: 13px; font-family: monospace; background: rgba(241,196,15,0.05); padding: 2px 6px; border-radius: 4px;">
                                 <?= $row['account_code']; ?>
                             </code>
                         </td>
-                        
-                        <td style="padding: 12px; font-size: 13px; color: #ffffff;">
+                        <td>
                             <span style="<?= $row['credit'] > 0 ? 'padding-left: 20px; color: #cbd5e1;' : 'font-weight: 500; color: #ffffff;'; ?>">
                                 <?= $row['account_name']; ?>
                             </span>
                         </td>
-                        
-                        <td class="text-success" style="padding: 12px; text-align: right; font-weight: 600; font-size: 13px; color: #10b981;">
+                        <td style="text-align: right; font-weight: 600; color: #10b981;">
                             <?= $row['debit'] > 0 ? 'Rp ' . number_format($row['debit'], 0, ',', '.') : '-'; ?>
                         </td>
-                        
-                        <td class="text-warning" style="padding: 12px; text-align: right; font-weight: 600; font-size: 13px; color: #f59e0b;">
+                        <td style="text-align: right; font-weight: 600; color: #f59e0b;">
                             <?= $row['credit'] > 0 ? 'Rp ' . number_format($row['credit'], 0, ',', '.') : '-'; ?>
                         </td>
                     </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="7" class="text-center" style="padding: 50px; text-align: center; color: #ffffff;">
+                        <td colspan="7" style="padding: 50px; text-align: center; color: #ffffff;">
                             <span style="font-size: 40px;">📭</span> <br><br>
                             <strong style="color: #ffffff; font-size: 16px; display: block; margin-bottom: 5px;">Belum ada data log jurnal otomatis yang terbentuk di database.</strong>
                             <span style="color: #cbd5e1; display: block; margin-bottom: 20px;">Data akan terisi otomatis setelah Anda melakukan simulasi pelunasan tagihan.</span>
@@ -196,4 +242,7 @@ if ($cek_lines && $cek_lines->num_rows > 0) {
     </div>
 </div>
 
-<?php require_once '../../includes/footer.php'; ?>
+<?php 
+$content = ob_get_clean();
+require_once '../../includes/navbarMO6.php'; 
+?>
