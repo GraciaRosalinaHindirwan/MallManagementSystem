@@ -1,71 +1,67 @@
 <?php
-
-/** @var mysqli $conn */
+/** @var mysqli $conn */ 
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// ====================================================================
-// SECURE AUTH CHECK - JIKA BELUM LOGIN / ROLE BUKAN PURCHASING STAFF
-// ====================================================================
-// Hilangkan tanda komentar (/* dan */) di bawah ini jika database & sistem login Anda sudah siap.
 /*
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Purchasing Staff') {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'purchasingStaff') {
     header("Location: ../../index.php"); 
     exit();
 }
 */
-// ====================================================================
 
 // Sesi default sementara agar aman dicoba dan tidak merusak sidebar
-$_SESSION['role'] = 'Purchasing Staff';
-$_SESSION['nama'] = 'Andi (Staff)';
+$_SESSION['role'] = 'purchasingStaff';
+$_SESSION['nama'] = 'Staff';
 
-
-// -------------------------------------------------------------------------
-// LANJUTAN KODE ASLI DASHBOARD (TIDAK ADA YANG DIUBAH DI BAWAH INI)
-// -------------------------------------------------------------------------
-// Panggil file koneksi terpusat
-if (file_exists('../../config/koneksi.php')) {
-    require_once '../../config/koneksi.php';
+// Panggil file koneksi terpusat menggunakan __DIR__ agar mutlak dan aman
+if (file_exists(__DIR__ . '/../../config/konek.php')) {
+    require_once __DIR__ . '/../../config/konek.php';
+} elseif (file_exists(__DIR__ . '/../../config/connection.php')) {
+    require_once __DIR__ . '/../../config/connection.php';
 } else {
-    require_once '../../config/connection.php';
+    die("<div style='color:#ffffff; background-color:#721c24; padding:20px; border-radius:6px;'>⚠️ File koneksi database tidak ditemukan!</div>");
 }
 
-require_once '../../includes/header.php';
+$department_name = "Purchasing Department (Staff Workspace)";
+$user_name = $_SESSION['nama'];
+$page_title = "purchasingDashboard"; 
+
+$menu_items = [
+    [
+        'icon'        => 'fa-solid fa-gauge',
+        'label'       => 'Dashboard Staff',
+        'link'        => 'dashboardPurchasingstaff.php',
+        'active_page' => 'dashboardPurchasingstaff'
+    ],
+    [
+        'icon'        => 'fa-solid fa-cart-shopping',
+        'label'       => 'Purchase Requests',
+        'link'        => 'purchase_requests.php',
+        'active_page' => 'purchase_requests' // Otomatis menyala aktif jika filenya purchase_requests.php
+    ],
+    [
+        'icon'        => 'fa-solid fa-file-invoice-dollar',
+        'label'       => 'Purchase Orders',
+        'link'        => 'purchase_orders.php',
+        'active_page' => 'purchase_orders'
+    ]
+];
+
+// Mulai menangkap output visual komponen tengah halaman
+ob_start();
 ?>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const sidebarNav = document.querySelector('#sidebarMenu .mt-3');
-        if (sidebarNav) {
-            sidebarNav.innerHTML = `
-                <a href="purchase_requests.php" class="nav-sidebar-item">
-                    <i class="fa-solid fa-file-invoice"></i> Purchase Requests
-                </a>
-                <a href="purchase_orders.php" class="nav-sidebar-item">
-                    <i class="fa-solid fa-cart-shopping"></i> Purchase Orders
-                </a>
-            `;
-        }
-
-        // Ubah teks info instansi di navbar top
-        const brandText = document.querySelector('.navbar-brand style + span, .navbar-brand span');
-        if (brandText) brandText.textContent = "— M06 - Purchasing Staff";
-    });
-</script>
-
-<?php require_once '../../includes/navbar.php'; ?>
-
-<div class="content-wrapper">
+<div class="container-fluid" style="padding: 10px 0px; text-align: left;">
     <div class="mb-4">
-        <h1 style="color: var(--text-accent); font-size: 32px; font-weight: 700; margin: 0;">Purchasing Staff Workspace</h1>
-        <p style="color: #cbd5e1; margin-top: 5px;">Pusat kendali pengadaan barang, permintaan logistik, dan order ke vendor mall.</p>
+        <h1 style="color: #FFB62A; font-size: 32px; font-weight: 700; margin: 0;">Purchasing Staff Workspace</h1>
+        <p style="color: #cbd5e1; margin-top: 5px; font-size: 14px;">Pusat kendali pengadaan barang, permintaan logistik, dan order ke vendor mall.</p>
     </div>
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 35px;">
-        <div style="background: #032b5c; padding: 25px; border-radius: 15px; border-left: 5px solid #00cfd5; box-shadow: 0 10px 15px rgba(0,0,0,0.2);">
+        <div style="background: #011630; padding: 25px; border-radius: 8px; border-left: 5px solid #00cfd5; border: 1px solid rgba(255,255,255,0.05);">
             <div style="display: flex; justify-content: space-between; align-items: center; color: #a0aec0;">
                 <h5 style="font-size: 12px; margin: 0; letter-spacing: 1px;">PURCHASE REQUESTS</h5>
                 <i class="fa-solid fa-file-invoice"></i>
@@ -74,16 +70,16 @@ require_once '../../includes/header.php';
             <span style="color: #00cfd5; font-size: 12px;">Permintaan logistik masuk</span>
         </div>
 
-        <div style="background: #032b5c; padding: 25px; border-radius: 15px; border-left: 5px solid var(--accent); box-shadow: 0 10px 15px rgba(0,0,0,0.2);">
+        <div style="background: #011630; padding: 25px; border-radius: 8px; border-left: 5px solid #FFB62A; border: 1px solid rgba(255,255,255,0.05);">
             <div style="display: flex; justify-content: space-between; align-items: center; color: #a0aec0;">
                 <h5 style="font-size: 12px; margin: 0; letter-spacing: 1px;">TOTAL PURCHASE ORDER</h5>
-                <i class="fa-solid fa-cart-shopping" style="color: var(--accent);"></i>
+                <i class="fa-solid fa-cart-shopping" style="color: #FFB62A;"></i>
             </div>
-            <h2 style="color: var(--accent); margin: 15px 0 5px 0; font-size: 28px; font-weight: 700;">3 <span style="font-size: 14px; font-weight: 400; color: #cbd5e1;">Berkas</span></h2>
+            <h2 style="color: #FFB62A; margin: 15px 0 5px 0; font-size: 28px; font-weight: 700;">3 <span style="font-size: 14px; font-weight: 400; color: #cbd5e1;">Berkas</span></h2>
             <span style="color: #cbd5e1; font-size: 12px;">Dokumen PO belanja diterbitkan</span>
         </div>
 
-        <div style="background: #032b5c; padding: 25px; border-radius: 15px; border-left: 5px solid #ef4444; box-shadow: 0 10px 15px rgba(0,0,0,0.2);">
+        <div style="background: #011630; padding: 25px; border-radius: 8px; border-left: 5px solid #ef4444; border: 1px solid rgba(255,255,255,0.05);">
             <div style="display: flex; justify-content: space-between; align-items: center; color: #a0aec0;">
                 <h5 style="font-size: 12px; margin: 0; letter-spacing: 1px;">PO MENUNGGU APPROVAL</h5>
                 <i class="fa-solid fa-clock" style="color: #ef4444;"></i>
@@ -93,20 +89,24 @@ require_once '../../includes/header.php';
         </div>
     </div>
 
-    <h4 style="color: #fff; margin-bottom: 20px; font-size: 18px; font-weight: 600;">Akses Cepat Fitur Operasional Staff</h4>
+    <h4 style="color: #fff; margin-bottom: 20px; font-size: 16px; font-weight: 600;">Akses Cepat Fitur Operasional Staff</h4>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 10px;">
-            <h5 style="color: var(--text-accent); margin: 0 0 10px 0;"><i class="fa-solid fa-file-lines"></i> Purchase Requests</h5>
-            <p style="color: #cbd5e1; font-size: 13px; margin: 0 0 15px 0;">Kelola dan buat berkas pengajuan pengadaan barang/jasa operasional tenant & manajemen mall.</p>
-            <a href="purchase_requests.php" class="btn" style="background: #00cfd5; color: #021F42; font-weight: 600; font-size: 13px; padding: 8px 15px; border: none; text-decoration: none; display: inline-block; border-radius: 5px;">Buka Purchase Requests</a>
+        <div style="background: #011630; border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 8px;">
+            <h5 style="color: #00cfd5; margin: 0 0 10px 0; font-weight: 600;"><i class="fa-solid fa-file-lines me-2"></i> Purchase Requests</h5>
+            <p style="color: #cbd5e1; font-size: 13px; margin: 0 0 15px 0; line-height: 1.5;">Kelola dan buat berkas pengajuan pengadaan barang/jasa operasional tenant & manajemen mall.</p>
+            <a href="purchase_requests.php" style="background: #00cfd5; color: #021F42; font-weight: 700; font-size: 13px; padding: 10px 16px; border: none; text-decoration: none; display: inline-block; border-radius: 6px;">Buka Purchase Requests</a>
         </div>
 
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 10px;">
-            <h5 style="color: var(--text-accent); margin: 0 0 10px 0;"><i class="fa-solid fa-truck-ramp-box"></i> Purchase Orders</h5>
-            <p style="color: #cbd5e1; font-size: 13px; margin: 0 0 15px 0;">Terbitkan pesanan resmi barang ke vendor eksternal, tracking pengiriman logistik, dan cetak invoice.</p>
-            <a href="purchase_orders.php" class="btn" style="background: var(--accent); color: #021F42; font-weight: 600; font-size: 13px; padding: 8px 15px; border: none; text-decoration: none; display: inline-block; border-radius: 5px;">Buka Purchase Orders</a>
+        <div style="background: #011630; border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 8px;">
+            <h5 style="color: #FFB62A; margin: 0 0 10px 0; font-weight: 600;"><i class="fa-solid fa-truck-ramp-box me-2"></i> Purchase Orders</h5>
+            <p style="color: #cbd5e1; font-size: 13px; margin: 0 0 15px 0; line-height: 1.5;">Terbitkan pesanan resmi barang ke vendor eksternal, tracking pengiriman logistik, dan cetak invoice.</p>
+            <a href="purchase_orders.php" style="background: #FFB62A; color: #021F42; font-weight: 700; font-size: 13px; padding: 10px 16px; border: none; text-decoration: none; display: inline-block; border-radius: 6px;">Buka Purchase Orders</a>
         </div>
     </div>
 </div>
 
-<?php require_once '../../includes/footer.php'; ?>
+<?php 
+// Melempar buffer isi konten ke komponen master template navbarM06.php
+$content = ob_get_clean();
+require_once __DIR__ . '/../../includes/navbarMO6.php'; 
+?>
