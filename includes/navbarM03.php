@@ -1,5 +1,4 @@
 <?php
-
 $current_page = basename($_SERVER['PHP_SELF'], '.php');
 
 if (!defined('BASE_URL')) {
@@ -19,25 +18,25 @@ $menu_items = $menu_items ?? [
     [
         'icon' => 'fa-solid fa-screwdriver-wrench',
         'label' => 'Damage List',
-        'link' => BASE_URL . '/pages/Damage_list.php',
+        'link' => BASE_URL . '/pages/facilityManager/Damage_list.php',
         'active_page' => 'damage_list'
     ],
     [
         'icon' => 'fa-solid fa-building-circle-check',
         'label' => 'Asset Management',
-        'link' => BASE_URL . '/pages/asset-management.php',
+        'link' => BASE_URL . '/pages/facilityManager/asset-management.php',
         'active_page' => 'asset_management'
     ],
     [
         'icon' => 'fa-solid fa-users-gear',
         'label' => 'Technician Management',
-        'link' => BASE_URL . '/pages/Technician_Management.php',
+        'link' => BASE_URL . '/pages/facilityManager/Technician_Management.php',
         'active_page' => 'technician_management'
     ],
     [
         'icon' => 'fa-solid fa-calendar-check',
         'label' => 'Schedule',
-        'link' => BASE_URL . '/pages/Schedule_List.php',
+        'link' => BASE_URL . '/pages/facilityManager/Schedule.php',
         'active_page' => 'schedule'
     ]
 ];
@@ -170,5 +169,4 @@ $page_title = $page_title ?? 'Dashboard';
         })();
     </script>
 </body>
-
 </html>
