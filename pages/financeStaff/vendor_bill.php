@@ -69,9 +69,6 @@ $menu_items = [
     ]
 ];
 
-// -------------------------------------------------------
-// TOMBOL BUAT DUMMY PO DENGAN NOMINAL ACAK (DINAMIS)
-// -------------------------------------------------------
 if (isset($_POST['buat_dummy'])) {
     $po_number_dummy = "PO-" . date('Ymd') . "-" . rand(100, 999);
     $tgl_dummy       = date('Y-m-d');
@@ -95,9 +92,6 @@ if (isset($_POST['buat_dummy'])) {
     exit();
 }
 
-// -------------------------------------------------------
-// INPUT PENERIMAAN BARANG + INVOICE VENDOR (3-Way Matching)
-// -------------------------------------------------------
 if (isset($_POST['input_vbr'])) {
     $po_id                 = (int) $_POST['po_id'];
     $received_date         = $_POST['received_date'];
@@ -206,7 +200,7 @@ $not_match = $conn->query("SELECT COUNT(*) AS jml FROM `06_vendor_bill_receipts`
 
 $department_name = "Finance Department (Staff Dashboard)";
 $user_name       = $_SESSION['nama'];
-$page_title      = "Vendor Bill"; // Diubah agar sesuai dengan deteksi halaman aktif di navbar
+$page_title      = "Vendor Bill"; 
 
 ob_start();
 ?>
