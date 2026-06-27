@@ -1,93 +1,230 @@
 <?php
-session_start();
-// Set role dan nama untuk Manager
-$_SESSION['role'] = 'Finance Manager'; 
-$_SESSION['nama'] = 'Intan (Manager)';
+/** @var mysqli $conn */ 
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
-require_once '../../config/koneksi.php';
-require_once '../../includes/header.php';
-require_once '../../includes/navbar.php';
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeManager') {
+    header("Location: ../../index.php"); 
+    exit();
+}
+*/
 
-// FIX ERROR: Menggunakan COUNT(*) agar aman dari salah nama kolom database
-// 1. Mengambil jumlah Invoice yang Belum Bayar
-$res_piutang = $conn->query("SELECT COUNT(*) as jml FROM invoices WHERE status = 'Belum Bayar'");
-$total_piutang_count = $res_piutang->fetch_assoc()['jml'] ?? 0;
+$_SESSION['role'] = 'financeManager';
+$_SESSION['nama'] = 'Manager';
 
-// 2. Mengambil jumlah Invoice yang Sudah Lunas
-$res_lunas = $conn->query("SELECT COUNT(*) as jml FROM invoices WHERE status = 'Lunas'");
-$total_masuk_count = $res_lunas->fetch_assoc()['jml'] ?? 0;
+if (file_exists(__DIR__ . '/../../config/konek.php')) {
+    require_once __DIR__ . '/../../config/konek.php';
+} else {
+    require_once __DIR__ . '/../../config/connection.php';
+}
 
-// 3. Cek jumlah ketidakcocokan rekonsiliasi
-$res_rekon = $conn->query("SELECT COUNT(*) as jml FROM invoices WHERE status = 'Belum Bayar'");
-$unreconciled_count = $res_rekon->fetch_assoc()['jml'] ?? 0;
+$total_plafon = 450000000; 
+$sql_budget = "SELECT SUM(allocated_amount) as plafon FROM 06_mall_budgets WHERE budget_year = " . date('Y');
+$res_budget = $conn->query($sql_budget);
+if ($res_budget && $row_b = $res_budget->fetch_assoc()) {
+    if ((float)$row_b['plafon'] > 0) $total_plafon = (float)$row_b['plafon'];
+}
+
+$total_pendapatan = 75000000;
+$total_beban = 25000000;
+$kolom_tanggal = 'id';
+$cek_kolom = $conn->query("SHOW COLUMNS FROM 06_journal_entries");
+if ($cek_kolom) {
+    while ($k = $cek_kolom->fetch_assoc()) {
+        $field = strtolower($k['Field']);
+        if (in_array($field, ['entry_date', 'date', 'created_at', 'tanggal'])) { $kolom_tanggal = $field; break; }
+    }
+}
+$sql_lr = "SELECT c.account_code, SUM(jl.debit) as dbt, SUM(jl.credit) as crd
+           FROM 06_journal_lines jl
+           JOIN 06_journal_entries j ON jl.journal_entry_id = j.id
+           JOIN 06_chart_of_accounts c ON jl.account_id = c.id
+           WHERE YEAR(j.`$kolom_tanggal`) = " . date('Y') . " GROUP BY c.id";
+$res_lr = $conn->query($sql_lr);
+if ($res_lr && $res_lr->num_rows > 0) {
+    $total_pendapatan = 0; $total_beban = 0;
+    while ($row = $res_lr->fetch_assoc()) {
+        $prefix = substr($row['account_code'], 0, 1);
+        if ($prefix == '4') $total_pendapatan += ($row['crd'] - $row['dbt']);
+        elseif ($prefix == '5') $total_beban += ($row['dbt'] - $row['crd']);
+    }
+}
+$laba_bersih_ytd = $total_pendapatan - $total_beban;
+
+$outstanding_piutang = 0;
+$sql_ar = "SELECT SUM(total_amount) as sisa FROM 06_invoices WHERE status = 'Belum Bayar'";
+$res_ar = $conn->query($sql_ar);
+if ($res_ar && $row_a = $res_ar->fetch_assoc()) {
+    $outstanding_piutang = (float)$row_a['sisa'];
+}
+
+$department_name = "Finance Department (Manager Dashboard)";
+$user_name = $_SESSION['nama'];
+$page_title = "Executive Finance Dashboard";
+
+$menu_items = [
+    [
+        'icon' => 'fa-solid fa-gauge',
+        'label' => 'Dashboard Manager',
+        'link' => 'dashboardManager.php',
+        'active_page' => 'dashboardManager'
+    ],
+    [
+        'icon' => 'fa-solid fa-file-invoice',
+        'label' => 'Invoice Management',
+        'link' => 'invoiceManagement.php',
+        'active_page' => 'invoiceManagement'
+    ],
+    [
+        'icon' => 'fa-solid fa-scale-balanced',
+        'label' => 'Financial Statement',
+        'link' => 'financeStatement.php',
+        'active_page' => 'financeStatement'
+    ],
+    [
+        'icon' => 'fa-solid fa-chart-pie',
+        'label' => 'Budget Analysis',
+        'link' => 'budgetAnalysis.php',
+        'active_page' => 'budgetAnalysis'
+    ],
+    [
+        'icon' => 'fa-solid fa-calculator',
+        'label' => 'Tax Report (PPN)',
+        'link' => 'taxReport.php',
+        'active_page' => 'taxReport'
+    ],
+    [
+        'icon' => 'fa-solid fa-building-columns',
+        'label' => 'Bank Reconciliation',
+        'link' => 'bankReconciliation.php',
+        'active_page' => 'bankReco'
+    ],
+    [
+        'icon' => 'fa-solid fa-hourglass-half',
+        'label' => 'Aging Receivable',
+        'link' => 'agingReceivable.php',
+        'active_page' => 'agingReceivable'
+    ],
+    [
+        'icon' => 'fa-solid fa-book',
+        'label' => 'Log Otomasi Jurnal',
+        'link' => 'journalManagement.php',
+        'active_page' => 'journalManagement'
+    ]
+];
+
+ob_start();
 ?>
 
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 style="color: var(--text-accent); font-size: 32px; font-weight: 700; margin: 0;">Finance Manager Executive Dashboard</h1>
-            <p style="color: #cbd5e1; margin-top: 5px;">Panel pengawasan arus kas, analisis umur piutang, dan validasi rekonsiliasi bank.</p>
+<style>
+    :root { --accent: #FFB62A !important; }
+    body, .layout, .main-content, .content-body { background-color: #021F42 !important; color: #fff !important; }
+    .sidebar { background-color: #011630 !important; }
+    .topbar { background-color: #011630 !important; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 10px; text-align: left; }
+    .kpi-card { background: #011630; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 20px; transition: transform 0.2s; }
+    .kpi-card:hover { transform: translateY(-3px); border-color: #FFB62A; }
+    
+    .menu-panel { background: #011630; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 25px; margin-top: 25px; text-align: left; }
+    .grid-control { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; }
+    .btn-panel { display: flex; align-items: center; justify-content: space-between; padding: 18px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; text-decoration: none; color: #fff; transition: all 0.2s; }
+    .btn-panel:hover { background: rgba(255,255,255,0.07); border-color: #FFB62A; transform: translateX(3px); }
+</style>
+
+<div class="container-fluid" style="padding-top: 5px;">
+    <div class="d-flex justify-content-between align-items-center mb-4" style="text-align: left;">
+        <div>
+            <p class="small mb-0" style="color: #cbd5e1 !important; opacity: 0.9;">
+                Grup Otoritas Eksekutif: <strong><?php echo htmlspecialchars($_SESSION['nama']); ?></strong>. Panel analisis konsolidasi akuntansi mall.
+            </p>
+        </div>
+        <div style="background-color: #FFB62A; color: #021F42; font-weight: bold; padding: 6px 15px; border-radius: 4px; font-size: 13px;">
+            <i class="fa-solid fa-calendar-days me-1"></i> Tahun Buku: <?php echo date('Y'); ?>
         </div>
     </div>
 
-    <div class="row g-3 mb-5">
-        <div class="col-12 col-md-4">
-            <div style="background: #032b5c; padding: 25px; border-radius: 15px; border-left: 5px solid #10b981; height: 100%;">
-                <div style="display: flex; justify-content: space-between; align-items: center; color: #a0aec0;">
-                    <h5 style="font-size: 12px; margin: 0; letter-spacing: 1px;">PENDAPATAN DITERIMA</h5>
-                    <i class="fa-solid fa-wallet" style="color: #10b981;"></i>
-                </div>
-                <h2 style="color: #fff; margin: 15px 0 5px 0; font-size: 24px; font-weight: 700;"><?= $total_masuk_count; ?> <span style="font-size: 14px; font-weight: 400; color: #cbd5e1;">Invoice Lunas</span></h2>
-                <span style="color: #10b981; font-size: 12px;">Dana aman di kas</span>
-            </div>
+    <div class="dashboard-grid">
+        <div class="kpi-card" style="border-left: 4px solid #FFB62A;">
+            <small style="color: #cbd5e1; font-size: 11px; display: block; letter-spacing: 0.5px;">PLAFON ANGGARAN (YTD)</small>
+            <h3 style="margin: 8px 0; font-size: 20px; font-weight: 700; color: #fff;">Rp <?php echo number_format($total_plafon, 0, ',', '.'); ?></h3>
+            <small style="color: #FFB62A; font-size: 11px;"><i class="fa-solid fa-chart-pie me-1"></i> Batas Kontrol Biaya Mall</small>
         </div>
 
-        <div class="col-12 col-md-4">
-            <div style="background: #032b5c; padding: 25px; border-radius: 15px; border-left: 5px solid var(--accent); height: 100%;">
-                <div style="display: flex; justify-content: space-between; align-items: center; color: #a0aec0;">
-                    <h5 style="font-size: 12px; margin: 0; letter-spacing: 1px;">TOTAL PIUTANG (AGING)</h5>
-                    <i class="fa-solid fa-chart-line" style="color: var(--accent);"></i>
-                </div>
-                <h2 style="color: var(--accent); margin: 15px 0 5px 0; font-size: 24px; font-weight: 700;"><?= $total_piutang_count; ?> <span style="font-size: 14px; font-weight: 400; color: #cbd5e1;">Invoice Active</span></h2>
-                <span style="color: #cbd5e1; font-size: 12px;">Tagihan perlu di-follow up</span>
-            </div>
+        <div class="kpi-card" style="border-left: 4px solid #10b981;">
+            <small style="color: #cbd5e1; font-size: 11px; display: block; letter-spacing: 0.5px;">LABA BERSIH BERJALAN</small>
+            <h3 style="margin: 8px 0; font-size: 20px; font-weight: 700; color: #10b981;">Rp <?php echo number_format($laba_bersih_ytd, 0, ',', '.'); ?></h3>
+            <small style="color: #cbd5e1; opacity: 0.6; font-size: 11px;">Pendapatan: Rp <?php echo number_format($total_pendapatan, 0, ',', '.'); ?></small>
         </div>
 
-        <div class="col-12 col-md-4">
-            <div style="background: #032b5c; padding: 25px; border-radius: 15px; border-left: 5px solid #00cfd5; height: 100%;">
-                <div style="display: flex; justify-content: space-between; align-items: center; color: #a0aec0;">
-                    <h5 style="font-size: 12px; margin: 0; letter-spacing: 1px;">REKONSILIASI BANK</h5>
-                    <i class="fa-solid fa-building-columns" style="color: #00cfd5;"></i>
-                </div>
-                <h2 style="color: #fff; margin: 15px 0 5px 0; font-size: 24px; font-weight: 700;">
-                    <?= $unreconciled_count > 0 ? 'Perlu Validasi' : 'Balanced'; ?>
-                </h2>
-                <span style="color: #00cfd5; font-size: 12px;">Kesesuaian saldo kas vs bank</span>
-            </div>
+        <div class="kpi-card" style="border-left: 4px solid #ef4444;">
+            <small style="color: #cbd5e1; font-size: 11px; display: block; letter-spacing: 0.5px;">TOTAL PIUTANG USAHA (AR)</small>
+            <h3 style="margin: 8px 0; font-size: 20px; font-weight: 700; color: #ef4444;">Rp <?php echo number_format($outstanding_piutang, 0, ',', '.'); ?></h3>
+            <small style="color: #cbd5e1; opacity: 0.6; font-size: 11px;"><i class="fa-solid fa-clock me-1"></i> Outstanding Invoice Tenant</small>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            <h4 style="color: #fff; margin-bottom: 20px; font-size: 18px; font-weight: 600;">Menu Analisis & Strategi Manajerial</h4>
-        </div>
+    <div class="menu-panel">
+        <h5 style="color: #FFB62A; font-weight: 600; font-size: 15px; margin-top: 0; margin-bottom: 5px;">
+            <i class="fa-solid fa-shield-halved me-2"></i> Konsol Kendali Mutu & Pelaporan Keuangan (M06)
+        </h5>
+        <p style="color: #cbd5e1; font-size: 12px; margin-bottom: 20px;">Akses cepat modul verifikasi manajer finansial:</p>
         
-        <div class="col-12 col-md-6 mb-3">
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 10px; height: 100%;">
-                <h5 style="color: var(--text-accent); margin: 0 0 10px 0;"><i class="fa-solid fa-clock"></i> Analisis Umur Piutang (Aging Receivable)</h5>
-                <p style="color: #cbd5e1; font-size: 13px; margin: 0 0 15px 0;">Pantau rincian piutang tenant berdasarkan tenggat waktu (0-30 hari, 31-60 hari, dst.) untuk mencegah bad debt.</p>
-                <a href="agingReceivable.php" class="btn" style="background: var(--accent); color: #021F42; font-weight: 600; font-size: 13px; padding: 8px 15px; border: none; text-decoration: none; display: inline-block; border-radius: 5px;">Buka Analisis Aging</a>
-            </div>
-        </div>
+        <div class="grid-control">
+            <a href="financeStatement.php" class="btn-panel">
+                <div>
+                    <strong style="color: #3b82f6; display: block; font-size: 14px;"><i class="fa-solid fa-wallet me-2"></i> Financial Statement</strong>
+                    <small style="color: #cbd5e1; font-size: 12px;">Neraca Saldo, Laba Rugi, & Buku Besar</small>
+                </div>
+                <i class="fa-solid fa-chevron-right style-arrow" style="color: #3b82f6; opacity: 0.7;"></i>
+            </a>
 
-        <div class="col-12 col-md-6 mb-3">
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 10px; height: 100%;">
-                <h5 style="color: var(--text-accent); margin: 0 0 10px 0;"><i class="fa-solid fa-scale-balanced"></i> Rekonsiliasi & Pencocokan Kas</h5>
-                <p style="color: #cbd5e1; font-size: 13px; margin: 0 0 15px 0;">Cocokkan catatan transaksi internal keuangan mall dengan rekening koran bank secara berkala.</p>
-                <a href="bankReconciliation.php" class="btn" style="background: #00cfd5; color: #021F42; font-weight: 600; font-size: 13px; padding: 8px 15px; border: none; text-decoration: none; display: inline-block; border-radius: 5px;">Mulai Rekonsiliasi Bank</a>
-            </div>
+            <a href="budgetAnalysis.php" class="btn-panel">
+                <div>
+                    <strong style="color: #06b6d4; display: block; font-size: 14px;"><i class="fa-solid fa-chart-line me-2"></i> Budget Analysis</strong>
+                    <small style="color: #cbd5e1; font-size: 12px;">Monitoring penyerapan anggaran operasional</small>
+                </div>
+                <i class="fa-solid fa-chevron-right style-arrow" style="color: #06b6d4; opacity: 0.7;"></i>
+            </a>
+
+            <a href="taxReport.php" class="btn-panel">
+                <div>
+                    <strong style="color: #eab308; display: block; font-size: 14px;"><i class="fa-solid fa-file-invoice-dollar me-2"></i> Tax Report (PPN)</strong>
+                    <small style="color: #cbd5e1; font-size: 12px;">Rekapitulasi beban pajak masukan & keluaran</small>
+                </div>
+                <i class="fa-solid fa-chevron-right style-arrow" style="color: #eab308; opacity: 0.7;"></i>
+            </a>
+
+            <a href="bankReconciliation.php" class="btn-panel">
+                <div>
+                    <strong style="color: #a855f7; display: block; font-size: 14px;"><i class="fa-solid fa-building-columns me-2"></i> Bank Reconciliation</strong>
+                    <small style="color: #cbd5e1; font-size: 12px;">Pencocokan saldo koran bank vs kas sistem</small>
+                </div>
+                <i class="fa-solid fa-chevron-right style-arrow" style="color: #a855f7; opacity: 0.7;"></i>
+            </a>
+
+            <a href="agingReceivable.php" class="btn-panel">
+                <div>
+                    <strong style="color: #f43f5e; display: block; font-size: 14px;"><i class="fa-solid fa-hourglass-half me-2"></i> Aging Receivable</strong>
+                    <small style="color: #cbd5e1; font-size: 12px;">Analisis umur piutang tenant macet</small>
+                </div>
+                <i class="fa-solid fa-chevron-right style-arrow" style="color: #f43f5e; opacity: 0.7;"></i>
+            </a>
+
+            <a href="invoiceManagement.php" class="btn-panel">
+                <div>
+                    <strong style="color: #10b981; display: block; font-size: 14px;"><i class="fa-solid fa-receipt me-2"></i> Invoice Management</strong>
+                    <small style="color: #cbd5e1; font-size: 12px;">Pantau performa penagihan tim staff</small>
+                </div>
+                <i class="fa-solid fa-chevron-right style-arrow" style="color: #10b981; opacity: 0.7;"></i>
+            </a>
         </div>
     </div>
 </div>
 
-<?php require_once '../../includes/footer.php'; ?>
+<?php 
+$content = ob_get_clean();
+require_once __DIR__ . '/../../includes/navbarMO6.php'; 
+?>
