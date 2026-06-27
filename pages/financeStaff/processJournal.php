@@ -1,4 +1,5 @@
 <?php
+/** @var mysqli $conn */
 if (session_status() == PHP_SESSION_NONE) { session_start(); }
 require_once '../../config/koneksi.php'; 
 
@@ -67,4 +68,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } else {
     header("Location: journalManagement.php");
     exit;
-}
+};

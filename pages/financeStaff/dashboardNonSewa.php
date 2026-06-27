@@ -1,4 +1,5 @@
 <?php
+/** @var mysqli $conn */
 if (session_status() == PHP_SESSION_NONE) { session_start(); }
 // Uncomment ini nanti kalau auth sudah jalan:
 // if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
