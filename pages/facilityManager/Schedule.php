@@ -3,7 +3,7 @@ require_once 'auth/checkSession.php';
 $page_title = "Maintenance Schedule";
 $page = "schedule";
 
-include '../../config/konek.php';
+include '../MallManagementSystem/config/konek.php';
 
 /* ==========================================
    ADD SCHEDULE
@@ -866,6 +866,6 @@ document.addEventListener(
 
 $content = ob_get_clean();
 
-include '../../includes/navbar.php';
+include '../../includes/navbarM03.php';
 
 ?>

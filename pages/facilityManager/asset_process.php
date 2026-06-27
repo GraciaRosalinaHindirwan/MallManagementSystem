@@ -1,7 +1,7 @@
 <?php
 // asset_process.php
 $root = dirname(__DIR__, 2); // naik ke root proyek
-require_once $root . '../../config/konek.php';
+require_once '../MallManagementSystem/config/konek.php';
 require_once 'asset_functions.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
