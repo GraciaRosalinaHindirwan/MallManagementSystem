@@ -1,4 +1,5 @@
 <?php
+
 $current_page = basename($_SERVER['PHP_SELF'], '.php');
 
 if (!defined('BASE_URL')) {
@@ -13,35 +14,67 @@ if (!defined('BASE_URL')) {
 }
 
 // Edit di sini untuk mengubah nama department, menu di sidebar, dan nama user yang tampil di navbar
-$department_name = $department_name ?? 'Department Facility & Maintenance'; // Ganti kata-kata yang diapit petik satu
-$menu_items = $menu_items ?? [
+$department_name = 'Customer Service';
+$user_name       = 'CS Admin'; // Nama user yang akan tampil di ujung kanan atas
+
+$menu_items = [
     [
-        'icon' => 'fa-solid fa-screwdriver-wrench',
-        'label' => 'Damage List',
-        'link' => BASE_URL . '/pages/facilityManager/Damage_list.php',
-        'active_page' => 'damage_list'
+        'icon'        => 'fa-solid fa-store',
+        'label'       => 'Cari Tenant',
+        'link'        => BASE_URL . '/pages/CS/cari-tenant.php', // Sesuaikan path folder kalian
+        'active_page' => 'cari-tenant'
     ],
     [
-        'icon' => 'fa-solid fa-building-circle-check',
-        'label' => 'Asset Management',
-        'link' => BASE_URL . '/pages/facilityManager/asset-management.php',
-        'active_page' => 'asset_management'
+        'icon'        => 'fa-solid fa-location-dot',
+        'label'       => 'Fasilitas',
+        'link'        => BASE_URL . '/pages/CS/fasilitas.php',
+        'active_page' => 'fasilitas'
     ],
     [
-        'icon' => 'fa-solid fa-users-gear',
-        'label' => 'Technician Management',
-        'link' => BASE_URL . '/pages/facilityManager/Technician_Management.php',
-        'active_page' => 'technician_management'
+        'icon'        => 'fa-solid fa-calendar-check',
+        'label'       => 'Jadwal Event',
+        'link'        => BASE_URL . '/pages/CS/event.php',
+        'active_page' => 'event'
     ],
     [
-        'icon' => 'fa-solid fa-calendar-check',
-        'label' => 'Schedule',
-        'link' => BASE_URL . '/pages/facilityManager/Schedule.php',
-        'active_page' => 'schedule'
+        'icon'        => 'fa-solid fa-list',
+        'label'       => 'Semua Tiket',
+        'link'        => BASE_URL . '/pages/CS/tiket.php',
+        'active_page' => 'tiket'
+    ],
+    [
+        'icon'        => 'fa-solid fa-ticket',
+        'label'       => 'Buat Tiket Baru',
+        'link'        => BASE_URL . '/pages/CS/tiket-buat.php',
+        'active_page' => 'tiket-buat'
+    ],
+    [
+        'icon'        => 'fa-solid fa-triangle-exclamation',
+        'label'       => 'SLA Breach',
+        'link'        => BASE_URL . '/pages/CS/sla-breach.php',
+        'active_page' => 'sla-breach'
+    ],
+    [
+        'icon'        => 'fa-solid fa-box',
+        'label'       => 'Barang Temuan',
+        'link'        => BASE_URL . '/pages/CS/barang-temuan.php',
+        'active_page' => 'barang-temuan'
+    ],
+    [
+        'icon'        => 'fa-solid fa-magnifying-glass',
+        'label'       => 'Laporan Kehilangan',
+        'link'        => BASE_URL . '/pages/CS/barang-hilang.php',
+        'active_page' => 'barang-hilang'
+    ],
+    [
+        'icon'        => 'fa-solid fa-star',
+        'label'       => 'Rating & Feedback',
+        'link'        => BASE_URL . '/pages/CS/feedback.php',
+        'active_page' => 'feedback'
     ]
 ];
 $user_name = $user_name ?? 'Manager';
-$page_title = $page_title ?? 'Dashboard';
+$page_title = $page_title ?? 'Customer Service ';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -51,7 +84,7 @@ $page_title = $page_title ?? 'Dashboard';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?: '' ?> — Mall Management System</title>
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/asset/css/designSystem.css">
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/asset/css/template.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/public/asset/css/templateM05.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -169,4 +202,5 @@ $page_title = $page_title ?? 'Dashboard';
         })();
     </script>
 </body>
+
 </html>
