@@ -1,4 +1,6 @@
 <?php
+/** @var mysqli $conn */ // Memberitahu VS Code kalau $conn itu objek database sah!
+
 if (session_status() == PHP_SESSION_NONE) { session_start(); }
 // Uncomment ini nanti kalau auth sudah jalan:
 // if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
