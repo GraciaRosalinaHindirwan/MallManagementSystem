@@ -1,52 +1,21 @@
 <?php
+/** @var mysqli $conn */ //
 if (session_status() == PHP_SESSION_NONE) { session_start(); }
-// Uncomment ini nanti kalau auth sudah jalan:
+
 // if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
 //     header("Location: ../../index.php"); 
-// exit();
+//     exit();
 // }
-
-session_start();
-
-// ====================================================================
-// [BELUM ADA DATABASE] - HAPUS TANDA KOMEN (/* dan */) JIKA AUTH SIAP
-// ====================================================================
-/*
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
-    header("Location: ../../index.php"); 
-    exit();
-}
-*/
-// ====================================================================
 
 $_SESSION['role'] = 'financeStaff'; 
 $_SESSION['nama'] = 'Staff Finance'; 
 
-$department_name = "M06 FINANCE";
-$page_title = "Dashboard Pendapatan Non-Sewa";
-$user_name = $_SESSION['nama'];
+if (file_exists('../../config/konek.php')) {
+    require_once '../../config/konek.php';
+} else {
+    require_once '../../config/connection.php';
+}
 
-// Pastikan menu items tetap sama agar sidebar tidak hilang/berubah saat berpindah halaman
-$menu_items = [
-    [
-        'icon'        => 'fa-solid fa-chart-line',
-        'label'       => 'Dashboard Non-Sewa',
-        'link'        => 'dashboardNonSewa.php',
-        'active_page' => 'dashboard_non_sewa' // Menandai halaman ini aktif
-    ],
-    [
-        'icon'        => 'fa-solid fa-book',
-        'label'       => 'Buku Besar (GL)',
-        'link'        => 'bukuBesar.php',
-        'active_page' => 'buku_besar'
-    ]
-];
-
-// ── 1. KONEKSI DATABASE ───────────────────────────────────────────────────
-require_once '../../config/koneksi.php';
-// $conn (MySQLi) sudah tersedia dari koneksi.php
-
-// ── Helper: jalankan prepared statement MySQLi, return array of assoc ─────
 function db_query(mysqli $conn, string $sql, string $types = '', array $params = []): array {
     $stmt = $conn->prepare($sql);
     if (!$stmt) return [];
@@ -89,14 +58,15 @@ $bulan_list      = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt',
 $bulan_aktif_idx = $bulan_angka - 1;
 
 // ── Helper: format Rupiah ─────────────────────────────────────────────────
-function fmtRp(float $n): string {
-    if ($n >= 1_000_000_000) return 'Rp ' . number_format($n / 1_000_000_000, 1, ',', '.') . ' M';
-    if ($n >= 1_000_000)     return 'Rp ' . number_format($n / 1_000_000, 1, ',', '.') . ' Jt';
-    if ($n >= 1_000)         return 'Rp ' . number_format($n / 1_000, 0, ',', '.') . ' rb';
-    return 'Rp ' . number_format($n, 0, ',', '.');
+if (!function_exists('fmtRp')) {
+    function fmtRp(float $n): string {
+        if ($n >= 1_000_000_000) return 'Rp ' . number_format($n / 1_000_000_000, 1, ',', '.') . ' M';
+        if ($n >= 1_000_000)     return 'Rp ' . number_format($n / 1_000_000, 1, ',', '.') . ' Jt';
+        if ($n >= 1_000)         return 'Rp ' . number_format($n / 1_000, 0, ',', '.') . ' rb';
+        return 'Rp ' . number_format($n, 0, ',', '.');
+    }
 }
 
-// ── 3. QUERY STAT CARDS ───────────────────────────────────────────────────
 
 // 3a. PARKIR — dari 04_parking_transaksi
 $parkir = db_row($conn, "
@@ -116,14 +86,13 @@ $parkir_lalu = db_row($conn, "
 $pendapatan_sekarang = $parkir['total'] ?? 0;
 $pendapatan_lalu = $parkir_lalu['total'] ?? 0;
 
-// Hitung persentase trend parkir
 if ($pendapatan_lalu > 0) {
     $parkir_trend_pct = (($pendapatan_sekarang - $pendapatan_lalu) / $pendapatan_lalu) * 100;
 } else {
     $parkir_trend_pct = ($pendapatan_sekarang > 0) ? 100 : 0;
 }
 
-// 3b. EVENT & SPONSORSHIP — dari 06_event_revenue, fallback ke M04
+// 3b. EVENT & SPONSORSHIP 
 $event = db_row($conn, "
     SELECT
         COALESCE(SUM(er.amount), 0)       AS total_event,
@@ -134,7 +103,6 @@ $event = db_row($conn, "
       AND er.status = 'received'
 ", 's', [$periode_sql]);
 
-// Fallback: kalau 06_event_revenue masih kosong, pakai sponsorship + tiket dari M04
 if (empty($event) || $event['total_event'] == 0) {
     $event = db_row($conn, "
         SELECT
@@ -163,7 +131,6 @@ $event_lalu = db_row($conn, "
     WHERE DATE_FORMAT(received_date, '%Y-%m') = ? AND status = 'received'
 ", 's', [$periode_lalu]);
 
-// Logika Tren Pertumbuhan Event jika bulan lalu berharga 0
 if ($event_lalu['total_event'] > 0) {
     $event_trend_pct = (($event['total_event'] - $event_lalu['total_event']) / $event_lalu['total_event']) * 100;
 } else {
@@ -171,8 +138,7 @@ if ($event_lalu['total_event'] > 0) {
 }
 $event_trend_pct = round($event_trend_pct);
 
-// 3c. IKLAN / BILLBOARD — dari 06_ad_contracts
-// Menggunakan LIKE agar jika bertipe varchar/text yang diawali tahun-bulan tetap bisa terbaca
+// 3c. IKLAN / BILLBOARD
 $iklan = db_row($conn, "
     SELECT
         COALESCE(SUM(monthly_fee), 0) AS total_iklan,
@@ -183,7 +149,6 @@ $iklan = db_row($conn, "
       AND billing_status = 'paid'
 ", 's', [$periode_sql . '%']);
 
-// FIX PERBAIKAN: Mengubah DATE_FORMAT menjadi LIKE agar sinkron dengan format data text/varchar di bulan lalu
 $iklan_lalu = db_row($conn, "
     SELECT COALESCE(SUM(monthly_fee), 0) AS total_iklan
     FROM 06_ad_contracts
@@ -197,7 +162,7 @@ if ($iklan_lalu['total_iklan'] > 0) {
 }
 $iklan_trend_pct = round($iklan_trend_pct);
 
-// 3d. BAGI HASIL — dari 06_invoices + 06_invoice_items
+// 3d. BAGI HASIL
 $bagi_hasil = db_row($conn, "
     SELECT
         COALESCE(SUM(ii.amount), 0)     AS total_bagi_hasil,
@@ -239,7 +204,7 @@ $total_nonsewa = $parkir['total'] + $event['total_event'] + $iklan['total_iklan'
 // Susun stat_cards
 $stat_cards = [
     [
-        'label'    => 'Total Pendapatan Non-Sewa',
+        'label'    => 'Total Non-Sewa',
         'value'    => fmtRp($total_nonsewa),
         'sub'      => 'Bulan ' . $bulan_aktif,
         'trend'    => ($parkir_trend_pct >= 0 ? '+' : '') . round($parkir_trend_pct) . '%',
@@ -257,9 +222,9 @@ $stat_cards = [
         'color'    => '#00D4D8',
     ],
     [
-        'label'    => 'Event & Sponsorship',
+        'label'    => 'Event & Sponsor',
         'value'    => fmtRp($event['total_event']),
-        'sub'      => ($event['jumlah_event'] ?? 0) . ' event selesai',
+        'sub'      => ($event['jumlah_event'] ?? 0) . ' selesai',
         'trend'    => ($event_trend_pct >= 0 ? '+' : '') . $event_trend_pct . '%',
         'trend_up' => $event_trend_pct >= 0,
         'icon'     => 'fa-calendar-days',
@@ -275,9 +240,9 @@ $stat_cards = [
         'color'    => '#22C55E',
     ],
     [
-        'label'    => 'Bagi Hasil (Rev. Sharing)',
+        'label'    => 'Bagi Hasil (RS)',
         'value'    => fmtRp($bagi_hasil['total_bagi_hasil']),
-        'sub'      => ($bagi_hasil['jumlah_tenant'] ?? 0) . ' tenant dihitung',
+        'sub'      => ($bagi_hasil['jumlah_tenant'] ?? 0) . ' tenant',
         'trend'    => ($bagi_trend_pct >= 0 ? '+' : '') . $bagi_trend_pct . '%',
         'trend_up' => $bagi_trend_pct >= 0,
         'icon'     => 'fa-handshake',
@@ -321,7 +286,7 @@ foreach ($jurnal_rows as $r) {
     ];
 }
 
-// ── 5. CEK EXCEPTION (rekap parkir belum completed) ──────────────────────
+// ── 5. CEK EXCEPTION ──────────────────────────────────────────────────────
 $exception = db_row($conn, "
     SELECT COUNT(*) AS jumlah, COALESCE(SUM(total_revenue), 0) AS nominal
     FROM 06_daily_parking_summary
@@ -353,9 +318,7 @@ $aktivitas_rows = db_query($conn, "
         ORDER BY exit_time DESC
         LIMIT 5
     ) p
-
-UNION ALL
-
+    UNION ALL
     SELECT * FROM (
         SELECT
             'event' AS tipe,
@@ -371,9 +334,7 @@ UNION ALL
         ORDER BY eb.tanggal_mulai DESC
         LIMIT 3
     ) e
-
     UNION ALL
-
     SELECT * FROM (
         SELECT
             'iklan' AS tipe,
@@ -387,7 +348,6 @@ UNION ALL
         ORDER BY last_paid_date DESC
         LIMIT 3
     ) a
-
     ORDER BY waktu DESC
     LIMIT 10
 ", 'sss', [$periode_sql, $periode_sql, $periode_sql]);
@@ -400,7 +360,6 @@ $icon_map = [
 $aktivitas = [];
 foreach ($aktivitas_rows as $r) {
     [$icon, $color, $bg] = $icon_map[$r['tipe']] ?? ['fa-circle', '#94A3B8', 'rgba(148,163,184,0.12)'];
-    
     $waktu_format = (strlen($r['waktu']) <= 10 || strpos($r['waktu'], '00:00:00') !== false) 
         ? date('d M', strtotime($r['waktu'])) 
         : date('d M, H:i', strtotime($r['waktu']));
@@ -417,32 +376,90 @@ foreach ($aktivitas_rows as $r) {
 }
 
 // ── Helper: status badge ──────────────────────────────────────────────────
-function statusBadge(string $s): string {
-    $map = ['posted' => 'verified', 'draft' => 'pending', 'reversed' => 'selisih'];
-    $key = $map[$s] ?? $s;
-    return match($key) {
-        'verified' => '<span class="badge-status verified"><i class="fa-solid fa-circle-check"></i> Verified</span>',
-        'pending'  => '<span class="badge-status pending"><i class="fa-solid fa-clock"></i> Pending</span>',
-        'selisih'  => '<span class="badge-status selisih"><i class="fa-solid fa-triangle-exclamation"></i> Selisih Kas</span>',
-        default    => '<span class="badge-status pending">' . htmlspecialchars($s) . '</span>',
-    };
+if (!function_exists('statusBadge')) {
+    function statusBadge(string $s): string {
+        $map = ['posted' => 'verified', 'draft' => 'pending', 'reversed' => 'selisih'];
+        $key = $map[$s] ?? $s;
+        return match($key) {
+            'verified' => '<span class="badge-status verified"><i class="fa-solid fa-circle-check"></i> Verified</span>',
+            'pending'  => '<span class="badge-status pending"><i class="fa-solid fa-clock"></i> Pending</span>',
+            'selisih'  => '<span class="badge-status selisih"><i class="fa-solid fa-triangle-exclamation"></i> Selisih Kas</span>',
+            default    => '<span class="badge-status pending">' . htmlspecialchars($s) . '</span>',
+        };
+    }
 }
+// ==========================================
+// CONFIG LAYOUT UTAMA UNTUK REQUIRE NAVBAR M06
+// ==========================================
+$department_name = "M06 FINANCE";
+$page_title = "Dashboard Pendapatan Non-Sewa";
+$user_name = $_SESSION['nama'];
 
-include '../../includes/header.php';
-include '../../includes/navbar.php';
+$menu_items = [
+    [
+        'icon'        => 'fa-solid fa-chart-pie',
+        'label'       => 'Dashboard Staff',
+        'link'        => 'dashboardStaff.php',
+        'active_page' => 'Dashboard Staff'
+    ],
+    [
+        'icon'        => 'fa-solid fa-file-invoice',
+        'label'       => 'Invoice Management',
+        'link'        => 'invoiceManagement.php',
+        'active_page' => 'Invoice Management'
+    ],
+    [
+        'icon'        => 'fa-solid fa-bolt-lightning', 
+        'label'       => 'Invoice Utilitas (Air/Listrik)',
+        'link'        => 'utility_invoice.php', 
+        'active_page' => 'utility_invoice'
+    ],
+    [
+        'icon'        => 'fa-solid fa-cash-register',
+        'label'       => 'Billing System',
+        'link'        => 'billingManagement.php',
+        'active_page' => 'Billing System'
+    ],
+     [
+        'icon'        => 'fa-solid fa-file-invoice-dollar',
+        'label'       => 'Vendor Bill',
+        'link'        => 'vendor_bill.php',
+        'active_page' => 'Vendor Bill'
+    ],
+    [
+        'icon'        => 'fa-solid fa-book',
+        'label'       => 'Jurnal Otomatis',
+        'link'        => 'journalManagement.php',
+        'active_page' => 'Jurnal Otomatis'
+    ],
+    [
+        'icon'        => 'fa-solid fa-book-open',
+        'label'       => 'Buku Besar (GL)',
+        'link'        => 'bukuBesar.php',
+        'active_page' => 'Buku Besar'
+    ],
+    [
+        'icon'        => 'fa-solid fa-folder-open',
+        'label'       => 'Dashboard Non Sewa',
+        'link'        => 'dashboardNonSewa.php',
+        'active_page' => 'Dashboard Non Sewa'
+    ]
+];
+
+ob_start();
 ?>
 
 <style>
-.page-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #00D4D8; margin-bottom: 4px; }
-.page-title   { font-size: 22px; font-weight: 700; color: #fff; margin: 0; }
-.page-sub     { font-size: 13px; color: #94A3B8; margin-top: 4px; }
+:root { --accent: #FFB62A !important; }
+body, .layout, .main-content, .content-body { background-color: #021F42 !important; color: #fff !important; }
+.sidebar { background-color: #011630 !important; }
+.topbar { background-color: #011630 !important; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-.alert-exception {
-    background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.25);
-    border-radius: 10px; padding: 12px 16px;
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    font-size: 13px; margin-bottom: 1.25rem;
-}
+.page-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #00D4D8; margin-bottom: 4px; text-align: left; }
+.page-title   { font-size: 24px; font-weight: 700; color: #fff; margin: 0; text-align: left; }
+.page-sub     { font-size: 13px; color: #94A3B8; margin-top: 4px; text-align: left; }
+
+.alert-exception { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.25); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; margin-bottom: 1.25rem; text-align: left; }
 .alert-exception-content { display: flex; align-items: flex-start; gap: 10px; }
 .alert-exception i { color: #EF4444; margin-top: 2px; }
 .alert-exception .ae-title { font-weight: 600; color: #EF4444; }
@@ -450,13 +467,13 @@ include '../../includes/navbar.php';
 .btn-alert-action { background: #EF4444; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; text-decoration: none; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
 .btn-alert-action:hover { background: #DC2626; color: #fff; }
 
-.filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
-.btn-bulan { padding: 5px 16px; border-radius: 99px; font-size: 12px; border: 1px solid rgba(255,255,255,.1); background: transparent; color: #94A3B8; cursor: pointer; transition: all .15s; font-family: inherit; text-decoration: none; display: inline-block; }
-.btn-bulan:hover { color: #fff; border-color: rgba(255,255,255,.3); }
+.filter-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; justify-content: flex-start; }
+.btn-bulan { padding: 5px 12px; border-radius: 99px; font-size: 12px; border: 1px solid rgba(255,255,255,.1); background: transparent; color: #94A3B8; cursor: pointer; transition: all .15s; text-decoration: none; display: inline-block; }
+.btn-bulan:hover { color: #fff; border-color: rgba(255,255,255,.3); text-decoration: none; }
 .btn-bulan.active { background: #167E80; color: #fff; border-color: #167E80; }
 
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap: 14px; margin-bottom: 1.75rem; }
-.stat-card { background: #0B376D; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 1.1rem 1.25rem; position: relative; overflow: hidden; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 14px; margin-bottom: 1.75rem; text-align: left; }
+.stat-card { background: #011630; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 1.1rem 1.25rem; position: relative; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--card-accent, #00D4D8); border-radius: 12px 12px 0 0; }
 .stat-card .sc-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: #94A3B8; margin-bottom: 8px; }
 .stat-card .sc-val   { font-size: 21px; font-weight: 700; color: #fff; line-height: 1.2; }
@@ -465,15 +482,15 @@ include '../../includes/navbar.php';
 .badge-trend.up   { background: rgba(34,197,94,.15); color: #22C55E; }
 .badge-trend.down { background: rgba(239,68,68,.15);  color: #EF4444; }
 
-.main-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; align-items: start; }
-@media(max-width:900px){ .main-grid { grid-template-columns: 1fr; } }
+.main-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; align-items: start; text-align: left; }
+@media(max-width:1100px){ .main-grid { grid-template-columns: 1fr; } }
 
-.fin-card { background: #0B376D; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem; }
+.fin-card { background: #011630; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem; }
 .fin-card-header { padding: .9rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; justify-content: space-between; }
 .fin-card-title { font-size: 14px; font-weight: 600; color: #fff; }
 .fin-card-sub   { font-size: 12px; color: #64748B; margin-top: 2px; }
 .fin-card-link  { font-size: 12px; color: #00D4D8; text-decoration: none; }
-.fin-card-link:hover { text-decoration: underline; }
+.fin-card-link:hover { text-decoration: underline; color: #00cfd5; }
 .fin-card-body  { padding: 1.1rem 1.25rem; }
 
 .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -504,168 +521,175 @@ include '../../includes/navbar.php';
 .act-empty { text-align: center; color: #64748B; padding: 20px 0; font-size: 13px; }
 
 .btn-qa { display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 14px; border-radius: 8px; font-size: 13px; font-family: inherit; font-weight: 500; cursor: pointer; text-decoration: none; background: transparent; border: 1px solid rgba(255,255,255,.1); color: #94A3B8; transition: all .15s; margin-bottom: 8px; }
-.btn-qa:hover { background: rgba(255,255,255,.05); color: #fff; border-color: rgba(255,255,255,.2); }
+.btn-qa:hover { background: rgba(255,255,255,.05); color: #fff; border-color: rgba(255,255,255,.2); text-decoration: none; }
 .btn-qa i { width: 16px; text-align: center; }
 </style>
 
-<div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
-    <div>
-        <div class="page-eyebrow">Finance & Accounting — PB-M06-02</div>
-        <h1 class="page-title">Dashboard Pendapatan Non-Sewa</h1>
-        <p class="page-sub">Ringkasan pendapatan parkir, event, iklan, dan bagi hasil bulan ini.</p>
-    </div>
-    <div class="d-flex gap-2 flex-wrap">
-        <button onclick="window.print()" class="btn btn-sm" style="background:#167E80;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;">
-            <i class="fa-solid fa-print me-1"></i> Export Laporan
-        </button>
-        <button onclick="location.reload()" class="btn btn-sm" style="background:transparent;color:#94A3B8;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;">
-            <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh
-        </button>
-    </div>
-</div>
-
-<?php if ($ada_exception): ?>
-<div class="alert-exception">
-    <div class="alert-exception-content">
-        <i class="fa-solid fa-circle-exclamation fa-sm"></i>
+<div class="container-fluid" style="padding-top: 5px;">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
         <div>
-            <div class="ae-title"><?= $exception['jumlah'] ?> rekap parkir belum selesai</div>
-            <div class="ae-body">
-                Total <?= fmtRp($exception['nominal']) ?> belum berstatus <em>completed</em> — perlu verifikasi &amp; jurnal penyesuaian.
-            </div>
+            <div class="page-eyebrow">Finance & Accounting — PB-M06-02</div>
+            <h1 class="page-title">Dashboard Pendapatan Non-Sewa</h1>
+            <p class="page-sub">Ringkasan pendapatan parkir, event, iklan, dan bagi hasil bulan ini.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <button onclick="window.print()" class="btn btn-sm" style="background:#167E80;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;">
+                <i class="fa-solid fa-print me-1"></i> Export Laporan
+            </button>
+            <button onclick="location.reload()" class="btn btn-sm" style="background:transparent;color:#94A3B8;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;">
+                <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh
+            </button>
         </div>
     </div>
-    <a href="parkirManagement.php" class="btn-alert-action">Periksa Selisih</a>
-</div>
-<?php endif; ?>
 
-<div class="filter-row">
-    <?php foreach($bulan_list as $i => $b): ?>
-        <a href="?bulan=<?= $i + 1 ?>" class="btn-bulan <?= $i === $bulan_aktif_idx ? 'active' : '' ?>"><?= $b ?></a>
-    <?php endforeach; ?>
-</div>
-
-<div class="stat-grid">
-    <?php foreach($stat_cards as $c): ?>
-    <div class="stat-card" style="--card-accent: <?= $c['color'] ?>">
-        <div class="sc-label"><i class="fa-solid <?= $c['icon'] ?> me-1"></i><?= $c['label'] ?></div>
-        <div class="sc-val"><?= $c['value'] ?></div>
-        <div class="sc-sub"><?= $c['sub'] ?></div>
-        <div class="badge-trend <?= $c['trend_up'] ? 'up' : 'down' ?>">
-            <i class="fa-solid <?= $c['trend_up'] ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' ?>"></i>
-            <?= $c['trend'] ?> vs bulan lalu
+    <?php if ($ada_exception): ?>
+    <div class="alert-exception">
+        <div class="alert-exception-content">
+            <i class="fa-solid fa-circle-exclamation fa-sm"></i>
+            <div>
+                <div class="ae-title"><?= $exception['jumlah'] ?> rekap parkir belum selesai</div>
+                <div class="ae-body">
+                    Total <?= fmtRp($exception['nominal']) ?> belum berstatus <em>completed</em> — perlu verifikasi &amp; jurnal penyesuaian.
+                </div>
+            </div>
         </div>
+        <a href="parkirManagement.php" class="btn-alert-action">Periksa Selisih</a>
     </div>
-    <?php endforeach; ?>
-</div>
+    <?php endif; ?>
 
-<div class="main-grid">
-    <div>
-        <div class="fin-card">
-            <div class="fin-card-header">
-                <div>
-                    <div class="fin-card-title">Jurnal Harian Terbaru</div>
-                    <div class="fin-card-sub">Entri otomatis &amp; manual bulan ini</div>
-                </div>
-                <a href="journalManagement.php" class="fin-card-link">
-                    Lihat semua <i class="fa-solid fa-arrow-right fa-xs"></i>
-                </a>
+    <div class="filter-row">
+        <?php foreach($bulan_list as $i => $b): ?>
+            <a href="?bulan=<?= $i + 1 ?>" class="btn-bulan <?= $i === $bulan_aktif_idx ? 'active' : '' ?>"><?= $b ?></a>
+        <?php endforeach; ?>
+    </div>
+
+    <div class="stat-grid">
+        <?php foreach($stat_cards as $c): ?>
+        <div class="stat-card" style="--card-accent: <?= $c['color'] ?>">
+            <div class="sc-label"><i class="fa-solid <?= $c['icon'] ?> me-1"></i><?= $c['label'] ?></div>
+            <div class="sc-val"><?= $c['value'] ?></div>
+            <div class="sc-sub"><?= $c['sub'] ?></div>
+            <div class="badge-trend <?= $c['trend_up'] ? 'up' : 'down' ?>">
+                <i class="fa-solid <?= $c['trend_up'] ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' ?>"></i>
+                <?= $c['trend'] ?> vs bulan lalu
             </div>
-            <div style="overflow-x:auto;">
-                <table class="tbl">
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th><th>Keterangan</th><th>Sumber</th>
-                            <th style="text-align:right">Debit</th>
-                            <th style="text-align:right">Kredit</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($jurnal_terbaru)): ?>
-                        <tr><td colspan="6" class="tbl-empty">Belum ada jurnal untuk bulan ini.</td></tr>
-                        <?php else: ?>
-                        <?php foreach($jurnal_terbaru as $j): ?>
-                        <tr>
-                            <td class="td-muted"><?= $j['tanggal'] ?></td>
-                            <td><?= $j['keterangan'] ?></td>
-                            <td><span style="font-size:11px;background:rgba(255,255,255,.06);padding:2px 8px;border-radius:6px;color:#94A3B8;"><?= $j['sumber'] ?></span></td>
-                            <td style="text-align:right;font-variant-numeric:tabular-nums;"><?= $j['debit'] ?></td>
-                            <td style="text-align:right;font-variant-numeric:tabular-nums;" class="td-muted"><?= $j['kredit'] ?></td>
-                            <td><?= statusBadge($j['status']) ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+        </div>
+        <?php endforeach; ?>
+    </div>
+
+    <div class="main-grid">
+        <div>
+            <div class="fin-card">
+                <div class="fin-card-header">
+                    <div>
+                        <div class="fin-card-title">Jurnal Harian Terbaru</div>
+                        <div class="fin-card-sub">Entri otomatis &amp; manual bulan ini</div>
+                    </div>
+                    <a href="journalManagement.php" class="fin-card-link">
+                        Lihat semua <i class="fa-solid fa-arrow-right fa-xs"></i>
+                    </a>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="tbl">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th><th>Keterangan</th><th>Sumber</th>
+                                <th style="text-align:right">Debit</th>
+                                <th style="text-align:right">Kredit</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($jurnal_terbaru)): ?>
+                            <tr><td colspan="6" class="tbl-empty">Belum ada jurnal untuk bulan ini.</td></tr>
+                            <?php else: ?>
+                            <?php foreach($jurnal_terbaru as $j): ?>
+                            <tr>
+                                <td class="td-muted"><?= $j['tanggal'] ?></td>
+                                <td><?= $j['keterangan'] ?></td>
+                                <td><span style="font-size:11px;background:rgba(255,255,255,.06);padding:2px 8px;border-radius:6px;color:#94A3B8;"><?= $j['sumber'] ?></span></td>
+                                <td style="text-align:right;font-variant-numeric:tabular-nums;"><?= $j['debit'] ?></td>
+                                <td style="text-align:right;font-variant-numeric:tabular-nums;" class="td-muted"><?= $j['kredit'] ?></td>
+                                <td><?= statusBadge($j['status']) ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="fin-card">
+                <div class="fin-card-header">
+                    <div>
+                        <div class="fin-card-title">Komposisi Pendapatan — <?= $bulan_aktif ?></div>
+                        <div class="fin-card-sub">Per jenis sumber pendapatan non-sewa</div>
+                    </div>
+                </div>
+                <div class="fin-card-body">
+                    <?php foreach($chart_data as $cd): ?>
+                    <div class="chart-row">
+                        <div class="chart-lbl"><?= $cd['label'] ?></div>
+                        <div class="chart-track">
+                            <div class="chart-fill" style="width:<?= $total_nonsewa > 0 ? max($cd['pct'], 4) : 0 ?>%;background:<?= $cd['color'] ?>;">
+                                <?= $cd['pct'] ?>%
+                            </div>
+                        </div>
+                        <div class="chart-val"><?= $cd['val'] ?></div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
 
-        <div class="fin-card">
-            <div class="fin-card-header">
-                <div>
-                    <div class="fin-card-title">Komposisi Pendapatan — <?= $bulan_aktif ?></div>
-                    <div class="fin-card-sub">Per jenis sumber pendapatan non-sewa</div>
+        <div>
+            <div class="fin-card">
+                <div class="fin-card-header">
+                    <div>
+                        <div class="fin-card-title">Aktivitas Terbaru</div>
+                        <div class="fin-card-sub">Log transaksi &amp; notifikasi</div>
+                    </div>
                 </div>
-            </div>
-            <div class="fin-card-body">
-                <?php foreach($chart_data as $cd): ?>
-                <div class="chart-row">
-                    <div class="chart-lbl"><?= $cd['label'] ?></div>
-                    <div class="chart-track">
-                        <div class="chart-fill" style="width:<?= $total_nonsewa > 0 ? max($cd['pct'], 4) : 0 ?>%;background:<?= $cd['color'] ?>;">
-                            <?= $cd['pct'] ?>%
+                <div class="fin-card-body" style="padding-top:.5rem;padding-bottom:.5rem;">
+                    <?php if (empty($aktivitas)): ?>
+                    <div class="act-empty">Belum ada aktivitas bulan ini.</div>
+                    <?php else: ?>
+                    <?php foreach($aktivitas as $a): ?>
+                    <div class="act-item">
+                        <div class="act-icon" style="background:<?= $a['bg'] ?>;color:<?= $a['color'] ?>;">
+                            <i class="fa-solid <?= $a['icon'] ?>"></i>
+                        </div>
+                        <div>
+                            <div class="act-txt"><?= $a['teks'] ?></div>
+                            <div class="act-time"><?= $a['waktu'] ?></div>
+                        </div>
+                        <div class="act-amt" style="color:<?= $a['danger'] ? '#EF4444' : '#22C55E' ?>">
+                            <?= $a['nominal'] ?>
                         </div>
                     </div>
-                    <div class="chart-val"><?= $cd['val'] ?></div>
+                    <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
-                <?php endforeach; ?>
             </div>
-        </div>
-    </div>
 
-    <div>
-        <div class="fin-card">
-            <div class="fin-card-header">
-                <div>
-                    <div class="fin-card-title">Aktivitas Terbaru</div>
-                    <div class="fin-card-sub">Log transaksi &amp; notifikasi</div>
+            <div class="fin-card">
+                <div class="fin-card-header">
+                    <div class="fin-card-title">Aksi Cepat</div>
                 </div>
-            </div>
-            <div class="fin-card-body" style="padding-top:.5rem;padding-bottom:.5rem;">
-                <?php if (empty($aktivitas)): ?>
-                <div class="act-empty">Belum ada aktivitas bulan ini.</div>
-                <?php else: ?>
-                <?php foreach($aktivitas as $a): ?>
-                <div class="act-item">
-                    <div class="act-icon" style="background:<?= $a['bg'] ?>;color:<?= $a['color'] ?>;">
-                        <i class="fa-solid <?= $a['icon'] ?>"></i>
-                    </div>
-                    <div>
-                        <div class="act-txt"><?= $a['teks'] ?></div>
-                        <div class="act-time"><?= $a['waktu'] ?></div>
-                    </div>
-                    <div class="act-amt" style="color:<?= $a['danger'] ? '#EF4444' : '#22C55E' ?>">
-                        <?= $a['nominal'] ?>
-                    </div>
+                <div class="fin-card-body">
+                    <a href="parkirManagement.php" class="btn-qa"><i class="fa-solid fa-square-parking"></i> Verifikasi Rekap Parkir</a>
+                    <a href="eventManagement.php"  class="btn-qa"><i class="fa-solid fa-calendar-days"></i> Catat Pendapatan Event</a>
+                    <a href="iklanManagement.php"  class="btn-qa"><i class="fa-solid fa-rectangle-ad"></i> Input Pendapatan Iklan</a>
+                    <a href="journalStaffManagement.php" class="btn-qa"><i class="fa-solid fa-book"></i> Buat Jurnal Staff Penyesuaian</a>
                 </div>
-                <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <div class="fin-card">
-            <div class="fin-card-header">
-                <div class="fin-card-title">Aksi Cepat</div>
-            </div>
-            <div class="fin-card-body">
-                <a href="parkirManagement.php" class="btn-qa"><i class="fa-solid fa-square-parking"></i> Verifikasi Rekap Parkir</a>
-                <a href="eventManagement.php"  class="btn-qa"><i class="fa-solid fa-calendar-days"></i> Catat Pendapatan Event</a>
-                <a href="iklanManagement.php"  class="btn-qa"><i class="fa-solid fa-rectangle-ad"></i> Input Pendapatan Iklan</a>
-                <a href="journalManagement.php" class="btn-qa"><i class="fa-solid fa-book"></i> Buat Jurnal Penyesuaian</a>
             </div>
         </div>
     </div>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php 
+$content = ob_get_clean();
+
+require_once '../../includes/navbarMO6.php'; 
+require_once '../../includes/footer.php'; 
+?>
