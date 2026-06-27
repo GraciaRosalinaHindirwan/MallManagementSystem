@@ -694,5 +694,4 @@ body, .layout, .main-content, .content-body { background-color: #021F42 !importa
 $content = ob_get_clean();
 
 require_once '../../includes/navbarMO6.php'; 
-require_once '../../includes/footer.php'; 
 ?>
