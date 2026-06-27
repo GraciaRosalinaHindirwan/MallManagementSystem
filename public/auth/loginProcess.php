@@ -181,4 +181,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 */
 
 echo "Proses Login (Backend Siap Pakai - Mode Komen Teraktifkan)";
+<<<<<<< HEAD
 >>>>>>> b1658781c77b33d32185be4f4cc14b83b5146524
+=======
+>>>>>>> cb20e3e2cfed342132e1127ed8ce63b16ce6ecba
+>>>>>>> 2540dc4bc0a7af1bb8304254bac22a5278d6a350
