@@ -90,9 +90,6 @@ if ($result && $result->num_rows > 0) {
     }
 }
 
-// ==========================================
-// CONFIG MASTER DATA SIDEBAR & NAVBAR LAYOUT TIM
-// ==========================================
 $department_name = "Finance Department (Manager Dashboard)";
 $user_name = $_SESSION['nama'];
 $page_title = "taxReport";
@@ -108,7 +105,6 @@ $menu_items = [
     ['icon' => 'fa-solid fa-book', 'label' => 'Log Otomasi Jurnal', 'link' => 'journalManagement.php', 'active_page' => 'journalManagement']
 ];
 
-// Mulai menangkap output visual untuk dikirim ke wrapper layout
 ob_start();
 ?>
 
