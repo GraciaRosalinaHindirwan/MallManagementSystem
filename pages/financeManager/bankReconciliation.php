@@ -196,9 +196,6 @@ ob_start();
 </div>
 
 <?php 
-// Ambil data buffer konten workspace
 $content = ob_get_clean();
-
-// Panggil layout navigasi utama terpusat M06 kelompok Anda
 require_once '../../includes/navbarMO6.php'; 
 ?>
