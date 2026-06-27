@@ -316,8 +316,3 @@ function triggerFormSubmit(bookingId) {
 <?php 
 $content = ob_get_clean();
 require_once '../../includes/navbarMO6.php'; 
-<<<<<<< Updated upstream
-?>
-=======
-?>
->>>>>>> Stashed changes

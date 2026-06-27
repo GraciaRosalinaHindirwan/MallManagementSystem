@@ -8,10 +8,6 @@ if (session_status() == PHP_SESSION_NONE) {
 $_SESSION['role'] = 'financeStaff';
 $_SESSION['nama'] = 'Finance Staff';
 
-<<<<<<< Updated upstream
-// 1. Panggil koneksi database
-=======
->>>>>>> Stashed changes
 if (file_exists('../../config/konek.php')) {
     require_once '../../config/konek.php';
 } else {
@@ -221,8 +217,3 @@ ob_start();
 <?php 
 $content = ob_get_clean();
 require_once '../../includes/navbarMO6.php'; 
-<<<<<<< Updated upstream
-?>
-=======
-?>
->>>>>>> Stashed changes

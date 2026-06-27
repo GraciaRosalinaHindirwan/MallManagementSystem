@@ -1,9 +1,5 @@
 <?php
-<<<<<<< Updated upstream
-/** @var mysqli $conn */ //
-=======
 /** @var mysqli $conn */ 
->>>>>>> Stashed changes
 if (session_status() == PHP_SESSION_NONE) { session_start(); }
 
 // if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
@@ -14,19 +10,15 @@ if (session_status() == PHP_SESSION_NONE) { session_start(); }
 $_SESSION['role'] = 'financeStaff'; 
 $_SESSION['nama'] = 'Staff Finance'; 
 
-<<<<<<< Updated upstream
 if (file_exists('../../config/konek.php')) {
     require_once '../../config/konek.php';
 } else {
     require_once '../../config/connection.php';
 }
 
-=======
 // ── 1. KONEKSI DATABASE ───────────────────────────────────────────────────
 require_once '../../config/konek.php';
 
-// ── Helper: jalankan prepared statement MySQLi, return array of assoc ─────
->>>>>>> Stashed changes
 function db_query(mysqli $conn, string $sql, string $types = '', array $params = []): array {
     $stmt = $conn->prepare($sql);
     if (!$stmt) return [];
