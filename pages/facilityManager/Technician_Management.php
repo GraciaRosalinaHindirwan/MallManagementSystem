@@ -8,7 +8,7 @@ require_once 'auth/checkSession.php';
 $page_title = "Technician Management";
 $page = "technician_management";
 
-include '../config/konek.php';
+include '../../config/konek.php';
 
 $search = $_GET['search'] ?? '';
 $expertise = $_GET['expertise'] ?? '';
@@ -224,7 +224,7 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-include "../includes/navbarM03.php";
+include "../../includes/navbarM03.php";
 ?>
 
 <script>

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <?php
 require_once __DIR__.'/../../repositories/UserRepositoryFactory.php';
 require_once __DIR__.'/../../dto/LoginDto.php';
@@ -129,6 +128,7 @@ $captchaHandler
 $captchaHandler->handle($_POST);
 // Kalau captcha mati
 //$validationHandler->handle($_POST);
+<<<<<<< HEAD
 ?>
 =======
 <?php
@@ -186,3 +186,6 @@ echo "Proses Login (Backend Siap Pakai - Mode Komen Teraktifkan)";
 =======
 >>>>>>> cb20e3e2cfed342132e1127ed8ce63b16ce6ecba
 >>>>>>> 2540dc4bc0a7af1bb8304254bac22a5278d6a350
+=======
+?>
+>>>>>>> main
