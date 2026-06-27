@@ -95,9 +95,6 @@ if (isset($_POST['buat_dummy'])) {
     exit();
 }
 
-// -------------------------------------------------------
-// INPUT PENERIMAAN BARANG + INVOICE VENDOR (3-Way Matching)
-// -------------------------------------------------------
 if (isset($_POST['input_vbr'])) {
     $po_id                 = (int) $_POST['po_id'];
     $received_date         = $_POST['received_date'];
