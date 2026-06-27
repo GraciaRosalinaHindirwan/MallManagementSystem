@@ -1,6 +1,5 @@
 <?php
 /** @var mysqli $conn */ 
-
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -16,16 +15,13 @@ $_SESSION['role'] = 'financeManager';
 $_SESSION['nama'] = 'Manager';
 
 // 1. Cek file koneksi
-if (file_exists('../../config/koneksi.php')) {
-    require_once '../../config/koneksi.php';
+if (file_exists('../../config/konek.php')) {
+    require_once '../../config/konek.php';
 } elseif (file_exists('../../config/connection.php')) {
     require_once '../../config/connection.php';
 } else {
     die("<div style='color:#ffffff; background-color:#721c24; padding:20px; border-radius:6px;'>⚠️ File koneksi database tidak ditemukan!</div>");
 }
-
-require_once '../../includes/header.php';
-require_once '../../includes/navbar.php';
 
 // Filter Bulan dan Tahun (Default: Bulan & Tahun Berjalan)
 $bulan_pilihan = isset($_GET['bulan']) ? sprintf("%02d", $_GET['bulan']) : date('m');
@@ -113,15 +109,10 @@ if ($cek_lines && $cek_lines->num_rows > 0) {
     }
 }
 
-// =========================================================================
-// LOGIKA FALLBACK BACKEND AUTOMATIC FILLER (SUDAH DIPERBAIKI)
-// =========================================================================
 if ($total_aset <= 0 || empty($data_neraca['liabilitas']) || empty($data_labarugi['pendapatan']) || empty($data_labarugi['beban'])) {
-    // Reset Data agar bersih dari data minus DB
     $data_neraca = ['aset' => [], 'liabilitas' => [], 'ekuitas' => []];
     $data_labarugi = ['pendapatan' => [], 'beban' => []];
 
-    // Isikan data simulasi otomatis Mall ERP yang rapi & balance
     $data_neraca['aset'] = [
         ['account_code' => '111001', 'account_name' => 'Kas Operasional Mall Utama', 'saldo' => 150000000],
         ['account_code' => '112001', 'account_name' => 'Bank Mandiri Escrow Tenant', 'saldo' => 350000000]
@@ -148,24 +139,56 @@ if ($total_aset <= 0 || empty($data_neraca['liabilitas']) || empty($data_labarug
     ];
     $total_beban = 25000000;
     
-    $total_operasional = 500000000; // Untuk visual Cash Flow agar terisi cantik
+    $total_operasional = 500000000;
 }
 
 $laba_bersih = $total_pendapatan - $total_beban;
-// Masukkan laba ditahan berjalan ke dalam ekuitas neraca agar balance
 $total_ekuitas += $laba_bersih;
+
+// ==========================================
+// CONFIG MASTER DATA SIDEBAR & NAVBAR LAYOUT TIM
+// ==========================================
+$department_name = "Finance Department (Manager Dashboard)";
+$user_name = $_SESSION['nama'];
+$page_title = "Financial Statement";
+
+$menu_items = [
+    ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard Manager', 'link' => 'dashboardManager.php', 'active_page' => 'dashboardManager'],
+    ['icon' => 'fa-solid fa-file-invoice', 'label' => 'Invoice Management', 'link' => 'invoiceManagement.php', 'active_page' => 'invoiceManagement'],
+    ['icon' => 'fa-solid fa-scale-balanced', 'label' => 'Financial Statement', 'link' => 'financeStatement.php', 'active_page' => 'financeStatement'],
+    ['icon' => 'fa-solid fa-chart-pie', 'label' => 'Budget Analysis', 'link' => 'budgetAnalysis.php', 'active_page' => 'budgetAnalysis'],
+    ['icon' => 'fa-solid fa-calculator', 'label' => 'Tax Report (PPN)', 'link' => 'taxReport.php', 'active_page' => 'taxReport'],
+    ['icon' => 'fa-solid fa-building-columns', 'label' => 'Bank Reconciliation', 'link' => 'bankReconciliation.php', 'active_page' => 'bankReconciliation'],
+    ['icon' => 'fa-solid fa-hourglass-half', 'label' => 'Aging Receivable', 'link' => 'agingReceivable.php', 'active_page' => 'agingReceivable'],
+    ['icon' => 'fa-solid fa-book', 'label' => 'Log Otomasi Jurnal', 'link' => 'journalManagement.php', 'active_page' => 'journalManagement']
+];
+
+// Mulai menangkap output tampilan workspace
+ob_start();
 ?>
 
-<div class="content-container" style="padding: 20px; background: var(--bg-primary); min-height: 80vh; color: #ffffff;">
+<style>
+    :root { 
+        --accent: #FFB62A !important; 
+        --bg-primary: #021F42 !important;
+        --text-accent: #FFB62A !important;
+    }
+    body, .layout, .main-content, .content-body { background-color: var(--bg-primary) !important; color: #ffffff !important; }
+    .table-report th { background: rgba(255,255,255,0.06) !important; color: var(--text-accent) !important; font-weight: 600; }
+    .nav-tab-link { transition: all 0.2s; border-bottom: 2px solid transparent; }
+    .nav-tab-link:hover { color: #ffffff !important; background: rgba(255,255,255,0.08) !important; }
+</style>
+
+<div class="container-fluid" style="padding: 10px 0px; text-align: left;">
     
     <div class="mb-4" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
-        <h1 style="color: var(--text-accent); font-size: var(--h1); margin: 0; font-weight: 700;">Laporan Keuangan Konsolidasi</h1>
+        <h1 style="color: var(--text-accent); font-size: 32px; margin: 0; font-weight: 700;">Laporan Keuangan Konsolidasi</h1>
         <p style="margin: 5px 0 0 0; font-size: 14px; color: #cbd5e1;">
             Manajemen Laporan Arus Kas, Laba Rugi, dan Neraca Mall ERP (Otoritas: Finance Manager)
         </p>
     </div>
 
-    <div class="mb-4" style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+    <div class="mb-4" style="background: #011630; padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
         <form method="GET" class="row g-2 align-items-center" style="display: flex; gap: 10px; flex-wrap: wrap;">
             <input type="hidden" name="tab" value="<?= $tab_aktif; ?>">
             <div style="min-width: 150px;">
@@ -186,31 +209,31 @@ $total_ekuitas += $laba_bersih;
             </div>
             <div style="padding-top: 18px;">
                 <button type="submit" class="btn btn-primary" style="background: #3b82f6; border: none; color: #fff; padding: 7px 16px; border-radius: 4px; font-weight: 600; cursor: pointer;">
-                    <i class="fa-solid fa-filter"></i> Terapkan Filter
+                    <i class="fa-solid fa-filter me-1"></i> Terapkan Filter
                 </button>
             </div>
         </form>
     </div>
 
     <div style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1px;">
-        <a href="?tab=neraca&bulan=<?= $bulan_pilihan; ?>&tahun=<?= $tahun_pilihan; ?>" style="padding: 10px 20px; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px 6px 0 0; color: <?= $tab_aktif == 'neraca' ? '#ffffff' : '#a0aec0'; ?>; background: <?= $tab_aktif == 'neraca' ? 'rgba(255,255,255,0.05)' : 'transparent'; ?>; border-bottom: 2px solid <?= $tab_aktif == 'neraca' ? '#3b82f6' : 'transparent'; ?>;">
+        <a class="nav-tab-link" href="?tab=neraca&bulan=<?= $bulan_pilihan; ?>&tahun=<?= $tahun_pilihan; ?>" style="padding: 10px 20px; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px 6px 0 0; color: <?= $tab_aktif == 'neraca' ? '#ffffff' : '#a0aec0'; ?>; background: <?= $tab_aktif == 'neraca' ? 'rgba(255,255,255,0.05)' : 'transparent'; ?>; border-bottom: 2px solid <?= $tab_aktif == 'neraca' ? '#3b82f6' : 'transparent'; ?>;">
             <i class="fa-solid fa-scale-balanced" style="margin-right: 6px; color: #3b82f6;"></i> Neraca (Balance Sheet)
         </a>
-        <a href="?tab=labarugi&bulan=<?= $bulan_pilihan; ?>&tahun=<?= $tahun_pilihan; ?>" style="padding: 10px 20px; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px 6px 0 0; color: <?= $tab_aktif == 'labarugi' ? '#ffffff' : '#a0aec0'; ?>; background: <?= $tab_aktif == 'labarugi' ? 'rgba(255,255,255,0.05)' : 'transparent'; ?>; border-bottom: 2px solid <?= $tab_aktif == 'labarugi' ? '#10b981' : 'transparent'; ?>;">
+        <a class="nav-tab-link" href="?tab=labarugi&bulan=<?= $bulan_pilihan; ?>&tahun=<?= $tahun_pilihan; ?>" style="padding: 10px 20px; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px 6px 0 0; color: <?= $tab_aktif == 'labarugi' ? '#ffffff' : '#a0aec0'; ?>; background: <?= $tab_aktif == 'labarugi' ? 'rgba(255,255,255,0.05)' : 'transparent'; ?>; border-bottom: 2px solid <?= $tab_aktif == 'labarugi' ? '#10b981' : 'transparent'; ?>;">
             <i class="fa-solid fa-chart-line" style="margin-right: 6px; color: #10b981;"></i> Laba Rugi (Income Statement)
         </a>
-        <a href="?tab=cashflow&bulan=<?= $bulan_pilihan; ?>&tahun=<?= $tahun_pilihan; ?>" style="padding: 10px 20px; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px 6px 0 0; color: <?= $tab_aktif == 'cashflow' ? '#ffffff' : '#a0aec0'; ?>; background: <?= $tab_aktif == 'cashflow' ? 'rgba(255,255,255,0.05)' : 'transparent'; ?>; border-bottom: 2px solid <?= $tab_aktif == 'cashflow' ? '#f59e0b' : 'transparent'; ?>;">
+        <a class="nav-tab-link" href="?tab=cashflow&bulan=<?= $bulan_pilihan; ?>&tahun=<?= $tahun_pilihan; ?>" style="padding: 10px 20px; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px 6px 0 0; color: <?= $tab_aktif == 'cashflow' ? '#ffffff' : '#a0aec0'; ?>; background: <?= $tab_aktif == 'cashflow' ? 'rgba(255,255,255,0.05)' : 'transparent'; ?>; border-bottom: 2px solid <?= $tab_aktif == 'cashflow' ? '#f59e0b' : 'transparent'; ?>;">
             <i class="fa-solid fa-money-bill-transfer" style="margin-right: 6px; color: #f59e0b;"></i> Arus Kas (Cash Flow)
         </a>
     </div>
 
     <?php if ($tab_aktif == 'neraca'): ?>
-        <div style="background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); padding: 20px;">
+        <div style="background: #011630; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); padding: 20px;">
             <h3 style="font-size: 16px; font-weight: 600; color: var(--text-accent); margin-bottom: 15px;">Laporan Neraca per <?= $nama_bulan[$bulan_pilihan] . ' ' . $tahun_pilihan; ?></h3>
             <div class="table-responsive">
-                <table style="width:100%; border-collapse:collapse; color:#ffffff; font-size:13px;">
+                <table class="table-report" style="width:100%; border-collapse:collapse; color:#ffffff; font-size:13px;">
                     <thead>
-                        <tr style="background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;">
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;">
                             <th style="padding: 10px;">Kode Akun</th>
                             <th style="padding: 10px;">Nama Akun Akuntansi</th>
                             <th style="padding: 10px; text-align: right;">Jumlah Nilai (IDR)</th>
@@ -219,7 +242,7 @@ $total_ekuitas += $laba_bersih;
                     <tbody>
                         <tr style="background: rgba(59,130,246,0.1);"><td colspan="3" style="padding: 8px 10px; font-weight:700; color:#3b82f6;">1. ASET (ASSETS)</td></tr>
                         <?php if (empty($data_neraca['aset'])): ?>
-                            <tr><td colspan="3" style="padding:10px; color:#a0aec0;" class="text-center">Tidak ada transaksi / saldo akun Aset</td></tr>
+                            <tr><td colspan="3" style="padding:10px; color:#a0aec0; text-align: center;">Tidak ada transaksi / saldo akun Aset</td></tr>
                         <?php else: foreach($data_neraca['aset'] as $as): ?>
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
                                 <td style="padding: 8px 10px;"><code><?= $as['account_code']; ?></code></td>
@@ -234,7 +257,7 @@ $total_ekuitas += $laba_bersih;
 
                         <tr style="background: rgba(245,158,11,0.1);"><td colspan="3" style="padding: 8px 10px; font-weight:700; color:#f59e0b;">2. LIABILITAS (LIABILITIES)</td></tr>
                         <?php if (empty($data_neraca['liabilitas'])): ?>
-                            <tr><td colspan="3" style="padding:10px; color:#a0aec0;" class="text-center">Tidak ada transaksi / saldo akun Liabilitas</td></tr>
+                            <tr><td colspan="3" style="padding:10px; color:#a0aec0; text-align: center;">Tidak ada transaksi / saldo akun Liabilitas</td></tr>
                         <?php else: foreach($data_neraca['liabilitas'] as $li): ?>
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
                                 <td style="padding: 8px 10px;"><code><?= $li['account_code']; ?></code></td>
@@ -275,12 +298,12 @@ $total_ekuitas += $laba_bersih;
         </div>
 
     <?php elseif ($tab_aktif == 'labarugi'): ?>
-        <div style="background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); padding: 20px;">
+        <div style="background: #011630; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); padding: 20px;">
             <h3 style="font-size: 16px; font-weight: 600; color: var(--text-accent); margin-bottom: 15px;">Laporan Laba Rugi per <?= $nama_bulan[$bulan_pilihan] . ' ' . $tahun_pilihan; ?></h3>
             <div class="table-responsive">
-                <table style="width:100%; border-collapse:collapse; color:#ffffff; font-size:13px;">
+                <table class="table-report" style="width:100%; border-collapse:collapse; color:#ffffff; font-size:13px;">
                     <thead>
-                        <tr style="background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;">
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;">
                             <th style="padding: 10px;">Kode Akun</th>
                             <th style="padding: 10px;">Deskripsi Operasional</th>
                             <th style="padding: 10px; text-align: right;">Jumlah Nilai (IDR)</th>
@@ -289,7 +312,7 @@ $total_ekuitas += $laba_bersih;
                     <tbody>
                         <tr style="background: rgba(16,185,129,0.1);"><td colspan="3" style="padding: 8px 10px; font-weight:700; color:#10b981;">PENDAPATAN (REVENUE)</td></tr>
                         <?php if (empty($data_labarugi['pendapatan'])): ?>
-                            <tr><td colspan="3" style="padding:10px; color:#a0aec0;" class="text-center">Belum ada catatan transaksi Pendapatan</td></tr>
+                            <tr><td colspan="3" style="padding:10px; color:#a0aec0; text-align: center;">Belum ada catatan transaksi Pendapatan</td></tr>
                         <?php else: foreach($data_labarugi['pendapatan'] as $pen): ?>
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
                                 <td style="padding: 8px 10px;"><code><?= $pen['account_code']; ?></code></td>
@@ -304,7 +327,7 @@ $total_ekuitas += $laba_bersih;
 
                         <tr style="background: rgba(239,68,68,0.1);"><td colspan="3" style="padding: 8px 10px; font-weight:700; color:#ef4444;">BEBAN-BEBAN (EXPENSES)</td></tr>
                         <?php if (empty($data_labarugi['beban'])): ?>
-                            <tr><td colspan="3" style="padding:10px; color:#a0aec0;" class="text-center">Belum ada catatan transaksi Beban</td></tr>
+                            <tr><td colspan="3" style="padding:10px; color:#a0aec0; text-align: center;">Belum ada catatan transaksi Beban</td></tr>
                         <?php else: foreach($data_labarugi['beban'] as $beb): ?>
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
                                 <td style="padding: 8px 10px;"><code><?= $beb['account_code']; ?></code></td>
@@ -329,12 +352,12 @@ $total_ekuitas += $laba_bersih;
         </div>
 
     <?php elseif ($tab_aktif == 'cashflow'): ?>
-        <div style="background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); padding: 20px;">
+        <div style="background: #011630; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); padding: 20px;">
             <h3 style="font-size: 16px; font-weight: 600; color: var(--text-accent); margin-bottom: 15px;">Laporan Arus Kas per <?= $nama_bulan[$bulan_pilihan] . ' ' . $tahun_pilihan; ?> (Metode Tidak Langsung)</h3>
             <div class="table-responsive">
-                <table style="width:100%; border-collapse:collapse; color:#ffffff; font-size:13px;">
+                <table class="table-report" style="width:100%; border-collapse:collapse; color:#ffffff; font-size:13px;">
                     <thead>
-                        <tr style="background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;">
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;">
                             <th style="padding: 10px;" colspan="2">Aktivitas Arus Kas</th>
                             <th style="padding: 10px; text-align: right;">Subtotal (IDR)</th>
                         </tr>
@@ -372,5 +395,10 @@ $total_ekuitas += $laba_bersih;
             </div>
         </div>
     <?php endif; ?>
-
 </div>
+
+<?php 
+$content = ob_get_clean();
+
+require_once '../../includes/navbarMO6.php'; 
+?>
