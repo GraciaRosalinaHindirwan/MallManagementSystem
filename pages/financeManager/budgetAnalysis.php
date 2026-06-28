@@ -169,5 +169,5 @@ ob_start();
 
 <?php 
 $content = ob_get_clean();
-require_once __DIR__ . '/../../includes/navbarMO6.php'; 
+require_once __DIR__ . '/../../includes/navbarM06.php'; 
 ?>

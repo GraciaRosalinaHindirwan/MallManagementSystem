@@ -101,7 +101,7 @@ $menu_items = [
         'link' => 'agingReceivable.php',
         'active_page' => 'agingReceivable'
     ],
-     [
+    [
         'icon' => 'fa-solid fa-book',
         'label' => 'Log Otomasi Jurnal',
         'link' => 'journalManagement.php',
@@ -206,13 +206,26 @@ ob_start();
                 </div>
                 <i class="fa-solid fa-chevron-right style-arrow" style="color: #f43f5e; opacity: 0.7;"></i>
             </a>
-
-            <a href="invoiceManagement.php" class="btn-panel">
+             <a href="taxReport.php" class="btn-panel">
                 <div>
-                    <strong style="color: #10b981; display: block; font-size: 14px;"><i class="fa-solid fa-receipt me-2"></i> Invoice Management</strong>
-                    <small style="color: #cbd5e1; font-size: 12px;">Pantau performa penagihan tim staff</small>
+                    <strong style="color: #4f7769; display: block; font-size: 14px;"><i class="fa-solid fa-hourglass-half me-2"></i> Tax Report (PPN)</strong>
+                    <small style="color: #cbd5e1; font-size: 12px;">Tax Report (PPN)</small>
                 </div>
-                <i class="fa-solid fa-chevron-right style-arrow" style="color: #10b981; opacity: 0.7;"></i>
+                <i class="fa-solid fa-chevron-right style-arrow" style="color: #f43f5e; opacity: 0.7;"></i>
+            </a>
+             <a href="financeStatement.php" class="btn-panel">
+                <div>
+                    <strong style="color: #774f6a; display: block; font-size: 14px;"><i class="fa-solid fa-hourglass-half me-2"></i> Financial Statements</strong>
+                    <small style="color: #cbd5e1; font-size: 12px;">Financial Statements</small>
+                </div>
+                <i class="fa-solid fa-chevron-right style-arrow" style="color: #f43f5e; opacity: 0.7;"></i>
+            </a>
+             <a href="budgetAnalysis.php" class="btn-panel">
+                <div>
+                    <strong style="color: #e0edb1; display: block; font-size: 14px;"><i class="fa-solid fa-hourglass-half me-2"></i> Budget Analysis</strong>
+                    <small style="color: #cbd5e1; font-size: 12px;">Budget Analysis</small>
+                </div>
+                <i class="fa-solid fa-chevron-right style-arrow" style="color: #f43f5e; opacity: 0.7;"></i>
             </a>
         </div>
     </div>
@@ -220,5 +233,5 @@ ob_start();
 
 <?php 
 $content = ob_get_clean();
-require_once __DIR__ . '/../../includes/navbarMO6.php'; 
+require_once __DIR__ . '/../../includes/navbarM06.php'; 
 ?>

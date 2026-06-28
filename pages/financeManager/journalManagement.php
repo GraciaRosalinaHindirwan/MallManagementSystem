@@ -207,5 +207,5 @@ ob_start();
 $content = ob_get_clean();
 
 // PANGGIL REQUIRE KE NAVBAR TIM KAMU SECARA AMAN DAN BENAR
-require_once '../../includes/navbarMO6.php'; 
+require_once '../../includes/navbarM06.php'; 
 ?>
