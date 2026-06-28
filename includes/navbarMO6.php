@@ -13,36 +13,9 @@ if (!defined('BASE_URL')) {
     define('BASE_URL', $base);
 }
 
-// Edit di sini untuk mengubah nama department, menu di sidebar, dan nama user yang tampil di navbar
-$department_name = $department_name ?? 'Department ABC DEF'; // Ganti kata-kata yang diapit petik satu
+$department_name = $department_name ?? 'Department ABC DEF'; 
 $menu_items = $menu_items ?? [];
-// Contoh format menu_items:
-// $menu_items = [
-//     [
-//         'icon' => 'fa-solid fa-chart-line',
-//         'label' => 'Dashboard',
-//         'link' => 'dashboard.php',
-//         'active_page' => 'dashboard'
-//     ],
-//     [
-//         'icon' => 'fa-solid fa-file-invoice',
-//         'label' => 'Invoice',
-//         'link' => 'invoice/index.php',
-//         'active_page' => 'invoice'
-//     ],
-//     [
-//         'icon' => 'fa-solid fa-chart-pie',
-//         'label' => 'Laporan Keuangan',
-//         'link' => 'laporan/index.php',
-//         'active_page' => 'laporan'
-//     ],
-//     [
-//         'icon' => 'fa-solid fa-receipt',
-//         'label' => 'Transaksi',
-//         'link' => 'transaksi/index.php',
-//         'active_page' => 'transaksi'
-//     ],
-// ];
+
 $user_name = $user_name ?? 'Manager';
 $page_title = $page_title ?? 'Dashboard';
 ?>
