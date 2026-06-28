@@ -146,7 +146,7 @@ $menu_items = [
         'icon' => 'fa-solid fa-building-columns',
         'label' => 'Bank Reconciliation',
         'link' => 'bankReconciliation.php',
-        'active_page' => 'bankReco'
+        'active_page' => 'bankReconciliation'
     ],
     [
         'icon' => 'fa-solid fa-hourglass-half',
