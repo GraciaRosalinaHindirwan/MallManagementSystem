@@ -78,6 +78,7 @@ $page_title = "budgetAnalysis";
 
 $menu_items = [
     ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard Manager', 'link' => 'dashboardManager.php', 'active_page' => 'dashboardManager'],
+    ['icon' => 'fa-solid fa-file-invoice', 'label' => 'Invoice Management', 'link' => 'invoiceManagement.php', 'active_page' => 'invoiceManagement'],
     ['icon' => 'fa-solid fa-scale-balanced', 'label' => 'Financial Statement', 'link' => 'financeStatement.php', 'active_page' => 'financeStatement'],
     ['icon' => 'fa-solid fa-chart-pie', 'label' => 'Budget Analysis', 'link' => 'budgetAnalysis.php', 'active_page' => 'budgetAnalysis'],
     ['icon' => 'fa-solid fa-calculator', 'label' => 'Tax Report (PPN)', 'link' => 'taxReport.php', 'active_page' => 'taxReport'],
@@ -169,5 +170,5 @@ ob_start();
 
 <?php 
 $content = ob_get_clean();
-require_once __DIR__ . '/../../includes/navbarMO6.php'; 
+require_once __DIR__ . '/../../includes/navbarM06.php'; 
 ?>

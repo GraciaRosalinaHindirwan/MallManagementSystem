@@ -1,5 +1,5 @@
 <?php
-/** @var mysqli $conn */ // Memberitahu VS Code kalau $conn itu objek database sah!
+/** @var mysqli $conn */ //
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -185,5 +185,5 @@ ob_start();
 
 <?php 
 $content = ob_get_clean();
-require_once __DIR__ . '/../../includes/navbarMO6.php'; 
+require_once __DIR__ . '/../../includes/navbarM06.php'; 
 ?>

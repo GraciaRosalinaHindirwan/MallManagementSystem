@@ -1,14 +1,30 @@
 <?php
-/**
- * PBI-M04-01-03
- * Finance Staff: Hitung & terbitkan invoice utilitas ke tenant secara periodik
- */
-session_start();
+/** @var mysqli $conn */ // Memberitahu VS Code kalau $conn itu objek database sah!
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+/*
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
+    // Jika bukan Finance Staff, tendang kembali ke halaman utama login
+    header("Location: ../../index.php"); 
+    exit();
+}
+*/
+
+// Sesi default sementara dibiarkan aktif agar aman dicoba langsung sekarang
+$_SESSION['role'] = 'financeStaff';
+$_SESSION['nama'] = 'Finance Staff';
+
+// HAPUS BARIS INI (Sudah dihapus): session_start();
 require_once __DIR__ . '/../../config/konek.php';
 
 $success_msg = $error_msg = '';
 
-// ── Proses POST ──────────────────────────────────────────────────────────────
+
+$success_msg = $error_msg = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'terbitkan') {
         $id = (int)$_POST['id_invoice'];
@@ -67,7 +83,6 @@ $meters_dd = $conn->query("
     ORDER BY u.unit_code
 ");
 
-// ── Variabel template ────────────────────────────────────────────────────────
 $department_name = 'Utility Management';
 $page_title      = 'Invoice Utilitas';
 $user_name       = $_SESSION['nama'] ?? ($_SESSION['username'] ?? 'Finance Staff');
@@ -115,6 +130,8 @@ $menu_items = [
         'active_page' => 'Dashboard Non Sewa'
     ]
 ];
+
+
 $statusBadge = ['draft'=>'badge-secondary','terbit'=>'badge-info','paid'=>'badge-success','overdue'=>'badge-danger'];
 $statusLabel = ['draft'=>'📝 Draft','terbit'=>'📄 Terbit','paid'=>'✅ Lunas','overdue'=>'🔴 Overdue'];
 $utilIcon    = ['listrik'=>'⚡','air'=>'💧','gas'=>'🔥','internet'=>'📶','ac_central'=>'❄️'];
@@ -305,5 +322,5 @@ document.querySelectorAll('.modal-overlay').forEach(el =>
 <?php
 $content = ob_get_clean();
 $conn->close();
-require_once __DIR__ . '/../../includes/navbarMO6.php';
+require_once __DIR__ . '/../../includes/navbarM06.php';
 ?>

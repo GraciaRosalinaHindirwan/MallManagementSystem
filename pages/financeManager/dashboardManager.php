@@ -72,6 +72,12 @@ $menu_items = [
         'active_page' => 'dashboardManager'
     ],
     [
+        'icon' => 'fa-solid fa-file-invoice',
+        'label' => 'Invoice Management',
+        'link' => 'invoiceManagement.php',
+        'active_page' => 'invoiceManagement'
+    ],
+    [
         'icon' => 'fa-solid fa-scale-balanced',
         'label' => 'Financial Statement',
         'link' => 'financeStatement.php',
@@ -93,7 +99,7 @@ $menu_items = [
         'icon' => 'fa-solid fa-building-columns',
         'label' => 'Bank Reconciliation',
         'link' => 'bankReconciliation.php',
-        'active_page' => 'bankReco'
+        'active_page' => 'bankReconciliation'
     ],
     [
         'icon' => 'fa-solid fa-hourglass-half',
@@ -220,5 +226,5 @@ ob_start();
 
 <?php 
 $content = ob_get_clean();
-require_once __DIR__ . '/../../includes/navbarMO6.php'; 
+require_once __DIR__ . '/../../includes/navbarM06.php'; 
 ?>
