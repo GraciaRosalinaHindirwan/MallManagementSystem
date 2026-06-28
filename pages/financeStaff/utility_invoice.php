@@ -322,5 +322,5 @@ document.querySelectorAll('.modal-overlay').forEach(el =>
 <?php
 $content = ob_get_clean();
 $conn->close();
-require_once __DIR__ . '/../../includes/navbarMO6.php';
+require_once __DIR__ . '/../../includes/navbarM06.php';
 ?>
