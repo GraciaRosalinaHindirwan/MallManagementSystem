@@ -101,7 +101,7 @@ $menu_items = [
     ['icon' => 'fa-solid fa-chart-pie', 'label' => 'Budget Analysis', 'link' => 'budgetAnalysis.php', 'active_page' => 'budgetAnalysis'],
     ['icon' => 'fa-solid fa-calculator', 'label' => 'Tax Report (PPN)', 'link' => 'taxReport.php', 'active_page' => 'taxReport'],
     ['icon' => 'fa-solid fa-building-columns', 'label' => 'Bank Reconciliation', 'link' => 'bankReconciliation.php', 'active_page' => 'bankReconciliation'],
-    ['icon' => 'fa-solid fa-hourglass-half', 'label' => 'Aging Receivable', 'link' => 'aging Receivable', 'active_page' => 'agingReceivable'],
+    ['icon' => 'fa-solid fa-hourglass-half', 'label' => 'Aging Receivable', 'link' => 'agingReceivable.php', 'active_page' => 'agingReceivable'],
     ['icon' => 'fa-solid fa-book', 'label' => 'Log Otomasi Jurnal', 'link' => 'journalManagement.php', 'active_page' => 'journalManagement']
 ];
 
@@ -194,5 +194,5 @@ ob_start();
 
 <?php 
 $content = ob_get_clean();
-require_once '../../includes/navbarMO6.php'; 
+require_once '../../includes/navbarM06.php'; 
 ?>
