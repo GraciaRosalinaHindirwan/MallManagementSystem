@@ -154,13 +154,12 @@ $page_title = "Financial Statement";
 
 $menu_items = [
     ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard Manager', 'link' => 'dashboardManager.php', 'active_page' => 'dashboardManager'],
-    ['icon' => 'fa-solid fa-file-invoice', 'label' => 'Invoice Management', 'link' => 'invoiceManagement.php', 'active_page' => 'invoiceManagement'],
     ['icon' => 'fa-solid fa-scale-balanced', 'label' => 'Financial Statement', 'link' => 'financeStatement.php', 'active_page' => 'financeStatement'],
     ['icon' => 'fa-solid fa-chart-pie', 'label' => 'Budget Analysis', 'link' => 'budgetAnalysis.php', 'active_page' => 'budgetAnalysis'],
     ['icon' => 'fa-solid fa-calculator', 'label' => 'Tax Report (PPN)', 'link' => 'taxReport.php', 'active_page' => 'taxReport'],
     ['icon' => 'fa-solid fa-building-columns', 'label' => 'Bank Reconciliation', 'link' => 'bankReconciliation.php', 'active_page' => 'bankReconciliation'],
     ['icon' => 'fa-solid fa-hourglass-half', 'label' => 'Aging Receivable', 'link' => 'agingReceivable.php', 'active_page' => 'agingReceivable'],
-    ['icon' => 'fa-solid fa-book', 'label' => 'Log Otomasi Jurnal', 'link' => 'journalManagement.php', 'active_page' => 'journalManagement']
+    ['icon' => 'fa-solid fa-book', 'label' => 'Log Otomasi Jurnal', 'link' => '../financeStaff/journalManagement.php', 'active_page' => 'journalManagement']
 ];
 
 // Mulai menangkap output tampilan workspace

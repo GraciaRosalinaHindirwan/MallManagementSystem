@@ -72,12 +72,6 @@ $menu_items = [
         'active_page' => 'dashboardManager'
     ],
     [
-        'icon' => 'fa-solid fa-file-invoice',
-        'label' => 'Invoice Management',
-        'link' => 'invoiceManagement.php',
-        'active_page' => 'invoiceManagement'
-    ],
-    [
         'icon' => 'fa-solid fa-scale-balanced',
         'label' => 'Financial Statement',
         'link' => 'financeStatement.php',
@@ -107,12 +101,6 @@ $menu_items = [
         'link' => 'agingReceivable.php',
         'active_page' => 'agingReceivable'
     ],
-    [
-        'icon' => 'fa-solid fa-book',
-        'label' => 'Log Otomasi Jurnal',
-        'link' => 'journalManagement.php',
-        'active_page' => 'journalManagement'
-    ]
 ];
 
 ob_start();

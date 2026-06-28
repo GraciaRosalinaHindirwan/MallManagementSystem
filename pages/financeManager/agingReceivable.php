@@ -124,12 +124,7 @@ $menu_items = [
         'link' => 'dashboardManager.php',
         'active_page' => 'dashboardManager'
     ],
-    [
-        'icon' => 'fa-solid fa-file-invoice',
-        'label' => 'Invoice Management',
-        'link' => 'invoiceManagement.php',
-        'active_page' => 'invoiceManagement'
-    ],
+
     [
         'icon' => 'fa-solid fa-scale-balanced',
         'label' => 'Financial Statement',
@@ -163,7 +158,7 @@ $menu_items = [
     [
         'icon' => 'fa-solid fa-book',
         'label' => 'Log Otomasi Jurnal',
-        'link' => 'journalManagement.php',
+        'link' => '../financeStaff/journalManagement.php',
         'active_page' => 'journalManagement'
     ]
 ];
