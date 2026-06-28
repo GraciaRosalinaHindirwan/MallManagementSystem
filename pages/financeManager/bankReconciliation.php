@@ -85,7 +85,7 @@ $menu_items = [
     [
         'icon' => 'fa-solid fa-book',
         'label' => 'Log Otomasi Jurnal',
-        'link' => '../financeStaff/journalManagement.php',
+        'link' => 'journalManagement.php',
         'active_page' => 'journalManagement'
     ]
 ];

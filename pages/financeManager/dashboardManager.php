@@ -101,6 +101,12 @@ $menu_items = [
         'link' => 'agingReceivable.php',
         'active_page' => 'agingReceivable'
     ],
+     [
+        'icon' => 'fa-solid fa-book',
+        'label' => 'Log Otomasi Jurnal',
+        'link' => 'journalManagement.php',
+        'active_page' => 'journalManagement'
+    ]
 ];
 
 ob_start();
