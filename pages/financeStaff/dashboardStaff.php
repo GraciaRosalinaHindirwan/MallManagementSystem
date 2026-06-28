@@ -174,7 +174,7 @@ ob_start();
             </a>
               <a href="vendor_bill.php" class="btn-panel">
                 <div>
-                    <strong style="color: #a855f7; display: block; font-size: 14px;"><i class="fa-solid fa-folder me-2"></i> Dashboard Non Sewa</strong>
+                    <strong style="color: #a855f7; display: block; font-size: 14px;"><i class="fa-solid fa-folder me-2"></i> Vendor Bill</strong>
                     <small style="color: #cbd5e1; font-size: 12px;">Vendor Bill</small>
                 </div>
                 <i class="fa-solid fa-chevron-right style-arrow" style="color: #a855f7; opacity: 0.7;"></i>
