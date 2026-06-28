@@ -72,9 +72,49 @@ $department_name = 'Utility Management';
 $page_title      = 'Invoice Utilitas';
 $user_name       = $_SESSION['nama'] ?? ($_SESSION['username'] ?? 'Finance Staff');
 $menu_items = [
-    ['icon'=>'fa-solid fa-file-invoice-dollar', 'label'=>'Invoice Utilitas', 'link'=>'../../pages/financeStaff/utility_invoice.php', 'active_page'=>'utility_invoice']
+    [
+        'icon'        => 'fa-solid fa-gauge',
+        'label'       => 'Dashboard Staff',
+        'link'        => 'dashboardStaff.php',
+        'active_page' => 'Dashboard Staff'
+    ],
+    [
+        'icon'        => 'fa-solid fa-file-invoice',
+        'label'       => 'Invoice Management',
+        'link'        => 'invoiceManagement.php',
+        'active_page' => 'Invoice Management'
+    ],
+    [
+        'icon'        => 'fa-solid fa-bolt-lightning', 
+        'label'       => 'Invoice Utilitas (Air/Listrik)',
+        'link'        => 'utility_invoice.php', 
+        'active_page' => 'utility_invoice'
+    ],
+    [
+        'icon'        => 'fa-solid fa-cash-register',
+        'label'       => 'Billing System',
+        'link'        => 'billingManagement.php',
+        'active_page' => 'Billing System'
+    ],
+    [
+        'icon'        => 'fa-solid fa-file-invoice-dollar',
+        'label'       => 'Vendor Bill',
+        'link'        => 'vendor_bill.php', 
+        'active_page' => 'Vendor Bill'
+    ],
+    [
+        'icon'        => 'fa-solid fa-book',
+        'label'       => 'Jurnal Otomatis',
+        'link'        => 'journalManagement.php',
+        'active_page' => 'Jurnal Otomatis'
+    ],
+    [
+        'icon'        => 'fa-solid fa-folder-open',
+        'label'       => 'Dashboard Non Sewa',
+        'link'        => 'dashboardNonSewa.php',
+        'active_page' => 'Dashboard Non Sewa'
+    ]
 ];
-
 $statusBadge = ['draft'=>'badge-secondary','terbit'=>'badge-info','paid'=>'badge-success','overdue'=>'badge-danger'];
 $statusLabel = ['draft'=>'📝 Draft','terbit'=>'📄 Terbit','paid'=>'✅ Lunas','overdue'=>'🔴 Overdue'];
 $utilIcon    = ['listrik'=>'⚡','air'=>'💧','gas'=>'🔥','internet'=>'📶','ac_central'=>'❄️'];
@@ -265,5 +305,5 @@ document.querySelectorAll('.modal-overlay').forEach(el =>
 <?php
 $content = ob_get_clean();
 $conn->close();
-require_once __DIR__ . '/../../includes/navbar.php';
+require_once __DIR__ . '/../../includes/navbarMO6.php';
 ?>
