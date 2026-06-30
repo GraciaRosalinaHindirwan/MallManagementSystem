@@ -53,6 +53,7 @@ class NotificationLog
             created_at: new DateTime(),
             delivery_result: new DeliveryResult(
                 status: NotificationStatus::pending,
+                sentAt: new DateTime()
             ),
             user_id: $user_id,
         );
@@ -120,3 +121,4 @@ class NotificationLog
         return $log;
     }
 }
+

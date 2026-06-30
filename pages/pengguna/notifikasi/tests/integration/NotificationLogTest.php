@@ -14,6 +14,8 @@ class NotificationLogTest extends TestCase
     {
         $this->db = new mysqli("localhost", "root", "", "mall_erp");
         $this->db->begin_transaction();
+
+        $this->db->execute_query("DELETE FROM 08_notification_logs");
     }
 
     function testInsertion()
