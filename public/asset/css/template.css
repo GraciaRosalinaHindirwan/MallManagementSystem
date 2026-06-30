@@ -126,7 +126,7 @@ body {
 }
 
 .content-body {
-    padding: 32px;
+    padding: 0 !important;
 }
 
 /* ---- TOMBOL HAMBURGER - SEMBUNYI DI DESKTOP ---- */
