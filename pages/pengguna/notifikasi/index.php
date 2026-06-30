@@ -167,12 +167,6 @@ if (in_array($role, $staff_roles)) {
     $page_title = 'Notification Center';
 }
 
-// =============================================
-// VARIABEL LAINNYA
-// =============================================
-$user_name       = $_SESSION['nama'] ?? 'User';
-$department_name = 'BI, Workflow & Notification';
-
 // ===============================
 // CONTENT BUFFER
 // ===============================
