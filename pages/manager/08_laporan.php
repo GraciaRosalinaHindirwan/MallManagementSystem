@@ -1,10 +1,10 @@
 <?php
 require_once '../../config/konek.php';
-// require_once __DIR__ . '/../../public/auth/checkSession.php';
-// if (!isset($_SESSION['user_id'])) {
-//     header("Location: ../auth/index.php");
-//     exit();
-// }
+require_once __DIR__ . '/../../public/auth/checkSession.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../auth/index.php");
+    exit();
+}
 
 if (!$conn) {
     die("Koneksi database gagal!");
@@ -20,10 +20,10 @@ $manager_roles = [
     'Event Manager'
 ];
 
-// if (!in_array($role, $manager_roles)) {
-//     header("Location: ../approver/myApproval.php");
-//     exit();
-// }
+if (!in_array($role, $manager_roles)) {
+    header("Location: ../approver/myApproval.php");
+    exit();
+}
 
 $nama_bulan = [
     'January' => 'Januari',
