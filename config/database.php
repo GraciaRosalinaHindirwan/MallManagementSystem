@@ -1,7 +1,5 @@
-////teeessssttt ajaaaahhh/////
 <?php
-
-function db()
-{
-    return new mysqli("localhost", "root", "", "mall_management");
+$conn = new mysqli("localhost", "root", "", "mall_erp");
+if ($conn->connect_error) {
+    die("Koneksi gagal: " . $conn->connect_error);
 }

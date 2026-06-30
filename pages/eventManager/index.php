@@ -1,225 +1,410 @@
 <?php
+require_once __DIR__ . '/../../public/auth/checkSession.php';
 require_once 'event_data.php';
 
-$semua   = getPengajuan();
-$pending = array_filter($semua, fn($p) => $p['status'] === 'pending');
-$approved = array_filter($semua, fn($p) => $p['status'] === 'approved');
-$analytics = $_SESSION['event_analytics_extended'] ?? [];
-$totalRev = array_sum(array_map(fn($a) => $a['revenue_sewa']+$a['revenue_tiket']+$a['revenue_sponsor'], $analytics));
+if (!defined('BASE_URL')) {
+    $project_root = realpath(__DIR__ . '/../..');
+    $doc_root     = realpath($_SERVER['DOCUMENT_ROOT']);
+    $base = '';
+    if ($doc_root && $project_root && strpos($project_root, $doc_root) === 0) {
+        $base = substr($project_root, strlen($doc_root));
+    }
+    $base = str_replace('\\', '/', $base);
+    define('BASE_URL', $base);
+}
+
+$department_name = 'Event Management';
+$menu_items = [
+    ['icon'=>'fa-solid fa-house',         'label'=>'Dashboard',         'link'=>BASE_URL.'/pages/eventManager/index.php',                    'active_page'=>'index'],
+    ['icon'=>'fa-solid fa-calendar-plus', 'label'=>'Form Booking',      'link'=>BASE_URL.'/pages/eventOrganizer/event_booking_form.php',     'active_page'=>'event_booking_form'],
+    ['icon'=>'fa-solid fa-list-check',    'label'=>'Status Pengajuan',  'link'=>BASE_URL.'/pages/eventOrganizer/event_booking_status.php',   'active_page'=>'event_booking_status'],
+    ['icon'=>'fa-solid fa-calendar-week', 'label'=>'Kalender & Approval','link'=>BASE_URL.'/pages/eventManager/event_calendar.php',          'active_page'=>'event_calendar'],
+    ['icon'=>'fa-solid fa-people-group',  'label'=>'Vendor & Tiket',    'link'=>BASE_URL.'/pages/eventManager/event_vendor_ticketing.php',   'active_page'=>'event_vendor_ticketing'],
+    ['icon'=>'fa-solid fa-chart-line',    'label'=>'Analytics',         'link'=>BASE_URL.'/pages/eventManager/event_analytics.php',          'active_page'=>'event_analytics'],
+];
+
+$page_title = 'Dashboard Event Management';
+$page       = 'index';
+
+$semua     = getBookings();
+$pending   = array_filter($semua, fn($b) => $b['status'] === 'pending');
+$approved  = array_filter($semua, fn($b) => $b['status'] === 'approved');
+$analytics = getAnalytics();
+
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISFO MALL - Dashboard Event Manager</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="../../public/asset/css/designSystem.css" rel="stylesheet">
-    <style>
-        body { background: var(--background); color: var(--text); font-family: var(--font-family); min-height: 100vh; }
 
-        .hero {
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 60%, #0D4859 100%);
-            padding: 3rem 2rem 2.5rem; border-radius: 16px; margin-bottom: 2rem; position: relative; overflow: hidden;
-        }
-        .hero::after {
-            content: '';
-            position: absolute; right: -60px; top: -60px;
-            width: 300px; height: 300px; border-radius: 50%;
-            background: radial-gradient(circle, rgba(0,212,216,.12) 0%, transparent 70%);
-        }
-        .hero-badge {
-            display: inline-flex; align-items: center; gap: 6px;
-            background: rgba(0,212,216,.15); border: 1px solid rgba(0,212,216,.25);
-            border-radius: 20px; padding: 4px 14px; font-size: 11px; color: var(--accent);
-            margin-bottom: 1rem;
-        }
+<style>
+.em-card {
+    background: var(--primary);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    overflow: hidden;
+}
+.em-card-header {
+    padding: .85rem 1.4rem;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+}
+.em-card-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.em-card-body { padding: 1.4rem; }
 
-        .kpi-mini {
-            background: rgba(255,255,255,.07); border-radius: 10px;
-            padding: .85rem 1rem; text-align: center;
-        }
-        .kpi-mini .val { font-size: 1.3rem; font-weight: 700; }
-        .kpi-mini .lbl { font-size: 10px; opacity: .55; text-transform: uppercase; letter-spacing: .05em; }
+.em-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--text);
+    font-size: 13px;
+}
+.em-table thead tr {
+    background: var(--primary-dark);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    opacity: .65;
+}
+.em-table th { padding: .7rem 1rem; white-space: nowrap; }
+.em-table td { padding: .7rem 1rem; border-bottom: 1px solid rgba(255,255,255,.05); vertical-align: middle; }
+.em-table tbody tr:last-child td { border-bottom: none; }
+.em-table tbody tr:hover { background: rgba(255,255,255,.025); }
 
-        .feature-card {
-            background: var(--primary);
-            border: 1px solid rgba(255,255,255,.08);
-            border-radius: 14px; padding: 1.5rem;
-            text-decoration: none; color: var(--text);
-            display: block; transition: all .2s; height: 100%;
-        }
-        .feature-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(0,0,0,.3);
-            color: var(--text);
-        }
-        .feature-icon {
-            width: 48px; height: 48px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.4rem; margin-bottom: 1rem;
-        }
-        .feature-card h6 { font-weight: 700; margin-bottom: .35rem; }
-        .feature-card p { font-size: var(--caption); opacity: .6; margin: 0; line-height: 1.5; }
+.em-btn {
+    border: none;
+    border-radius: 7px;
+    padding: 4px 11px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: opacity .15s, transform .15s;
+    text-decoration: none;
+}
+.em-btn:hover { opacity: .85; transform: translateY(-1px); }
+.em-btn-success { background: var(--success); color: #fff; }
+.em-btn-danger  { background: rgba(239,68,68,.18); border: 1px solid rgba(239,68,68,.3); color: #fca5a5; }
+.em-btn-warn    { background: var(--secondary); color: #fff; }
+.em-btn-primary { background: var(--accent); color: #021F42; font-weight: 700; }
 
-        .badge-notify {
-            background: var(--danger); color: #fff; font-size: 10px;
-            border-radius: 10px; padding: 1px 7px; margin-left: 6px;
-        }
+.em-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
 
-        .pbi-table td, .pbi-table th { font-size: var(--caption); border-color: rgba(255,255,255,.06); vertical-align: middle; padding: .5rem .75rem; }
-        .pbi-table thead th { background: var(--primary-dark); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; opacity: .7; }
+.em-input,
+.em-select {
+    background: var(--primary-dark);
+    border: 1px solid rgba(255,255,255,.13);
+    color: var(--text);
+    border-radius: 8px;
+    padding: .45rem .75rem;
+    font-size: 13px;
+    width: 100%;
+    transition: border-color .2s;
+}
+.em-input:focus, .em-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,212,216,.1);
+}
+.em-label {
+    font-size: 12px;
+    font-weight: 600;
+    opacity: .75;
+    margin-bottom: 5px;
+    display: block;
+}
 
-        .activity-item { padding: .6rem 0; border-bottom: 1px solid rgba(255,255,255,.05); }
-        .activity-item:last-child { border: none; }
-    </style>
-</head>
-<body>
-<div class="container-fluid py-4 px-4">
+.em-hero {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark, #0d2d35) 55%, #0a3d4a 100%);
+    padding: 2rem 2rem 1.75rem;
+    border-radius: 16px;
+    margin-bottom: 1.75rem;
+    border: 1px solid rgba(0,212,216,.1);
+    position: relative;
+    overflow: hidden;
+}
+.em-hero::before {
+    content: '';
+    position: absolute; right: -60px; top: -60px;
+    width: 280px; height: 280px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,216,.09) 0%, transparent 70%);
+    pointer-events: none;
+}
+.em-hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .07em;
+    color: var(--accent);
+    background: rgba(0,212,216,.12);
+    border: 1px solid rgba(0,212,216,.22);
+    border-radius: 20px;
+    padding: 3px 13px;
+    margin-bottom: .85rem;
+}
+.em-hero h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0 0 .35rem;
+    position: relative;
+    z-index: 1;
+}
+.em-hero p {
+    opacity: .5;
+    font-size: 13px;
+    margin: 0 0 1.4rem;
+    position: relative;
+    z-index: 1;
+}
+.em-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: .6rem;
+    max-width: 520px;
+    position: relative;
+    z-index: 1;
+}
+@media (max-width: 576px) {
+    .em-kpi-grid { grid-template-columns: repeat(2, 1fr); max-width: 100%; }
+    .em-hero { padding: 1.4rem 1.2rem 1.4rem; }
+    .em-hero h2 { font-size: 1.2rem; }
+}
+.em-kpi-pill {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 11px;
+    padding: .75rem .9rem;
+    text-align: center;
+    transition: background .2s, border-color .2s, transform .2s;
+}
+.em-kpi-pill:hover {
+    background: rgba(255,255,255,.11);
+    border-color: rgba(0,212,216,.25);
+    transform: translateY(-2px);
+}
+.em-kpi-val  { font-size: 1.35rem; font-weight: 800; line-height: 1; }
+.em-kpi-lbl  { font-size: 10px; opacity: .45; text-transform: uppercase; letter-spacing: .05em; margin-top: 3px; }
 
-    <div class="hero">
-        <div class="hero-badge"><i class="bi bi-calendar-event"></i>SISFO MALL - EVENT</div>
-        <h2 class="fw-bold mb-1">Event Management</h2>
-        <div class="row g-2" style="max-width:600px">
-            <div class="col-3"><div class="kpi-mini">
-                <div class="val"><?= count($semua) ?></div>
-                <div class="lbl">Total Pengajuan</div>
-            </div></div>
-            <div class="col-3"><div class="kpi-mini">
-                <div class="val" style="color:#fde68a"><?= count($pending) ?></div>
-                <div class="lbl">Pending Review</div>
-            </div></div>
-            <div class="col-3"><div class="kpi-mini">
-                <div class="val" style="color:#86efac"><?= count($approved) ?></div>
-                <div class="lbl">Event Approved</div>
-            </div></div>
-            <div class="col-3"><div class="kpi-mini">
-                <div class="val" style="color:var(--text-accent)">
-                    <?= $totalRev > 0 ? 'Rp '.number_format($totalRev/1000000,0).'jt' : '—' ?>
-                </div>
-                <div class="lbl">Revenue Event</div>
-            </div></div>
-        </div>
+/* Feature grid */
+.em-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: .85rem; margin-bottom: 1.5rem; }
+@media (max-width: 992px) { .em-features { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 576px) { .em-features { grid-template-columns: 1fr; } }
+
+.em-feat-card {
+    background: var(--primary);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 14px;
+    padding: 1.35rem;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform .2s cubic-bezier(.4,0,.2,1), box-shadow .2s, border-color .2s;
+}
+.em-feat-card:hover {
+    color: var(--text);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(0,0,0,.28);
+    border-color: var(--fc, rgba(255,255,255,.15));
+}
+.em-feat-card.c-teal   { --fc: var(--accent); }
+.em-feat-card.c-gold   { --fc: var(--text-accent); }
+.em-feat-card.c-cyan   { --fc: #67e8f9; }
+.em-feat-card.c-violet { --fc: #c4b5fd; }
+.em-feat-card.c-green  { --fc: #86efac; }
+
+.em-feat-icon {
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: .9rem;
+    flex-shrink: 0;
+}
+.em-feat-pbi { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; opacity: .9; }
+.em-feat-card h6 { font-size: .88rem; font-weight: 700; margin: 0 0 .3rem; }
+.em-feat-card p  { font-size: 12px; opacity: .5; margin: 0; line-height: 1.55; flex: 1; }
+.em-feat-link {
+    font-size: 12px; font-weight: 700;
+    margin-top: .85rem;
+    display: flex; align-items: center; gap: 4px;
+}
+
+.em-count-badge {
+    background: var(--danger);
+    color: #fff;
+    font-size: 10px; font-weight: 700;
+    border-radius: 10px;
+    padding: 1px 7px;
+    margin-left: 4px;
+    vertical-align: middle;
+    animation: em-pulse 1.6s ease-in-out infinite;
+}
+@keyframes em-pulse {
+    0%,100% { opacity: 1; }
+    50%      { opacity: .6; }
+}
+
+.em-bottom-row { display: grid; grid-template-columns: 1fr 380px; gap: .85rem; }
+@media (max-width: 992px) { .em-bottom-row { grid-template-columns: 1fr; } }
+
+.em-activity-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .55rem 0;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    gap: .5rem;
+}
+.em-activity-row:last-child { border-bottom: none; }
+.em-activity-name { font-size: 13px; font-weight: 600; }
+.em-activity-type { font-size: 11px; opacity: .4; }
+</style>
+
+<!-- HERO -->
+<div class="em-hero">
+    <div class="em-hero-tag">
+        <i class="fa-solid fa-calendar-star"></i> SISFO MALL — EVENT
     </div>
+    <h2>Event Management</h2>
+    <p>Kelola pengajuan, approval, vendor, ticketing, sponsorship &amp; analitik event mall</p>
 
-    <div class="row g-3 mb-4">
-
-        <!-- PBI-01: Booking Form -->
-        <div class="col-md-6 col-lg-3">
-            <a href="../eventOrganizer/event_booking_form.php" class="feature-card">
-                <div class="feature-icon" style="background:rgba(0,212,216,.15); color:var(--accent)">
-                    <i class="bi bi-calendar-plus"></i>
-                </div>
-                <div style="font-size:10px; color:var(--accent); margin-bottom:4px">PBI-M04-03-01</div>
-                <h6>Form Pengajuan Booking
-                    <?php if (count($pending) > 0): ?>
-                    <span class="badge-notify"><?= count($pending) ?></span>
-                    <?php endif; ?>
-                </h6>
-                <p>EO/Tenant ajukan booking area event. Conflict-check otomatis berjalan saat submit.</p>
-                <div class="mt-3" style="font-size:var(--caption); color:var(--accent)">
-                    <i class="bi bi-arrow-right me-1"></i>Buka Form
-                </div>
-            </a>
+    <div class="em-kpi-grid">
+        <?php
+        $kpis = [
+            ['val' => count($semua),     'lbl' => 'Total',    'clr' => 'var(--text)'],
+            ['val' => count($pending),   'lbl' => 'Pending',  'clr' => '#fde68a'],
+            ['val' => count($approved),  'lbl' => 'Approved', 'clr' => '#86efac'],
+            ['val' => count($analytics), 'lbl' => 'Selesai',  'clr' => 'var(--text-accent)'],
+        ];
+        foreach ($kpis as $k): ?>
+        <div class="em-kpi-pill">
+            <div class="em-kpi-val" style="color:<?= $k['clr'] ?>"><?= $k['val'] ?></div>
+            <div class="em-kpi-lbl"><?= $k['lbl'] ?></div>
         </div>
+        <?php endforeach; ?>
+    </div>
+</div>
 
-        <!-- PBI-01: Status -->
-        <div class="col-md-6 col-lg-3">
-            <a href="../eventOrganizer/event_booking_status.php" class="feature-card">
-                <div class="feature-icon" style="background:rgba(255,182,42,.12); color:var(--text-accent)">
-                    <i class="bi bi-list-check"></i>
-                </div>
-                <div style="font-size:10px; color:var(--text-accent); margin-bottom:4px">PBI-M04-03-01</div>
-                <h6>Status Pengajuan</h6>
-                <p>Pantau progres semua pengajuan dengan timeline visual: pending → approved → kontrak.</p>
-                <div class="mt-3" style="font-size:var(--caption); color:var(--text-accent)">
-                    <i class="bi bi-arrow-right me-1"></i>Lihat Status
-                </div>
-            </a>
+<div class="em-features">
+
+    <a href="../eventOrganizer/event_booking_form.php" class="em-feat-card c-teal">
+        <div class="em-feat-icon" style="background:rgba(0,212,216,.14);color:var(--accent)">
+            <i class="fa-solid fa-calendar-plus"></i>
         </div>
-
-        <!-- PBI-02: Kalender + Approval -->
-        <div class="col-md-6 col-lg-3">
-            <a href="event_calendar.php" class="feature-card">
-                <div class="feature-icon" style="background:rgba(22,126,128,.2); color:#67e8f9">
-                    <i class="bi bi-calendar2-week"></i>
-                </div>
-                <div style="font-size:10px; color:#67e8f9; margin-bottom:4px">PBI-M04-03-02</div>
-                <h6>Kalender & Approval
-                    <?php if (count($pending) > 0): ?>
-                    <span class="badge-notify"><?= count($pending) ?></span>
-                    <?php endif; ?>
-                </h6>
-                <p>Kalender visual per area event + conflict-check + workflow approve / tolak / revisi.</p>
-                <div class="mt-3" style="font-size:var(--caption); color:#67e8f9">
-                    <i class="bi bi-arrow-right me-1"></i>Buka Kalender
-                </div>
-            </a>
+        <div class="em-feat-pbi" style="color:var(--accent)">PBI-01 · Event Organizer</div>
+        <h6>Form Pengajuan
+            <?php if (count($pending)): ?><span class="em-count-badge"><?= count($pending) ?></span><?php endif; ?>
+        </h6>
+        <p>EO/Tenant ajukan booking area event. Conflict-check otomatis berjalan saat submit.</p>
+        <div class="em-feat-link" style="color:var(--accent)">
+            <i class="fa-solid fa-arrow-right"></i> Buka Form
         </div>
+    </a>
 
-        <!-- PBI-03: Vendor Ticketing Sponsorship -->
-        <div class="col-md-6 col-lg-3">
-            <a href="event_vendor_ticketing.php" class="feature-card">
-                <div class="feature-icon" style="background:rgba(139,92,246,.2); color:#c4b5fd">
-                    <i class="bi bi-people-fill"></i>
-                </div>
-                <div style="font-size:10px; color:#c4b5fd; margin-bottom:4px">PBI-M04-03-03</div>
-                <h6>Vendor · Ticketing · Sponsorship</h6>
-                <p>Database vendor event, setup tiket digital per event, manajemen sponsor & settlement.</p>
-                <div class="mt-3" style="font-size:var(--caption); color:#c4b5fd">
-                    <i class="bi bi-arrow-right me-1"></i>Kelola Koordinasi
-                </div>
-            </a>
+    <a href="../eventOrganizer/event_booking_status.php" class="em-feat-card c-gold">
+        <div class="em-feat-icon" style="background:rgba(255,182,42,.12);color:var(--text-accent)">
+            <i class="fa-solid fa-list-check"></i>
         </div>
-
-        <!-- PBI-04: Analytics -->
-        <div class="col-12 col-md-6">
-            <a href="event_analytics.php" class="feature-card" style="display:flex; gap:1.5rem; align-items:center">
-                <div class="feature-icon" style="background:rgba(34,197,94,.15); color:#86efac; min-width:48px">
-                    <i class="bi bi-bar-chart-line"></i>
-                </div>
-                <div>
-                    <div style="font-size:10px; color:#86efac; margin-bottom:4px">PBI-M04-03-04</div>
-                    <h6 class="mb-1">Post-Event Analytics Dashboard</h6>
-                    <p>Laporan pengunjung, revenue (sewa + tiket + sponsor), traffic impact, dan rating kepuasan per event untuk evaluasi &amp; perencanaan ke depan.</p>
-                    <div class="mt-2" style="font-size:var(--caption); color:#86efac">
-                        <i class="bi bi-arrow-right me-1"></i>Buka Analytics
-                    </div>
-                </div>
-            </a>
+        <div class="em-feat-pbi" style="color:var(--text-accent)">PBI-01 · Event Organizer</div>
+        <h6>Status Pengajuan</h6>
+        <p>Pantau progres semua pengajuan dengan timeline visual per-event.</p>
+        <div class="em-feat-link" style="color:var(--text-accent)">
+            <i class="fa-solid fa-arrow-right"></i> Lihat Status
         </div>
+    </a>
 
-        <div class="col-12 col-md-6">
-            <div class="feature-card" style="pointer-events:none">
-                <div style="font-size:10px; color:var(--accent); margin-bottom:.75rem; text-transform:uppercase; letter-spacing:.07em; font-weight:600">
-                    <i class="bi bi-activity me-1"></i>Aktivitas Terkini
-                </div>
-                <?php foreach (array_slice(array_reverse($semua), 0, 4) as $p): ?>
-                <div class="activity-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong style="font-size:var(--label)"><?= $p['id'] ?></strong>
-                        <span style="font-size:var(--caption); opacity:.6; margin-left:.5rem"><?= $p['tipe_event'] ?></span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <span style="font-size:var(--caption); opacity:.4"><?= $p['created_at'] ?></span>
-                        <?= statusBadge($p['status']) ?>
-                    </div>
-                </div>
-                <?php endforeach; ?>
-                <?php if (empty($semua)): ?>
-                <div style="text-align:center; opacity:.4; padding:1rem; font-size:var(--caption)">Belum ada pengajuan.</div>
-                <?php endif; ?>
+    <a href="event_calendar.php" class="em-feat-card c-cyan">
+        <div class="em-feat-icon" style="background:rgba(22,126,128,.18);color:#67e8f9">
+            <i class="fa-solid fa-calendar-week"></i>
+        </div>
+        <div class="em-feat-pbi" style="color:#67e8f9">PBI-02 · Event Manager</div>
+        <h6>Kalender &amp; Approval
+            <?php if (count($pending)): ?><span class="em-count-badge"><?= count($pending) ?></span><?php endif; ?>
+        </h6>
+        <p>Kalender per area + conflict-check otomatis + workflow approve / tolak / revisi.</p>
+        <div class="em-feat-link" style="color:#67e8f9">
+            <i class="fa-solid fa-arrow-right"></i> Buka Kalender
+        </div>
+    </a>
+
+    <a href="event_vendor_ticketing.php" class="em-feat-card c-violet">
+        <div class="em-feat-icon" style="background:rgba(139,92,246,.18);color:#c4b5fd">
+            <i class="fa-solid fa-people-group"></i>
+        </div>
+        <div class="em-feat-pbi" style="color:#c4b5fd">PBI-03 · Event Manager</div>
+        <h6>Vendor · Tiket · Sponsor</h6>
+        <p>Kelola vendor, setup tiket digital per-kuota, dan manajemen sponsorship.</p>
+        <div class="em-feat-link" style="color:#c4b5fd">
+            <i class="fa-solid fa-arrow-right"></i> Kelola Koordinasi
+        </div>
+    </a>
+
+</div>
+
+<div class="em-bottom-row">
+
+    <a href="event_analytics.php" class="em-feat-card c-green" style="flex-direction:row;gap:1.25rem;align-items:center;padding:1.5rem;border-radius:14px">
+        <div class="em-feat-icon" style="background:rgba(34,197,94,.14);color:#86efac;width:54px;height:54px;font-size:1.55rem;border-radius:14px;flex-shrink:0">
+            <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <div>
+            <div class="em-feat-pbi" style="color:#86efac">PBI-04 · Manajer (Read-Only)</div>
+            <h6 style="font-size:.9rem;margin-bottom:.3rem">Post-Event Analytics Dashboard</h6>
+            <p style="font-size:12px">Laporan pengunjung, revenue, traffic impact, rating kepuasan pasca-event.</p>
+            <div class="em-feat-link" style="color:#86efac;margin-top:.6rem">
+                <i class="fa-solid fa-arrow-right"></i> Buka Analytics
             </div>
         </div>
-    </div>
+    </a>
 
-    <div class="mt-3 text-center" style="font-size:var(--caption); opacity:.35">
-        Mall ERP · SISFO MALL · 2026
+    <div class="em-card">
+        <div class="em-card-header">
+            <span class="em-card-label"><i class="fa-solid fa-bolt"></i> Aktivitas Terkini</span>
+        </div>
+        <div class="em-card-body" style="padding:1rem 1.4rem">
+            <?php foreach (array_slice(array_reverse($semua), 0, 6) as $b): ?>
+            <div class="em-activity-row">
+                <div>
+                    <div class="em-activity-name"><?= htmlspecialchars($b['nama_event']) ?></div>
+                    <div class="em-activity-type"><?= htmlspecialchars($b['tipe_event']) ?></div>
+                </div>
+                <?= statusBadge($b['status']) ?>
+            </div>
+            <?php endforeach; ?>
+            <?php if (empty($semua)): ?>
+            <div style="text-align:center;opacity:.3;padding:1.5rem;font-size:12px">
+                <i class="fa-solid fa-inbox" style="font-size:1.6rem;display:block;margin-bottom:.4rem"></i>
+                Belum ada pengajuan.
+            </div>
+            <?php endif; ?>
+        </div>
     </div>
 
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+
+<?php
+$content = ob_get_clean();
+require_once '../../includes/navbar.php';
