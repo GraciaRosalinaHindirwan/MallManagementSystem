@@ -1,9 +1,20 @@
 {
+    "name": "grandisnurazizah/mall-management-system",
+    "require": {
+        "dompdf/dompdf": "^3.1",
+        "phpoffice/phpspreadsheet": "^5.8"
+    },
     "require-dev": {
         "phpunit/phpunit": "*"
     },
     "require": {
         "phpmailer/phpmailer": "^7.1",
         "crunzphp/crunz": "^3.9"
-    }
+    }, 
+    "authors": [
+        {
+            "name": "GrandisAzizah",
+            "email": "124240045@student.upnyk.ac.id"
+        }
+    ]
 }
