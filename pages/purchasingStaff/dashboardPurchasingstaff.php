@@ -106,6 +106,7 @@ ob_start();
 </div>
 
 <?php 
+// Melempar buffer isi konten ke komponen master template navbarM06.php
 $content = ob_get_clean();
 require_once __DIR__ . '/../../includes/navbarM06.php'; 
 ?>

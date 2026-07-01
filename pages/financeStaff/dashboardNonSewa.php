@@ -1,5 +1,6 @@
 <?php
-/** @var mysqli $conn */
+/** @var mysqli $conn */ // Memberitahu VS Code kalau $conn itu objek database sah!
+
 if (session_status() == PHP_SESSION_NONE) { session_start(); }
 // Uncomment ini nanti kalau auth sudah jalan:
 // if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
@@ -689,5 +690,5 @@ body, .layout, .main-content, .content-body { background-color: #021F42 !importa
 <?php 
 $content = ob_get_clean();
 
-require_once '../../includes/navbarMO6.php'; 
+require_once '../../includes/navbarM06.php'; 
 ?>

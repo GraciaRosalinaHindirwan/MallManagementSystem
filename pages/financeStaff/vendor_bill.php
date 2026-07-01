@@ -69,9 +69,6 @@ $menu_items = [
     ]
 ];
 
-// -------------------------------------------------------
-// TOMBOL BUAT DUMMY PO DENGAN NOMINAL ACAK (DINAMIS)
-// -------------------------------------------------------
 if (isset($_POST['buat_dummy'])) {
     $po_number_dummy = "PO-" . date('Ymd') . "-" . rand(100, 999);
     $tgl_dummy       = date('Y-m-d');
@@ -203,7 +200,7 @@ $not_match = $conn->query("SELECT COUNT(*) AS jml FROM `06_vendor_bill_receipts`
 
 $department_name = "Finance Department (Staff Dashboard)";
 $user_name       = $_SESSION['nama'];
-$page_title      = "Vendor Bill"; // Diubah agar sesuai dengan deteksi halaman aktif di navbar
+$page_title      = "Vendor Bill"; 
 
 ob_start();
 ?>
@@ -408,5 +405,5 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-require_once __DIR__ . '/../../includes/navbarMO6.php';
+require_once __DIR__ . '/../../includes/navbarM06.php';
 ?>

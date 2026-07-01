@@ -145,12 +145,16 @@ if ($total_aset <= 0 || empty($data_neraca['liabilitas']) || empty($data_labarug
 $laba_bersih = $total_pendapatan - $total_beban;
 $total_ekuitas += $laba_bersih;
 
+// ==========================================
+// CONFIG MASTER DATA SIDEBAR & NAVBAR LAYOUT TIM
+// ==========================================
 $department_name = "Finance Department (Manager Dashboard)";
 $user_name = $_SESSION['nama'];
 $page_title = "Financial Statement";
 
 $menu_items = [
     ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard Manager', 'link' => 'dashboardManager.php', 'active_page' => 'dashboardManager'],
+
     ['icon' => 'fa-solid fa-scale-balanced', 'label' => 'Financial Statement', 'link' => 'financeStatement.php', 'active_page' => 'financeStatement'],
     ['icon' => 'fa-solid fa-chart-pie', 'label' => 'Budget Analysis', 'link' => 'budgetAnalysis.php', 'active_page' => 'budgetAnalysis'],
     ['icon' => 'fa-solid fa-calculator', 'label' => 'Tax Report (PPN)', 'link' => 'taxReport.php', 'active_page' => 'taxReport'],
@@ -394,7 +398,7 @@ ob_start();
 </div>
 
 <?php 
-// Tampung seluruh visual workspace ke variabel content
 $content = ob_get_clean();
+
 require_once '../../includes/navbarM06.php'; 
 ?>

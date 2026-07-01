@@ -15,10 +15,6 @@ if (file_exists('../../config/konek.php')) {
 
 date_default_timezone_set('Asia/Jakarta');
 
-/** @var mysqli $conn */
-if (session_status() == PHP_SESSION_NONE) { session_start(); }
-require_once '../../config/koneksi.php'; 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tanggal    = trim($_POST['tanggal']);
     $ref_no     = !empty($_POST['reference_no']) ? trim($_POST['reference_no']) : 'JV-' . date('YmdHis') . '-' . rand(100, 999);
@@ -80,3 +76,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: journalStaffManagement.php");
     exit;
 }
+;
