@@ -188,19 +188,23 @@ foreach ($menu as $section) {
         }
 
         /* collapse toggle button (desktop only) */
-        .m02-collapse-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px; height: 28px;
-            min-width: 28px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: background 0.15s, color 0.15s;
-            flex-shrink: 0;
+        .m02-collapse-toggle{
+            width:40px;
+            height:40px;
+            min-width:40px;
+            min-height:40px;
+            padding:0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:50%;
+            background:rgba(255,255,255,.05);
+            border:1px solid rgba(255,255,255,.1);
+            cursor:pointer;
+            flex:0 0 40px;
+            overflow:hidden;
+
+
         }
         .m02-collapse-toggle:hover { background: rgba(0,212,216,0.15); color: var(--accent); }
         .m02-collapse-arrow { display: inline-block; transition: transform 0.2s ease; font-size: 13px; }
@@ -526,6 +530,19 @@ foreach ($menu as $section) {
                 </div>
             </div>
         </header>
+        <main class="m02-content">
+
+<?php
+if (isset($content)) {
+    echo $content;
+}
+?>
+
+</main>
+
+<footer class="m02-footer">
+    © 2026 Mall ERP System
+</footer>
 
 <script>
     (function () {
@@ -567,3 +584,8 @@ foreach ($menu as $section) {
         });
     })();
 </script>
+</div> <!-- m02-main -->
+</div> <!-- m02-layout -->
+
+</body>
+</html>

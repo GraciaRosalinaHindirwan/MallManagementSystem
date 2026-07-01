@@ -8,7 +8,7 @@ require_once 'auth/checkSession.php';
 $page_title = "Work Order";
 $page = "work_order";
 
-include '../../config/konek.php';
+include '../MallManagementSystem/config/konek.php';
 
 // ============================================================
 // Ambil nilai dari GET (untuk mempertahankan form saat filter skill)
