@@ -1,8 +1,51 @@
 <?php
 session_start();
 require_once '../../config/konek.php';
+require_once __DIR__ . '/../../public/auth/checkSession.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../auth/index.php");
+    exit();
+}
 
-if(!isset($_GET['id'])){
+if (!isset($conn) || !$conn) {
+    die("Koneksi database gagal!");
+}
+
+$role = $_SESSION['role'] ?? '';
+$manager_roles = [
+    'Leasing Manager',
+    'Finance Manager',
+    'Manager',
+    'Purchasing Manager',
+    'Facility Manager',
+    'Event Manager'
+];
+
+if (!in_array($role, $manager_roles)) {
+    header("Location: ../approver/myApproval.php");
+    exit();
+}
+
+if (!$conn) {
+    die("Koneksi database gagal!");
+}
+
+$role = $_SESSION['role'] ?? '';
+$manager_roles = [
+    'Leasing Manager',
+    'Finance Manager',
+    'Manager',
+    'Purchasing Manager',
+    'Facility Manager',
+    'Event Manager'
+];
+
+if (!in_array($role, $manager_roles)) {
+    header("Location: ../approver/myApproval.php");
+    exit();
+}
+
+if (!isset($_GET['id'])) {
     header("Location: approvalList.php");
     exit;
 }
@@ -15,19 +58,15 @@ FROM `08_approval_requests`
 WHERE approval_id = $id
 ");
 
-if($query->num_rows == 0){
+if ($query->num_rows == 0) {
     die("Data tidak ditemukan");
 }
 
 $data = $query->fetch_assoc();
 
-if(isset($_POST['submit'])){
+if (isset($_POST['submit'])) {
 
     $reason = trim($_POST['reject_reason']);
-
-    /*
-    nanti bisa diganti session login
-    */
     $approver = "Manager";
 
     $sql = "
@@ -40,7 +79,7 @@ if(isset($_POST['submit'])){
     WHERE approval_id = $id
     ";
 
-    if($conn->query($sql)){
+    if ($conn->query($sql)) {
 
         echo "
         <script>
@@ -56,126 +95,126 @@ if(isset($_POST['submit'])){
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Reject Request</title>
+    <title>Reject Request</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<style>
+    <style>
+        :root {
+            --primary: #0B376D;
+            --primary-dark: #082A53;
+            --danger: #EF4444;
+            --background: #021F42;
+        }
 
-:root{
-    --primary:#0B376D;
-    --primary-dark:#082A53;
-    --danger:#EF4444;
-    --background:#021F42;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Poppins',sans-serif;
-}
+        body {
+            background: var(--background);
+            min-height: 100vh;
+            padding: 40px;
+        }
 
-body{
-    background:var(--background);
-    min-height:100vh;
-    padding:40px;
-}
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
 
-.container{
-    max-width:800px;
-    margin:auto;
-}
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .15);
+        }
 
-.card{
-    background:white;
-    border-radius:24px;
-    padding:35px;
-    box-shadow:0 15px 40px rgba(0,0,0,.15);
-}
+        .title {
+            font-size: 30px;
+            color: var(--danger);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
 
-.title{
-    font-size:30px;
-    color:var(--danger);
-    font-weight:700;
-    margin-bottom:10px;
-}
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 25px;
+        }
 
-.subtitle{
-    color:#64748b;
-    margin-bottom:25px;
-}
+        .info-box {
+            background: #FEF2F2;
+            border-left: 5px solid var(--danger);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
 
-.info-box{
-    background:#FEF2F2;
-    border-left:5px solid var(--danger);
-    padding:15px;
-    border-radius:10px;
-    margin-bottom:25px;
-}
+        .info-box b {
+            color: #991B1B;
+        }
 
-.info-box b{
-    color:#991B1B;
-}
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-.form-group{
-    margin-bottom:20px;
-}
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+        }
 
-label{
-    display:block;
-    margin-bottom:8px;
-    font-weight:600;
-    color:var(--primary);
-}
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            resize: none;
+            min-height: 150px;
+        }
 
-textarea{
-    width:100%;
-    padding:15px;
-    border:2px solid #e5e7eb;
-    border-radius:12px;
-    resize:none;
-    min-height:150px;
-}
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
 
-textarea:focus{
-    outline:none;
-    border-color:var(--primary);
-}
+        .button-group {
+            display: flex;
+            gap: 12px;
+        }
 
-.button-group{
-    display:flex;
-    gap:12px;
-}
+        .btn {
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
 
-.btn{
-    text-decoration:none;
-    padding:12px 20px;
-    border-radius:10px;
-    color:white;
-    font-weight:600;
-    border:none;
-    cursor:pointer;
-}
+        .btn-back {
+            background: #64748b;
+        }
 
-.btn-back{
-    background:#64748b;
-}
+        .btn-reject {
+            background: var(--danger);
+        }
 
-.btn-reject{
-    background:var(--danger);
-}
-
-.btn:hover{
-    opacity:.9;
-}
-
-</style>
+        .btn:hover {
+            opacity: .9;
+        }
+    </style>
 </head>
+
 <body>
 
     <div class="container">
@@ -193,7 +232,7 @@ textarea:focus{
             <div class="info-box">
 
                 <b>Request Number :</b>
-                    <?= $data['request_number']; ?>
+                <?= $data['request_number']; ?>
 
                 <br><br>
 
@@ -208,7 +247,7 @@ textarea:focus{
 
                     <label>Reject Reason</label>
 
-                        <textarea
+                    <textarea
                         name="reject_reason"
                         required
                         placeholder="Masukkan alasan penolakan..."></textarea>
@@ -241,4 +280,5 @@ textarea:focus{
     </div>
 
 </body>
+
 </html>

@@ -1,6 +1,32 @@
 <?php
 session_start();
 require_once '../../config/konek.php';
+require_once __DIR__ . '/../../public/auth/checkSession.php';
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../auth/index.php");
+    exit();
+}
+
+if (!isset($conn) || !$conn) {
+    die("Koneksi database gagal!");
+}
+
+
+$role = $_SESSION['role'] ?? '';
+$manager_roles = [
+    'Leasing Manager',
+    'Finance Manager',
+    'Manager',
+    'Purchasing Manager',
+    'Facility Manager',
+    'Event Manager'
+];
+
+if (!in_array($role, $manager_roles)) {
+    header("Location: ../approver/myApproval.php");
+    exit();
+}
 
 $data = $conn->query("
 SELECT *
@@ -8,31 +34,12 @@ FROM `08_approval_requests`
 ORDER BY approval_id DESC
 ");
 
-$role = $_SESSION['role'] ?? 'staff';
-if ($role != 'manager') {
-    header("Location: myApproval.php");
-    exit();
-}
-
-// =====================================================
-// TENTUKAN HALAMAN APPROVAL BERDASARKAN ROLE
-// =====================================================
-if ($role == 'manager') {
-    $approval_link = 'approval_manager.php';  // halaman untuk manager
-    $page_title = "Approval Manager";
-    $page_active = "approvalList";
-} else {
-    $approval_link = 'myApproval.php';        // halaman untuk staf
-    $page_title = "Approval";
-    $page_active = "myApproval";
-}
-
 // =============================================
 // VARIABEL UNTUK TEMPLATE
 // =============================================
 $department_name = "BI, Workflow & Notification";
 $page_title = "Approval Manager";
-$user_name = $_SESSION['full_name'] ?? 'Manager';
+$user_name = $_SESSION['full_name'] ?? '';
 $current_page = 'approvalList';
 
 // =============================================
@@ -42,26 +49,32 @@ $menu_items = [
     [
         'icon' => 'fa-solid fa-gauge',
         'label' => 'Dashboard KPI',
-        'link' => '08_dashboard.php',
+        'link' => '../manager/08_dashboard.php',
         'active_page' => '08_dashboard'
     ],
     [
         'icon' => 'fa-solid fa-chart-line',
         'label' => 'Laporan',
-        'link' => '08_laporan.php',
+        'link' => '../manager/08_laporan.php',
         'active_page' => '08_laporan'
     ],
     [
         'icon' => 'fa-solid fa-check-circle',
         'label' => 'Approval',
-        'link' => 'approval_manager.php',
-        'active_page' => 'approvalList'  // ← Harus approvalList
+        'link' => 'approvalList.php',
+        'active_page' => 'approvalList'
+    ],
+    [
+        'icon' => 'fa-solid fa-clock-rotate-left',
+        'label' => 'Audit Log',
+        'link' => 'auditLog.php',
+        'active_page' => 'auditLog'
     ],
     [
         'icon' => 'fa-solid fa-bell',
         'label' => 'Notifikasi',
-        'link' => '08_notifikasi.php',
-        'active_page' => '08_notifikasi'
+        'link' => '../pengguna/index.php',
+        'active_page' => 'index'
     ],
 ];
 ob_start();
@@ -77,24 +90,6 @@ ob_start();
         --danger: #EF4444;
         --background: #021F42;
     }
-
-    /* * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Poppins', sans-serif;
-    }
-
-    body {
-        background: var(--background);
-        min-height: 100vh;
-        padding: 40px;
-    }
-
-    .container {
-        max-width: 1300px;
-        margin: auto;
-    } */
 
     .card {
         background: white;
