@@ -1,7 +1,8 @@
 <?php
 $page_title  = "Asset Management";
 $page = "asset_management";
-require_once '../../config/konek.php';
+require_once 'auth/checkSession.php';
+require_once '../MallManagementSystem/config/konek.php';
 require_once 'asset_functions.php';
  // Ambil data aset
 $assets = mysqli_query($conn, "SELECT * FROM 03_assets ORDER BY asset_id DESC");
@@ -295,4 +296,4 @@ $mutations = mysqli_query($conn, "SELECT m.*, a.name as asset_name FROM 03_asset
  </div>
 <?php
  $content = ob_get_clean();
- include "../../includes/navbar.php";
+ include "../../includes/navbarM03.php";
