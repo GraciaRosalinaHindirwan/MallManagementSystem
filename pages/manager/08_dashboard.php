@@ -1,6 +1,30 @@
 <?php
 require_once '../../config/konek.php';
 require_once __DIR__ . '/../../public/auth/checkSession.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../auth/index.php");
+    exit();
+}
+
+if (!$conn) {
+    die("Koneksi database gagal!");
+}
+
+$role = $_SESSION['role'] ?? '';
+$manager_roles = [
+    'Leasing Manager',
+    'Finance Manager',
+    'Manager',
+    'Purchasing Manager',
+    'Facility Manager',
+    'Event Manager'
+];
+
+if (!in_array($role, $manager_roles)) {
+    header("Location: ../approver/myApproval.php");
+    exit();
+}
+
 
 // =====================================================
 // 1. OCCUPANCY RATE (REAL-TIME)
@@ -152,13 +176,14 @@ while ($row = $result_top_tenant->fetch_assoc()) {
 // =====================================================
 $department_name = "BI, Workflow, and Notification";
 $page_title = "Dashboard KPI";
-$user_name = "Manager";
+$user_name = $_SESSION['full_name'] ?? '';
 
 $menu_items = [
-    ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard KPI', 'link' => '08_dashboard.php', 'active_page' => '08_dashboard'],
+    ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard', 'link' => '08_dashboard.php', 'active_page' => '08_dashboard'],
     ['icon' => 'fa-solid fa-chart-line', 'label' => 'Laporan', 'link' => '08_laporan.php', 'active_page' => '08_laporan'],
-    ['icon' => 'fa-solid fa-check-circle', 'label' => 'Approval', 'link' => '08_approval.php', 'active_page' => '08_approval'],
-    ['icon' => 'fa-solid fa-bell', 'label' => 'Notifikasi', 'link' => '08_notifikasi.php', 'active_page' => '08_notifikasi'],
+    ['icon' => 'fa-solid fa-check-circle', 'label' => 'Approval', 'link' => '../approver/approvalList.php', 'active_page' => 'approvalList'],
+    ['icon' => 'fa-solid fa-clock-rotate-left', 'label' => 'Audit Log', 'link' => '../approver/auditLog.php', 'active_page' => 'auditLog'],
+    ['icon' => 'fa-solid fa-bell', 'label' => 'Notifikasi', 'link' => '../pengguna/index.php', 'active_page' => 'index'],
 ];
 
 ob_start();
