@@ -124,7 +124,6 @@ $menu_items = [
         'link' => 'dashboardManager.php',
         'active_page' => 'dashboardManager'
     ],
-
     [
         'icon' => 'fa-solid fa-scale-balanced',
         'label' => 'Financial Statement',

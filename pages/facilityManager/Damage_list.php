@@ -8,7 +8,7 @@ require_once 'auth/checkSession.php';
 $page_title = "Damage List";
 $page = "damage_list";
 
-include '../../config/konek.php';
+include '../MallManagementSystem/config/konek.php';
 
 // ============================================================
 // 1. SINKRONISASI AMAN (INSERT IGNORE)
@@ -546,7 +546,7 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-include "../../includes/navbar.php";
+include "../../includes/navbarM03.php";
 ?>
 
 <!-- Toast Container -->
@@ -775,9 +775,9 @@ include "../../includes/navbar.php";
 
             // Photo
             if (data.attachment_file) {
-                document.getElementById('drawerPhoto').src = '../uploads/damage_reports/' + data.attachment_file;
+                document.getElementById('drawerPhoto').src = '../../storage/uploads' + data.attachment_file;
             } else {
-                document.getElementById('drawerPhoto').src = '../Uploads/no-image.jpg';
+                document.getElementById('drawerPhoto').src = '../../public/asset/images/no-image.png';
             }
 
             // Assign button

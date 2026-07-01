@@ -1,7 +1,11 @@
 <?php
 require_once '../../config/konek.php';
 require_once '../../vendor/autoload.php';
-require_once __DIR__ . '/../../public/auth/checkSession.php';
+// require_once __DIR__ . '/../../public/auth/checkSession.php';
+// if (!isset($_SESSION['user_id'])) {
+//     header("Location: ../auth/login.php");
+//     exit();
+// }
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
