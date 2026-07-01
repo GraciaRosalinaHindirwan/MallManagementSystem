@@ -1,7 +1,8 @@
 <?php
-/** @var mysqli $conn */ 
-if (session_status() == PHP_SESSION_NONE) { session_start(); }
+/** @var mysqli $conn */ // Memberitahu VS Code kalau $conn itu objek database sah!
 
+if (session_status() == PHP_SESSION_NONE) { session_start(); }
+// Uncomment ini nanti kalau auth sudah jalan:
 // if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
 //     header("Location: ../../index.php"); 
 //     exit();
@@ -10,15 +11,10 @@ if (session_status() == PHP_SESSION_NONE) { session_start(); }
 $_SESSION['role'] = 'financeStaff'; 
 $_SESSION['nama'] = 'Staff Finance'; 
 
-if (file_exists('../../config/konek.php')) {
-    require_once '../../config/konek.php';
-} else {
-    require_once '../../config/connection.php';
-}
-
 // ── 1. KONEKSI DATABASE ───────────────────────────────────────────────────
 require_once '../../config/konek.php';
 
+// ── Helper: jalankan prepared statement MySQLi, return array of assoc ─────
 function db_query(mysqli $conn, string $sql, string $types = '', array $params = []): array {
     $stmt = $conn->prepare($sql);
     if (!$stmt) return [];
@@ -70,6 +66,7 @@ if (!function_exists('fmtRp')) {
     }
 }
 
+// ── 3. QUERY STAT CARDS ───────────────────────────────────────────────────
 
 // 3a. PARKIR — dari 04_parking_transaksi
 $parkir = db_row($conn, "

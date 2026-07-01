@@ -316,3 +316,4 @@ function triggerFormSubmit(bookingId) {
 <?php 
 $content = ob_get_clean();
 require_once '../../includes/navbarM06.php'; 
+?>

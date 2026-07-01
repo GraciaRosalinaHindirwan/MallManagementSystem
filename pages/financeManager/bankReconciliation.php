@@ -34,12 +34,18 @@ $total_masuk_count = ($res_lunas) ? $res_lunas->fetch_assoc()['jml'] : 0;
 $res_rekon = $conn->query("SELECT COUNT(*) as jml FROM 06_invoices WHERE LOWER(status) = 'unpaid'");
 $unreconciled_count = ($res_rekon) ? $res_rekon->fetch_assoc()['jml'] : 0;
 
+// =========================================================================
+// LOGIKA FALLBACK BYPASS AGAR WIDGET DASHBOARD TERISI CANTIK SAAT DEMO
+// =========================================================================
 if ($total_piutang_count == 0 && $total_masuk_count == 0) {
     $total_masuk_count = 3;   // Simulasi 3 invoice lunas
     $total_piutang_count = 4; // Simulasi 4 invoice active (sinkron dengan data simulasi aging)
     $unreconciled_count = 4;  // Perlu validasi pencocokan kas
 }
 
+// ==========================================
+// CONFIG MASTER DATA SIDEBAR & NAVBAR MENU (TIM M06)
+// ==========================================
 $department_name = "Finance Department (Manager Dashboard)";
 $user_name = $_SESSION['nama'];
 $page_title = "Executive Finance Dashboard";
@@ -185,5 +191,6 @@ ob_start();
 
 <?php 
 $content = ob_get_clean();
+
 require_once '../../includes/navbarM06.php'; 
 ?>

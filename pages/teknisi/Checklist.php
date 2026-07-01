@@ -3,7 +3,7 @@ require_once 'auth/checkSession.php';
 $page_title = "Checklist Inspection";
 $page = "checklist";
 
-include '../../config/konek.php';
+include '../MallManagementSystem/config/konek.php';
 
 /* ==========================================
    UPLOAD FOLDER

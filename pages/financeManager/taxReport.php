@@ -90,6 +90,9 @@ if ($result && $result->num_rows > 0) {
     }
 }
 
+// ==========================================
+// CONFIG MASTER DATA SIDEBAR & NAVBAR LAYOUT TIM
+// ==========================================
 $department_name = "Finance Department (Manager Dashboard)";
 $user_name = $_SESSION['nama'];
 $page_title = "taxReport";
@@ -100,10 +103,11 @@ $menu_items = [
     ['icon' => 'fa-solid fa-chart-pie', 'label' => 'Budget Analysis', 'link' => 'budgetAnalysis.php', 'active_page' => 'budgetAnalysis'],
     ['icon' => 'fa-solid fa-calculator', 'label' => 'Tax Report (PPN)', 'link' => 'taxReport.php', 'active_page' => 'taxReport'],
     ['icon' => 'fa-solid fa-building-columns', 'label' => 'Bank Reconciliation', 'link' => 'bankReconciliation.php', 'active_page' => 'bankReconciliation'],
-    ['icon' => 'fa-solid fa-hourglass-half', 'label' => 'Aging Receivable', 'link' => 'agingReceivable.php', 'active_page' => 'agingReceivable'],
-    ['icon' => 'fa-solid fa-book', 'label' => 'Log Otomasi Jurnal', 'link' => 'journalManagement.php', 'active_page' => 'journalManagement']
+    ['icon' => 'fa-solid fa-hourglass-half', 'label' => 'Aging Receivable', 'link' => 'aging Receivable', 'active_page' => 'agingReceivable'],
+    ['icon' => 'fa-solid fa-book', 'label' => 'Log Otomasi Jurnal', 'link' => '../financeStaff/journalManagement.php', 'active_page' => 'journalManagement']
 ];
 
+// Mulai menangkap output visual untuk dikirim ke wrapper layout
 ob_start();
 ?>
 
