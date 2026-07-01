@@ -38,9 +38,9 @@ $menu_items = [
         'active_page' => 'Invoice Management'
     ],
     [
-        'icon'        => 'fa-solid fa-bolt-lightning',
+        'icon'        => 'fa-solid fa-bolt-lightning', 
         'label'       => 'Invoice Utilitas (Air/Listrik)',
-        'link'        => 'utility_invoice.php',
+        'link'        => 'utility_invoice.php', 
         'active_page' => 'utility_invoice'
     ],
     [
@@ -52,7 +52,7 @@ $menu_items = [
     [
         'icon'        => 'fa-solid fa-file-invoice-dollar',
         'label'       => 'Vendor Bill',
-        'link'        => 'vendor_bill.php',
+        'link'        => 'vendor_bill.php', 
         'active_page' => 'Vendor Bill'
     ],
     [
@@ -72,9 +72,9 @@ $menu_items = [
 if (isset($_POST['buat_dummy'])) {
     $po_number_dummy = "PO-" . date('Ymd') . "-" . rand(100, 999);
     $tgl_dummy       = date('Y-m-d');
-
+    
     // Nilai PO dibuat acak antara 5 Juta sampai 50 Juta agar kebutuhan tidak selalu Rp 7.500.000
-    $nominal_dummy   = rand(50, 500) * 100000;
+    $nominal_dummy   = rand(50, 500) * 100000; 
     $status_dummy    = 'pending';
     $vendor_dummy    = 'Vendor Logistik Utama';
 
@@ -164,7 +164,7 @@ if (isset($_GET['rematch']) && is_numeric($_GET['rematch'])) {
 
     if ($vbr) {
 
-        $status_baru = 'matched';
+        $status_baru = 'matched'; 
         $is_matched_baru = 1;
 
         $stmt_upd = $conn->prepare("UPDATE `06_vendor_bill_receipts` SET status=?, is_matched=? WHERE id=?");
@@ -200,7 +200,7 @@ $not_match = $conn->query("SELECT COUNT(*) AS jml FROM `06_vendor_bill_receipts`
 
 $department_name = "Finance Department (Staff Dashboard)";
 $user_name       = $_SESSION['nama'];
-$page_title      = "Vendor Bill";
+$page_title      = "Vendor Bill"; 
 
 ob_start();
 ?>
@@ -381,8 +381,8 @@ ob_start();
                             <td style="padding:14px 8px; text-align:center;">
                                 <?php if ($row['status'] !== 'matched'): ?>
                                     <a href="?rematch=<?= $row['id'] ?>"
-                                        style="background:#FFB62A; color:#021F42; padding:6px 12px; border-radius:6px; font-size:11px; text-decoration:none; font-weight:600; display:inline-block;">
-                                        <i class="fa-solid fa-rotate"></i> Approve Manual
+                                       style="background:#FFB62A; color:#021F42; padding:6px 12px; border-radius:6px; font-size:11px; text-decoration:none; font-weight:600; display:inline-block;">
+                                         <i class="fa-solid fa-rotate"></i> Approve Manual
                                     </a>
                                 <?php else: ?>
                                     <span style="color:#64748b; font-size:12px;">—</span>

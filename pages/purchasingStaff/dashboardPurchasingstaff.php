@@ -1,6 +1,5 @@
 <?php
-
-/** @var mysqli $conn */
+/** @var mysqli $conn */ 
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -28,7 +27,7 @@ if (file_exists(__DIR__ . '/../../config/konek.php')) {
 
 $department_name = "Purchasing Department (Staff Workspace)";
 $user_name = $_SESSION['nama'];
-$page_title = "purchasingDashboard";
+$page_title = "purchasingDashboard"; 
 
 $menu_items = [
     [
@@ -106,8 +105,8 @@ ob_start();
     </div>
 </div>
 
-<?php
+<?php 
 // Melempar buffer isi konten ke komponen master template navbarM06.php
 $content = ob_get_clean();
-require_once __DIR__ . '/../../includes/navbarM06.php';
+require_once __DIR__ . '/../../includes/navbarM06.php'; 
 ?>

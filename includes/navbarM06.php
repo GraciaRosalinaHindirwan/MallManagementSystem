@@ -145,4 +145,8 @@ $page_title = $page_title ?? 'Dashboard';
     </script>
 </body>
 
+<<<<<<< HEAD
 </html
+=======
+</html>
+>>>>>>> d9775093426bcf9542326c449e99bfadd05bc900
