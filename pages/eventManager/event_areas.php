@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         case 'revision': updateBookingStatus($id, 'revision', $catatan); break;
         case 'delete':   deleteBooking($id); break;
     }
-    $redir = 'event_calendar.php' . ($_POST['action'] === 'delete' ? '?msg=deleted' : '?msg='.$_POST['action']);
+    $redir = 'event_areas.php' . ($_POST['action'] === 'delete' ? '?msg=deleted' : '?msg='.$_POST['action']);
     header('Location: '.$redir);
     exit;
 }
@@ -243,4 +243,4 @@ function openAction(id, action) {
 JS;
 
 $content = ob_get_clean();
-require_once dirname(__DIR__, 2) . '../includes/navbarM04_EM.php';
+require_once dirname(__DIR__, 2) . '/includes/navbarM04_EM.php';

@@ -599,4 +599,4 @@ document.querySelectorAll('.area-radio:checked').forEach(r => {
 JS;
 
 $content = ob_get_clean();
-require_once dirname(__DIR__, 2) . '../includes\navbarM04_EO.php';
+require_once dirname(__DIR__, 2) . '/includes/navbarM04_EO.php';

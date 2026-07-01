@@ -1,57 +1,6 @@
 <?php
 require_once __DIR__ . '/../../public/auth/checkSession.php';
-require_once __DIR__ . '/../../config/konek.php';
-
-function getBookings($filter_status = null) {
-    global $conn;
-    $where = $filter_status ? "WHERE b.status = '" . mysqli_real_escape_string($conn, $filter_status) . "'" : "";
-    $result = mysqli_query($conn, "
-        SELECT b.*, a.nama_area, a.kapasitas,
-               u.full_name AS nama_pemohon
-        FROM 04_event_booking b
-        LEFT JOIN 04_event_areas a ON b.id_area = a.id_area
-        LEFT JOIN 09_users u ON b.id_user = u.id
-        $where
-        ORDER BY b.id_booking DESC
-    ");
-    $rows = [];
-    while ($row = mysqli_fetch_assoc($result)) $rows[] = $row;
-    return $rows;
-}
-
-function getAllTiket() {
-    global $conn;
-    $result = mysqli_query($conn, "
-        SELECT t.*, b.nama_event, b.tipe_event
-        FROM 04_event_tiket t
-        LEFT JOIN 04_event_booking b ON t.id_booking = b.id_booking
-        ORDER BY t.id_tiket
-    ");
-    $rows = [];
-    while ($row = mysqli_fetch_assoc($result)) $rows[] = $row;
-    return $rows;
-}
-
-function addTiket($id_booking, $tipe, $kuota, $harga) {
-    global $conn;
-    $res = mysqli_query($conn, "SELECT COUNT(*) AS c FROM 04_event_tiket");
-    $cnt = mysqli_fetch_assoc($res)['c'] + 1;
-    $id_tiket   = 'TKT-' . str_pad($cnt, 3, '0', STR_PAD_LEFT);
-    $id_booking = (int)$id_booking;
-    $tipe       = mysqli_real_escape_string($conn, $tipe);
-    $kuota      = (int)$kuota;
-    $harga      = (float)$harga;
-    mysqli_query($conn, "INSERT INTO 04_event_tiket (id_tiket, id_booking, tipe, kuota, terjual, harga, pendapatan)
-                         VALUES ('$id_tiket', $id_booking, '$tipe', $kuota, 0, $harga, 0)");
-}
-
-function deleteTiket($id_tiket) {
-    global $conn;
-    $id = mysqli_real_escape_string($conn, $id_tiket);
-    mysqli_query($conn, "DELETE FROM 04_event_tiket WHERE id_tiket='$id'");
-}
-
-
+require_once __DIR__ . '/event_data.php';
 
 if (!defined('BASE_URL')) {
     $project_root = realpath(__DIR__ . '/../..');
@@ -77,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $msg = 'tiket_deleted';
     }
 
-    header("Location: event_ticketing.php?tab=$tab&msg=$msg");
+    header("Location: event_ticketing.php?msg=$msg");
     exit;
 }
 
@@ -216,4 +165,4 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-require_once dirname(__DIR__, 2) . '../includes/navbarM04_EM.php';
+require_once dirname(__DIR__, 2) . '/includes/navbarM04_EM.php';

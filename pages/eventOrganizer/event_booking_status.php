@@ -480,4 +480,4 @@ function confirmDel(id, nama) {
 JS;
 
 $content = ob_get_clean();
-require_once dirname(__DIR__, 2) . '../includes\navbarM04_EO.php';
+require_once dirname(__DIR__, 2) . '/includes/navbarM04_EO.php';

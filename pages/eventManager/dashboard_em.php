@@ -386,4 +386,4 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-require_once dirname(__DIR__, 2) . '../includes/navbarM04_EM.php';
+require_once dirname(__DIR__, 2) . '/includes/navbarM04_EM.php';
