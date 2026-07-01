@@ -1,5 +1,5 @@
 <?php
-/** @var mysqli $conn */ 
+/** @var mysqli $conn */ // Memberitahu VS Code kalau $conn itu objek database sah!
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -7,91 +7,183 @@ if (session_status() == PHP_SESSION_NONE) {
 
 /*
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'financeStaff') {
+    // Jika bukan Finance Staff, tendang kembali ke halaman utama login
     header("Location: ../../index.php"); 
     exit();
 }
+*/
 
-// Sesi default sementara tetap dibiarkan di bawahnya agar aman dicoba sekarang
 $_SESSION['role'] = 'financeStaff';
-$_SESSION['nama'] = 'Staff';
+$_SESSION['nama'] = 'Finance Staff';
 
-// Panggil file koneksi terpusat
-if (file_exists('../../config/koneksi.php')) {
-    require_once '../../config/koneksi.php';
+// 2. Hubungkan ke Database
+if (file_exists('../../config/konek.php')) {
+    require_once '../../config/konek.php';
 } else {
     require_once '../../config/connection.php';
 }
 
-require_once '../../includes/header.php';
-require_once '../../includes/navbar.php';
-
-// --- SINKRONISASI QUERY DASHBOARD DENGAN DB BARU MODUL 06 ---
-// 1. Hitung total invoice yang sudah diterbitkan dari tabel 06_invoices
+// 4. Ambil Angka Statistik dari Database M06
 $res_total = $conn->query("SELECT COUNT(*) as jml FROM 06_invoices");
 $total_invoice = ($res_total) ? $res_total->fetch_assoc()['jml'] : 0;
 
-// 2. Hitung invoice yang Belum Bayar ('Unpaid') dari tabel 06_invoices
-$res_pending = $conn->query("SELECT COUNT(*) as jml FROM 06_invoices WHERE status = 'Unpaid'");
+$res_pending = $conn->query("SELECT COUNT(*) as jml FROM 06_invoices WHERE status = 'Belum Bayar' OR status = 'Unpaid'");
 $pending_invoice = ($res_pending) ? $res_pending->fetch_assoc()['jml'] : 0;
 
-// 3. Hitung total entri jurnal dari tabel 06_journal_entries
 $res_jurnal = $conn->query("SELECT COUNT(*) as jml FROM 06_journal_entries");
 $total_jurnal = ($res_jurnal) ? $res_jurnal->fetch_assoc()['jml'] : 0;
+
+$department_name = "Finance Department (Staff Dashboard)";
+$user_name = $_SESSION['nama'];
+$page_title = "Dashboard Staff";
+
+$menu_items = [
+    [
+        'icon'        => 'fa-solid fa-gauge',
+        'label'       => 'Dashboard Staff',
+        'link'        => 'dashboardStaff.php',
+        'active_page' => 'Dashboard Staff'
+    ],
+    [
+        'icon'        => 'fa-solid fa-file-invoice',
+        'label'       => 'Invoice Management',
+        'link'        => 'invoiceManagement.php',
+        'active_page' => 'Invoice Management'
+    ],
+    [
+        'icon'        => 'fa-solid fa-bolt-lightning', 
+        'label'       => 'Invoice Utilitas (Air/Listrik)',
+        'link'        => 'utility_invoice.php', 
+        'active_page' => 'utility_invoice'
+    ],
+    [
+        'icon'        => 'fa-solid fa-cash-register',
+        'label'       => 'Billing System',
+        'link'        => 'billingManagement.php',
+        'active_page' => 'Billing System'
+    ],
+    [
+        'icon'        => 'fa-solid fa-file-invoice-dollar',
+        'label'       => 'Vendor Bill',
+        'link'        => 'vendor_bill.php', // Sesuaikan nama file tujuanmu jika berbeda
+        'active_page' => 'Vendor Bill'
+    ],
+    [
+        'icon'        => 'fa-solid fa-book',
+        'label'       => 'Jurnal Otomatis',
+        'link'        => 'journalManagement.php',
+        'active_page' => 'Jurnal Otomatis'
+    ],
+    [
+        'icon'        => 'fa-solid fa-folder-open',
+        'label'       => 'Dashboard Non Sewa',
+        'link'        => 'dashboardNonSewa.php',
+        'active_page' => 'Dashboard Non Sewa'
+    ]
+];
+
+
+ob_start();
 ?>
 
-<div class="content-container">
-    <div class="mb-4">
-        <h1 style="color: var(--text-accent); font-size: 32px; font-weight: 700; margin: 0;">Finance Staff Workspace</h1>
-        <p style="color: #cbd5e1; margin-top: 5px;">Pusat kendali operasional, invoicing, dan pembukuan harian mall.</p>
+<style>
+    :root { --accent: #FFB62A !important; }
+    body, .layout, .main-content, .content-body { background-color: #021F42 !important; color: #fff !important; }
+    .sidebar { background-color: #011630 !important; }
+    .topbar { background-color: #011630 !important; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 10px; text-align: left; }
+    .kpi-card { background: #011630; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 20px; transition: transform 0.2s; }
+    .kpi-card:hover { transform: translateY(-3px); border-color: #FFB62A; }
+    
+    .menu-panel { background: #011630; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 25px; margin-top: 25px; text-align: left; }
+    .grid-control { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; }
+    .btn-panel { display: flex; align-items: center; justify-content: space-between; padding: 18px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; text-decoration: none; color: #fff; transition: all 0.2s; }
+    .btn-panel:hover { background: rgba(255,255,255,0.07); border-color: #FFB62A; transform: translateX(3px); text-decoration: none; }
+</style>
+
+<div class="container-fluid" style="padding-top: 5px;">
+    <div class="d-flex justify-content-between align-items-center mb-4" style="text-align: left;">
+        <div>
+            <p class="small mb-0" style="color: #cbd5e1 !important; opacity: 0.9;">
+                Grup Otoritas Operasional: <strong><?php echo htmlspecialchars($_SESSION['nama']); ?></strong>. Panel kendali harian pembukuan & invoice.
+            </p>
+        </div>
+        <div style="background-color: #FFB62A; color: #021F42; font-weight: bold; padding: 6px 15px; border-radius: 4px; font-size: 13px;">
+            <i class="fa-solid fa-calendar-days me-1"></i> Tahun Buku: <?php echo date('Y'); ?>
+        </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 35px;">
-        
-        <div style="background: #032b5c; padding: 25px; border-radius: 15px; border-left: 5px solid #00cfd5; box-shadow: 0 10px 15px rgba(0,0,0,0.2);">
-            <div style="display: flex; justify-content: space-between; align-items: center; color: #a0aec0;">
-                <h5 style="font-size: 12px; margin: 0; letter-spacing: 1px;">TOTAL INVOICE</h5>
-                <i class="fa-solid fa-file-invoice"></i>
-            </div>
-            <h2 style="color: #fff; margin: 15px 0 5px 0; font-size: 28px; font-weight: 700;"><?= $total_invoice; ?> <span style="font-size: 14px; font-weight: 400; color: #cbd5e1;">Data</span></h2>
-            <span style="color: #00cfd5; font-size: 12px;">Telah diterbitkan di sistem M06</span>
+    <div class="dashboard-grid">
+        <div class="kpi-card" style="border-left: 4px solid #00cfd5;">
+            <small style="color: #cbd5e1; font-size: 11px; display: block; letter-spacing: 0.5px;">TOTAL INVOICE (YTD)</small>
+            <h3 style="margin: 8px 0; font-size: 20px; font-weight: 700; color: #fff;"><?= $total_invoice; ?> <span style="font-size: 14px; font-weight: 400; color: #cbd5e1;">Data</span></h3>
+            <small style="color: #00cfd5; font-size: 11px;"><i class="fa-solid fa-file-invoice me-1"></i> Terbit di Sistem M06</small>
         </div>
 
-        <div style="background: #032b5c; padding: 25px; border-radius: 15px; border-left: 5px solid var(--accent); box-shadow: 0 10px 15px rgba(0,0,0,0.2);">
-            <div style="display: flex; justify-content: space-between; align-items: center; color: #a0aec0;">
-                <h5 style="font-size: 12px; margin: 0; letter-spacing: 1px;">PERLU DI-FOLLOW UP</h5>
-                <i class="fa-solid fa-hourglass-half" style="color: var(--accent);"></i>
-            </div>
-            <h2 style="color: var(--accent); margin: 15px 0 5px 0; font-size: 28px; font-weight: 700;"><?= $pending_invoice; ?> <span style="font-size: 14px; font-weight: 400; color: #cbd5e1;">Belum Bayar</span></h2>
-            <span style="color: #cbd5e1; font-size: 12px;">Menunggu tindakan penagihan (Unpaid)</span>
+        <div class="kpi-card" style="border-left: 4px solid #FFB62A;">
+            <small style="color: #cbd5e1; font-size: 11px; display: block; letter-spacing: 0.5px;">PERLU DI-FOLLOW UP</small>
+            <h3 style="margin: 8px 0; font-size: 20px; font-weight: 700; color: #FFB62A;"><?= $pending_invoice; ?> <span style="font-size: 14px; font-weight: 400; color: #cbd5e1;">Invoice</span></h3>
+            <small style="color: #cbd5e1; opacity: 0.6; font-size: 11px;">Menunggu Pembayaran Tenant</small>
         </div>
 
-        <div style="background: #032b5c; padding: 25px; border-radius: 15px; border-left: 5px solid #10b981; box-shadow: 0 10px 15px rgba(0,0,0,0.2);">
-            <div style="display: flex; justify-content: space-between; align-items: center; color: #a0aec0;">
-                <h5 style="font-size: 12px; margin: 0; letter-spacing: 1px;">OTOMASI JURNAL</h5>
-                <i class="fa-solid fa-book" style="color: #10b981;"></i>
-            </div>
-            <h2 style="color: #fff; margin: 15px 0 5px 0; font-size: 28px; font-weight: 700;"><?= $total_jurnal; ?> <span style="font-size: 14px; font-weight: 400; color: #cbd5e1;">Log</span></h2>
-            <span style="color: #10b981; font-size: 12px;">Pembukuan otomatis sukses</span>
+        <div class="kpi-card" style="border-left: 4px solid #10b981;">
+            <small style="color: #cbd5e1; font-size: 11px; display: block; letter-spacing: 0.5px;">OTOMASI JURNAL BERHASIL</small>
+            <h3 style="margin: 8px 0; font-size: 20px; font-weight: 700; color: #10b981;"><?= $total_jurnal; ?> <span style="font-size: 14px; font-weight: 400; color: #cbd5e1;">Log</span></h3>
+            <small style="color: #cbd5e1; opacity: 0.6; font-size: 11px;"><i class="fa-solid fa-book me-1"></i> Pembukuan Sukses</small>
         </div>
-
     </div>
 
-    <h4 style="color: #fff; margin-bottom: 20px; font-size: 18px; font-weight: 600;">Akses Cepat Fitur Operasional</h4>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+    <div class="menu-panel">
+        <h5 style="color: #FFB62A; font-weight: 600; font-size: 15px; margin-top: 0; margin-bottom: 5px;">
+            <i class="fa-solid fa-folder-open me-2"></i> Konsol Kendali Fitur Operasional Staff (M06)
+        </h5>
+        <p style="color: #cbd5e1; font-size: 12px; margin-bottom: 20px;">Akses cepat entri data keuangan harian:</p>
         
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 10px;">
-            <h5 style="color: var(--text-accent); margin: 0 0 10px 0;"><i class="fa-solid fa-file-circle-plus"></i> Invoicing & Kontrak</h5>
-            <p style="color: #cbd5e1; font-size: 13px; margin: 0 0 15px 0;">Sinkronisasi data sewa dari modul M02 dan cetak invoice baru tenant.</p>
-            <a href="invoiceManagement.php" class="btn" style="background: #00cfd5; color: #021F42; font-weight: 600; font-size: 13px; padding: 8px 15px; border: none; text-decoration: none; display: inline-block; border-radius: 5px;">Buka Invoice Management</a>
-        </div>
+        <div class="grid-control">
+            <a href="invoiceManagement.php" class="btn-panel">
+                <div>
+                    <strong style="color: #00cfd5; display: block; font-size: 14px;"><i class="fa-solid fa-file-circle-plus me-2"></i> Invoicing & Kontrak</strong>
+                    <small style="color: #cbd5e1; font-size: 12px;">Sinkronisasi data sewa dari modul M02</small>
+                </div>
+                <i class="fa-solid fa-chevron-right style-arrow" style="color: #00cfd5; opacity: 0.7;"></i>
+            </a>
 
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 10px;">
-            <h5 style="color: var(--text-accent); margin: 0 0 10px 0;"><i class="fa-solid fa-cash-register"></i> Billing & Pelunasan</h5>
-            <p style="color: #cbd5e1; font-size: 13px; margin: 0 0 15px 0;">Proses pencatatan pembayaran cicilan atau pelunasan tagihan masuk.</p>
-            <a href="billingManagement.php" class="btn" style="background: var(--accent); color: #021F42; font-weight: 600; font-size: 13px; padding: 8px 15px; border: none; text-decoration: none; display: inline-block; border-radius: 5px;">Buka Billing System</a>
-        </div>
+            <a href="billingManagement.php" class="btn-panel">
+                <div>
+                    <strong style="color: #eab308; display: block; font-size: 14px;"><i class="fa-solid fa-cash-register me-2"></i> Billing & Pelunasan</strong>
+                    <small style="color: #cbd5e1; font-size: 12px;">Pencatatan pembayaran cicilan & tagihan masuk</small>
+                </div>
+                <i class="fa-solid fa-chevron-right style-arrow" style="color: #eab308; opacity: 0.7;"></i>
+            </a>
+            
+            <a href="journalManagement.php" class="btn-panel">
+                <div>
+                    <strong style="color: #10b981; display: block; font-size: 14px;"><i class="fa-solid fa-book me-2"></i> Jurnal Otomatis</strong>
+                    <small style="color: #cbd5e1; font-size: 12px;">Pemeriksaan mutasi entri jurnal harian</small>
+                </div>
+                <i class="fa-solid fa-chevron-right style-arrow" style="color: #10b981; opacity: 0.7;"></i>
+            </a>
 
+            <a href="dashboardNonSewa.php" class="btn-panel">
+                <div>
+                    <strong style="color: #a855f7; display: block; font-size: 14px;"><i class="fa-solid fa-folder me-2"></i> Dashboard Non Sewa</strong>
+                    <small style="color: #cbd5e1; font-size: 12px;">Manajemen pendapatan sekunder & utilitas mall</small>
+                </div>
+                <i class="fa-solid fa-chevron-right style-arrow" style="color: #a855f7; opacity: 0.7;"></i>
+            </a>
+              <a href="vendor_bill.php" class="btn-panel">
+                <div>
+                    <strong style="color: #a855f7; display: block; font-size: 14px;"><i class="fa-solid fa-folder me-2"></i> Vendor Bill</strong>
+                    <small style="color: #cbd5e1; font-size: 12px;">Vendor Bill</small>
+                </div>
+                <i class="fa-solid fa-chevron-right style-arrow" style="color: #a855f7; opacity: 0.7;"></i>
+            </a>
+        </div>
     </div>
 </div>
 
-<?php require_once '../../includes/footer.php'; ?>
+<?php 
+$content = ob_get_clean();
+require_once __DIR__ . '/../../includes/navbarM06.php'; 
+?>
