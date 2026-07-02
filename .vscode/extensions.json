@@ -1,0 +1,22 @@
+{
+  "recommendations": [
+    "bmewburn.vscode-intelephense-client",
+    "xdebug.php-debug",
+    "neilbrayfield.php-docblocker",
+    "junstyle.php-cs-fixer",
+    "ecmel.vscode-html-css",
+    "ritwickdey.LiveServer",
+    "formulahendry.auto-rename-tag",
+    "formulahendry.auto-close-tag",
+    "pranaygp.vscode-css-peek",
+    "zignd.html-css-class-completion",
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    "usernamehw.errorlens",
+    "esbenp.prettier-vscode",
+    "christian-kohler.path-intellisense",
+    "oderwat.indent-rainbow",
+    "pkief.material-icon-theme",
+    "streetsidesoftware.code-spell-checker"
+  ]
+}

@@ -29,6 +29,13 @@ session_start();
 
                 <?php
                 unset($_SESSION['error']);
+
+                elseif(isset($_SESSION['success'])): ?>
+                <div class="mb-4 rounded-lg bg-[var(--background)] border border-green-500 text-[var(--success)] p-3">
+                    <?= $_SESSION['success'] ?>
+                </div>
+                <?php
+                unset($_SESSION['success']);
                 endif;
             ?>
 
