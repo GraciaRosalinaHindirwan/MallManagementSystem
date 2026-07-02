@@ -143,7 +143,6 @@ $page_title = $page_title ?? 'Customer Service ';
                     }
                     ?>
                 </div>
-                <?php require_once __DIR__ . '/footer.php'; ?>
             </div>
         </main>
     </div>
@@ -201,6 +200,7 @@ $page_title = $page_title ?? 'Customer Service ';
             });
         })();
     </script>
+    <?php if (isset($extraScript)) echo $extraScript; ?>
 </body>
 
 </html>
