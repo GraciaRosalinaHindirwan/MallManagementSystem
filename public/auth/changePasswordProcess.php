@@ -1,5 +1,16 @@
 <?php
 session_start();
+<<<<<<< HEAD
+
+if($_SERVER['REQUEST_METHOD'] !== 'POST'){
+    header('Location: ../auth/changePassword.php');
+    exit;
+}
+
+if (!isset($_SESSION['user_id'])) {
+
+    header('Location: ../index.php');
+=======
 require_once __DIR__.'/../../repositories/UserRepositoryFactory.php';
 require_once __DIR__.'/../../dto/changePasswordDto.php';
 require_once __DIR__.'/../../services/authService.php';
@@ -8,6 +19,7 @@ require_once __DIR__.'/AfterLoginProcess.php';
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST'){
     header('Location: ../../public/changePassword.php');
+>>>>>>> 55bf5912288eaf5072aa118db5e7a3075d14d273
     exit;
 }
 
@@ -19,6 +31,26 @@ if (empty($newPassword) || empty($confirmPassword)) {
     $_SESSION['error'] =
         'Semua field wajib diisi';
 
+<<<<<<< HEAD
+    header('Location: changePassword.php');
+    exit;
+}
+
+$hashedPassword = password_hash(
+    $newPassword,
+    PASSWORD_DEFAULT
+);
+
+//update database
+
+
+$_SESSION['success'] =
+    'Password berhasil diubah';
+
+header('Location: ../dashboard.php');
+exit;
+
+=======
     header('Location: ../../public/changePassword.php');
     exit;
 } else if($newPassword !== $confirmPassword){
@@ -69,4 +101,5 @@ unset($_SESSION['warning']);
 $role = $_SESSION['user_role'] ?? '';
 $process = new RedirectByRoleAction($role);
 (new AfterLoginProcess())->execute($process);
+>>>>>>> 55bf5912288eaf5072aa118db5e7a3075d14d273
 ?>

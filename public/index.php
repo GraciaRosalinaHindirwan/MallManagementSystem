@@ -50,7 +50,10 @@ session_start();
                         ['type' => "password",
                         'name' => "password",
                         'placeholder' => "",
-                        'label' => "password"]
+                        'label' => "password",
+                        'minlength' => '8',
+                        'pattern' => '^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9])(?!.*[+{}]).{8,}$',
+                        ]
                     ];
                 
                 ?>
@@ -61,6 +64,10 @@ session_start();
                     type = "<?php echo $field['type']; ?>"
                     name = "<?php echo $field['name']; ?>"
                     placeholder = "<?php echo $field['placeholder']; ?>"
+
+                    <?= isset($field['minlength']) ? 'minlength="'.$field['minlength'].'"' : '' ?>
+                    <?= isset($field['pattern']) ? 'pattern="'.$field['pattern'].'"' : '' ?>
+
                     class="peer w-full bg-transparent border-[1.5px] border-[var(--accent)] rounded-[8px] px-[16px] pt-[20px] pb-[16px] text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"/>
 
                     <label
@@ -76,6 +83,14 @@ session_start();
                     peer-focus:text-cyan-400">
                         <?php echo $field['label']; ?>
                     </label>
+                    
+                    //harusnya di register page 
+                    <?php if($field['name'] == 'password'): ?>
+                        <p class="mt-1 text-xs text-[var(--text-secondary)]">
+                            Minimal 8 karakter, wajib mengandung huruf kapital, angka, dan simbol.
+                            <br>Simbol +, {, dan } tidak diperbolehkan.
+                        </p>
+                    <?php endif; ?>
                 </div>
                 <?php endforeach; ?>
 
