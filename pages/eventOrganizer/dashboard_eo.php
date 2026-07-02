@@ -1,7 +1,6 @@
 <?php
-require_once __DIR__ . '/../../public/auth/checkSession.php';
-
-require_once '../../config/konek.php';
+require_once dirname(__DIR__, 2) . '/public/auth/checkSession.php';
+require_once dirname(__DIR__, 2) . '/config/konek.php';
 
 function getAreas() {
     global $conn;
