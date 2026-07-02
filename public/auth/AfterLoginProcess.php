@@ -44,7 +44,7 @@ class RedirectByRoleAction implements AfterLoginAction
                 header('Location: ../../pages/CS/cari-tenant.php');
                 break;
             case 'event manager':
-                header('Location: ../../pages/eventManager/index.php');
+                header('Location: ../../pages/eventManager/dashboard_em.php');
                 break;
             case 'admin':
                 header('Location: ../../testing/dashboardTest.php');
@@ -68,7 +68,7 @@ class RedirectByRoleAction implements AfterLoginAction
                 header('Location: ../../testing/dashboardTest.php');
                 break;
             case 'event organizer':
-                header('Location: ../../testing/dashboardTest.php');
+                header('Location: ../../pages/eventManager/dashboard_eo.php');
                 break;
             case 'tenant owner':
                 header('Location: ../../pages/tenant/tenant_portal.php');
