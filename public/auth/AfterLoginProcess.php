@@ -53,13 +53,13 @@ class RedirectByRoleAction implements AfterLoginAction
                 header('Location: ../../testing/dashboardTest.php');
                 break;
             case 'facility manager':
-                header('Location: ../../testing/dashboardTest.php');
+                header('Location: ../../pages/facilityManager/Damage_list.php');
                 break;
             case 'facility staff':
                 header('Location: ../../testing/dashboardTest.php');
                 break;
             case 'teknisi':
-                header('Location: ../../testing/dashboardTest.php');
+                header('Location: ../../pages/teknisi/Checklist.php');
                 break;
             case 'pengunjung':
                 header('Location: ../../testing/dashboardTest.php');
@@ -71,10 +71,10 @@ class RedirectByRoleAction implements AfterLoginAction
                 header('Location: ../../testing/dashboardTest.php');
                 break;
             case 'tenant owner':
-                header('Location: ../../testing/dashboardTest.php');
+                header('Location: ../../pages/tenant/tenant_portal.php');
                 break;
             case 'tenant staff':
-                header('Location: ../../testing/dashboardTest.php');
+                header('Location: ../../pages/tenant/tenant_portal.php');
                 break;
             default:
                 header('Location: ../../testing/dashboardTest.php');
