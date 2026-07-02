@@ -14,38 +14,71 @@ if (!defined('BASE_URL')) {
     define('BASE_URL', $base);
 }
 
-// Default values (bisa di-override oleh halaman)
+// Default values
 $department_name = $department_name ?? 'BI, Workflow & Notification';
 $page_title = $page_title ?? 'Dashboard KPI';
 $user_name = $user_name ?? 'Manager';
 
-// Menu default modul 8 (bisa di-override)
-$menu_items = $menu_items ?? [
+// =============================================
+// MENU BERDASARKAN ROLE
+// =============================================
+$role = $_SESSION['role'] ?? 'Staff';
+
+// Menu dasar (semua role)
+$base_menu = [
     [
-        'icon' => 'fa-solid fa-chart-line',
+        'icon' => 'fa-solid fa-gauge',
         'label' => 'Dashboard KPI',
         'link' => '08_dashboard.php',
-        'active_page' => 'dashboard'
+        'active_page' => '08_dashboard'
     ],
     [
-        'icon' => 'fa-solid fa-file-alt',
+        'icon' => 'fa-solid fa-chart-line',
         'label' => 'Laporan',
         'link' => '08_laporan.php',
-        'active_page' => 'laporan'
-    ],
-    [
-        'icon' => 'fa-solid fa-check-circle',
-        'label' => 'Approval',
-        'link' => '08_approval.php',
-        'active_page' => 'approval'
+        'active_page' => '08_laporan'
     ],
     [
         'icon' => 'fa-solid fa-bell',
         'label' => 'Notifikasi',
-        'link' => '08_notifikasi.php',
+        'link' => 'notifikasi.php',
         'active_page' => 'notifikasi'
     ],
 ];
+
+// Menu Approval berdasarkan role
+if ($role == 'Manager') {
+    // Manager: lihat semua approval
+    $approval_menu = [
+        'icon' => 'fa-solid fa-check-circle',
+        'label' => 'Approval',
+        'link' => 'approvalList.php',  // Untuk Manager
+        'active_page' => 'approvalList'
+    ];
+} else {
+    // Staff: lihat approval sendiri
+    $approval_menu = [
+        'icon' => 'fa-solid fa-check-circle',
+        'label' => 'Approval',
+        'link' => 'myApproval.php',    // Untuk Staff
+        'active_page' => 'myApproval'
+    ];
+}
+
+// Gabungkan menu
+$menu_items = $menu_items ?? array_merge($base_menu, [$approval_menu]);
+
+// =============================================
+// TAMBAHKAN MENU AUDIT LOG UNTUK MANAGER
+// =============================================
+if ($role == 'Manager') {
+    $menu_items[] = [
+        'icon' => 'fa-solid fa-clock-rotate-left',
+        'label' => 'Audit Log',
+        'link' => 'notificationList.php',
+        'active_page' => 'notificationList'
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -111,6 +144,150 @@ $menu_items = $menu_items ?? [
             </div>
         </main>
     </div>
+
+    <style>
+        /* =============================================
+           STYLE UNTUK KONTEN APPROVAL
+           ============================================= */
+        .approval-content {
+            padding: 0 5px;
+        }
+
+        .header-approval {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .page-tag {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 10px;
+        }
+
+        .card-approval {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary, #0B376D);
+            margin-bottom: 20px;
+        }
+
+        .btn-create {
+            display: inline-block;
+            background: var(--primary, #0B376D);
+            color: white;
+            text-decoration: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .btn-create:hover {
+            background: var(--primary-dark, #082A53);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--primary, #0B376D);
+            color: white;
+            padding: 14px;
+            text-align: left;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .badge {
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pending {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .approved {
+            background: #DCFCE7;
+            color: #166534;
+        }
+
+        .rejected {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .header-approval {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .card-approval {
+                padding: 16px;
+            }
+
+            .card-title {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .card-approval {
+                padding: 12px;
+            }
+
+            th,
+            td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .badge {
+                padding: 4px 10px;
+                font-size: 10px;
+            }
+
+            .btn-create {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
 
     <script>
         (function() {
