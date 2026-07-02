@@ -4,6 +4,7 @@ require_once __DIR__.'/../../repositories/UserRepositoryFactory.php';
 require_once __DIR__.'/../../dto/changePasswordDto.php';
 require_once __DIR__.'/../../services/authService.php';
 require_once __DIR__.'/../../config/log_helper.php';
+require_once __DIR__.'/AfterLoginProcess.php';
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST'){
     header('Location: ../../public/changePassword.php');
@@ -65,9 +66,7 @@ simpanLog(
 
 unset($_SESSION['warning']);
 
-header(
-    'Location: ../../testing/dashboardTest.php'
-);
-
-exit;
+$role = $_SESSION['user_role'] ?? '';
+$process = new RedirectByRoleAction($role);
+(new AfterLoginProcess())->execute($process);
 ?>
