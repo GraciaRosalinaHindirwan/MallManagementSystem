@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../public/auth/checkSession.php';
-require_once 'event_data.php';
+require_once __DIR__ . '/event_data.php';
+
 
 if (!defined('BASE_URL')) {
     $project_root = realpath(__DIR__ . '/../..');
@@ -13,18 +14,8 @@ if (!defined('BASE_URL')) {
     define('BASE_URL', $base);
 }
 
-$department_name = 'Event Management';
-$menu_items = [
-    ['icon'=>'fa-solid fa-house',         'label'=>'Dashboard',         'link'=>BASE_URL.'/pages/eventManager/index.php',                    'active_page'=>'index'],
-    ['icon'=>'fa-solid fa-calendar-plus', 'label'=>'Form Booking',      'link'=>BASE_URL.'/pages/eventOrganizer/event_booking_form.php',     'active_page'=>'event_booking_form'],
-    ['icon'=>'fa-solid fa-list-check',    'label'=>'Status Pengajuan',  'link'=>BASE_URL.'/pages/eventOrganizer/event_booking_status.php',   'active_page'=>'event_booking_status'],
-    ['icon'=>'fa-solid fa-calendar-week', 'label'=>'Kalender & Approval','link'=>BASE_URL.'/pages/eventManager/event_calendar.php',          'active_page'=>'event_calendar'],
-    ['icon'=>'fa-solid fa-people-group',  'label'=>'Vendor & Tiket',    'link'=>BASE_URL.'/pages/eventManager/event_vendor_ticketing.php',   'active_page'=>'event_vendor_ticketing'],
-    ['icon'=>'fa-solid fa-chart-line',    'label'=>'Analytics',         'link'=>BASE_URL.'/pages/eventManager/event_analytics.php',          'active_page'=>'event_analytics'],
-];
-
-$page_title = 'Dashboard Event Management';
-$page       = 'index';
+$page_title = 'Dashboard Event';
+$page       = 'dashboad_em';
 
 $semua     = getBookings();
 $pending   = array_filter($semua, fn($b) => $b['status'] === 'pending');
@@ -207,8 +198,8 @@ ob_start();
 .em-kpi-lbl  { font-size: 10px; opacity: .45; text-transform: uppercase; letter-spacing: .05em; margin-top: 3px; }
 
 /* Feature grid */
-.em-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: .85rem; margin-bottom: 1.5rem; }
-@media (max-width: 992px) { .em-features { grid-template-columns: repeat(2, 1fr); } }
+.em-features { display: grid; grid-template-columns: repeat(5, 1fr); gap: .85rem; margin-bottom: 1.5rem; }
+@media (max-width: 1111px) { .em-features { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 576px) { .em-features { grid-template-columns: 1fr; } }
 
 .em-feat-card {
@@ -267,7 +258,7 @@ ob_start();
     50%      { opacity: .6; }
 }
 
-.em-bottom-row { display: grid; grid-template-columns: 1fr 380px; gap: .85rem; }
+.em-bottom-row { display: grid; grid-template-columns: 1fr 0px;}
 @media (max-width: 992px) { .em-bottom-row { grid-template-columns: 1fr; } }
 
 .em-activity-row {
@@ -276,20 +267,15 @@ ob_start();
     align-items: center;
     padding: .55rem 0;
     border-bottom: 1px solid rgba(255,255,255,.05);
-    gap: .5rem;
 }
-.em-activity-row:last-child { border-bottom: none; }
-.em-activity-name { font-size: 13px; font-weight: 600; }
-.em-activity-type { font-size: 11px; opacity: .4; }
 </style>
 
-<!-- HERO -->
 <div class="em-hero">
     <div class="em-hero-tag">
         <i class="fa-solid fa-calendar-star"></i> SISFO MALL — EVENT
     </div>
     <h2>Event Management</h2>
-    <p>Kelola pengajuan, approval, vendor, ticketing, sponsorship &amp; analitik event mall</p>
+    <p>Kelola approval, vendor, ticketing, &amp; sponsorship</p>
 
     <div class="em-kpi-grid">
         <?php
@@ -310,76 +296,70 @@ ob_start();
 
 <div class="em-features">
 
-    <a href="../eventOrganizer/event_booking_form.php" class="em-feat-card c-teal">
-        <div class="em-feat-icon" style="background:rgba(0,212,216,.14);color:var(--accent)">
-            <i class="fa-solid fa-calendar-plus"></i>
-        </div>
-        <div class="em-feat-pbi" style="color:var(--accent)">PBI-01 · Event Organizer</div>
-        <h6>Form Pengajuan
-            <?php if (count($pending)): ?><span class="em-count-badge"><?= count($pending) ?></span><?php endif; ?>
-        </h6>
-        <p>EO/Tenant ajukan booking area event. Conflict-check otomatis berjalan saat submit.</p>
-        <div class="em-feat-link" style="color:var(--accent)">
-            <i class="fa-solid fa-arrow-right"></i> Buka Form
-        </div>
-    </a>
-
-    <a href="../eventOrganizer/event_booking_status.php" class="em-feat-card c-gold">
+    <a href="event_areas.php" class="em-feat-card c-gold">
         <div class="em-feat-icon" style="background:rgba(255,182,42,.12);color:var(--text-accent)">
             <i class="fa-solid fa-list-check"></i>
         </div>
-        <div class="em-feat-pbi" style="color:var(--text-accent)">PBI-01 · Event Organizer</div>
-        <h6>Status Pengajuan</h6>
+        <div class="em-feat-pbi" style="color:var(--text-accent)">Event Area</div>
+        <h6>Status Area Event</h6>
         <p>Pantau progres semua pengajuan dengan timeline visual per-event.</p>
         <div class="em-feat-link" style="color:var(--text-accent)">
             <i class="fa-solid fa-arrow-right"></i> Lihat Status
         </div>
     </a>
 
-    <a href="event_calendar.php" class="em-feat-card c-cyan">
+    <a href="event_approval.php" class="em-feat-card c-cyan">
         <div class="em-feat-icon" style="background:rgba(22,126,128,.18);color:#67e8f9">
             <i class="fa-solid fa-calendar-week"></i>
         </div>
-        <div class="em-feat-pbi" style="color:#67e8f9">PBI-02 · Event Manager</div>
-        <h6>Kalender &amp; Approval
+        <div class="em-feat-pbi" style="color:#67e8f9">Event Approval</div>
+        <h6>Kelola Persetujuan
             <?php if (count($pending)): ?><span class="em-count-badge"><?= count($pending) ?></span><?php endif; ?>
         </h6>
         <p>Kalender per area + conflict-check otomatis + workflow approve / tolak / revisi.</p>
         <div class="em-feat-link" style="color:#67e8f9">
-            <i class="fa-solid fa-arrow-right"></i> Buka Kalender
+            <i class="fa-solid fa-arrow-right"></i> Lihat Detail
         </div>
     </a>
 
-    <a href="event_vendor_ticketing.php" class="em-feat-card c-violet">
+    <a href="event_vendor.php" class="em-feat-card c-violet">
         <div class="em-feat-icon" style="background:rgba(139,92,246,.18);color:#c4b5fd">
             <i class="fa-solid fa-people-group"></i>
         </div>
-        <div class="em-feat-pbi" style="color:#c4b5fd">PBI-03 · Event Manager</div>
-        <h6>Vendor · Tiket · Sponsor</h6>
-        <p>Kelola vendor, setup tiket digital per-kuota, dan manajemen sponsorship.</p>
+        <div class="em-feat-pbi" style="color:#c4b5fd">Event Vendor</div>
+        <h6>Kelola Vendor</h6>
+        <p>Kelola database vendor yang digunakan pada seluruh event.</p>
         <div class="em-feat-link" style="color:#c4b5fd">
-            <i class="fa-solid fa-arrow-right"></i> Kelola Koordinasi
+            <i class="fa-solid fa-arrow-right"></i> Lihat Vendor
         </div>
     </a>
 
+    <a href="event_ticketing.php" class="em-feat-card c-violet">
+        <div class="em-feat-icon" style="background:rgba(139,92,246,.18);color:#c4b5fd">
+            <i class="fa-solid fa-people-group"></i>
+        </div>
+        <div class="em-feat-pbi" style="color:#c4b5fd">Event Ticketing</div>
+        <h6>Kelola Tiket</h6>
+        <p>Kelola ticketing yang digunakan pada seluruh event.</p>
+        <div class="em-feat-link" style="color:#c4b5fd">
+            <i class="fa-solid fa-arrow-right"></i> Lihat Ticket
+        </div>
+    </a>
+
+    <a href="event_sponsorship.php" class="em-feat-card c-violet">
+        <div class="em-feat-icon" style="background:rgba(139,92,246,.18);color:#c4b5fd">
+            <i class="fa-solid fa-people-group"></i>
+        </div>
+        <div class="em-feat-pbi" style="color:#c4b5fd">Event Sponsorship</div>
+        <h6>Kelola Sponsor</h6>
+        <p>Kelola database sponsor yang digunakan pada seluruh event.</p>
+        <div class="em-feat-link" style="color:#c4b5fd">
+            <i class="fa-solid fa-arrow-right"></i> Lihat Sponsor
+        </div>
+    </a>
 </div>
 
 <div class="em-bottom-row">
-
-    <a href="event_analytics.php" class="em-feat-card c-green" style="flex-direction:row;gap:1.25rem;align-items:center;padding:1.5rem;border-radius:14px">
-        <div class="em-feat-icon" style="background:rgba(34,197,94,.14);color:#86efac;width:54px;height:54px;font-size:1.55rem;border-radius:14px;flex-shrink:0">
-            <i class="fa-solid fa-chart-line"></i>
-        </div>
-        <div>
-            <div class="em-feat-pbi" style="color:#86efac">PBI-04 · Manajer (Read-Only)</div>
-            <h6 style="font-size:.9rem;margin-bottom:.3rem">Post-Event Analytics Dashboard</h6>
-            <p style="font-size:12px">Laporan pengunjung, revenue, traffic impact, rating kepuasan pasca-event.</p>
-            <div class="em-feat-link" style="color:#86efac;margin-top:.6rem">
-                <i class="fa-solid fa-arrow-right"></i> Buka Analytics
-            </div>
-        </div>
-    </a>
-
     <div class="em-card">
         <div class="em-card-header">
             <span class="em-card-label"><i class="fa-solid fa-bolt"></i> Aktivitas Terkini</span>
@@ -402,9 +382,8 @@ ob_start();
             <?php endif; ?>
         </div>
     </div>
-
 </div>
 
 <?php
 $content = ob_get_clean();
-require_once '../../includes/navbar.php';
+require_once dirname(__DIR__, 2) . '/includes/navbarM04_EM.php';

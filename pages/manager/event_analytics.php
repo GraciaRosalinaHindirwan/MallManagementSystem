@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../public/auth/checkSession.php';
-require_once 'event_data.php';
+require_once '../../pages/eventManager/event_data.php';
 
 if (!defined('BASE_URL')) {
     $project_root = realpath(__DIR__ . '/../..');
@@ -12,45 +12,17 @@ if (!defined('BASE_URL')) {
     $base = str_replace('\\', '/', $base);
     define('BASE_URL', $base);
 }
+$department_name = "BI, Workflow, and Notification";
+$page_title = "Dashboard KPI";
+$user_name = "Manager";
 
-$department_name = 'Event Management';
 $menu_items = [
-    [
-        'icon'        => 'fa-solid fa-house',
-        'label'       => 'Dashboard',
-        'link'        => BASE_URL . '/pages/eventManager/index.php',
-        'active_page' => 'index',
-    ],
-    [
-        'icon'        => 'fa-solid fa-calendar-plus',
-        'label'       => 'Form Booking',
-        'link'        => BASE_URL . '/pages/eventOrganizer/event_booking_form.php',
-        'active_page' => 'event_booking_form',
-    ],
-    [
-        'icon'        => 'fa-solid fa-list-check',
-        'label'       => 'Status Pengajuan',
-        'link'        => BASE_URL . '/pages/eventOrganizer/event_booking_status.php',
-        'active_page' => 'event_booking_status',
-    ],
-    [
-        'icon'        => 'fa-solid fa-calendar-week',
-        'label'       => 'Kalender & Approval',
-        'link'        => BASE_URL . '/pages/eventManager/event_calendar.php',
-        'active_page' => 'event_calendar',
-    ],
-    [
-        'icon'        => 'fa-solid fa-people-group',
-        'label'       => 'Vendor & Tiket',
-        'link'        => BASE_URL . '/pages/eventManager/event_vendor_ticketing.php',
-        'active_page' => 'event_vendor_ticketing',
-    ],
-    [
-        'icon'        => 'fa-solid fa-chart-line',
-        'label'       => 'Analytics',
-        'link'        => BASE_URL . '/pages/eventManager/event_analytics.php',
-        'active_page' => 'event_analytics',
-    ],
+    ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard KPI', 'link' => '08_dashboard.php', 'active_page' => '08_dashboard'],
+    ['icon' => 'fa-solid fa-chart-line', 'label' => 'Laporan', 'link' => '08_laporan.php', 'active_page' => '08_laporan'],
+    ['icon' => 'fa-solid fa-check-circle', 'label' => 'Approval', 'link' => '08_approval.php', 'active_page' => '08_approval'],
+    ['icon' => 'fa-solid fa-bell', 'label' => 'Notifikasi', 'link' => '08_notifikasi.php', 'active_page' => '08_notifikasi'],
+    ['icon' => 'fa-solid fa-bell', 'label' => 'Event Analitik', 'link' => 'event_analytics.php', 'active_page' => 'event_analytics'],
+    ['icon' => 'fa-solid fa-bell', 'label' => 'Utility Analitik', 'link' => 'utility_analitik.php', 'active_page' => 'utility_analitik']
 ];
 
 $page_title = 'Post-Event Analytics';
@@ -471,4 +443,4 @@ new Chart(document.getElementById('chartVisitors'), {
 $extra_scripts .= "</script>";
 
 $content = ob_get_clean();
-require_once '../../includes/navbar.php';
+require_once dirname(__DIR__, 2) . '/includes/08_nav_template.php';

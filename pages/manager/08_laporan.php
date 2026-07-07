@@ -47,13 +47,11 @@ $page_title = "Laporan Periodik";
 $user_name = $_SESSION['full_name'] ?? '';
 
 $menu_items = [
-    ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard', 'link' => '08_dashboard.php', 'active_page' => '08_dashboard'],
+    ['icon' => 'fa-solid fa-gauge', 'label' => 'Dashboard KPI', 'link' => '08_dashboard.php', 'active_page' => '08_dashboard'],
     ['icon' => 'fa-solid fa-chart-line', 'label' => 'Laporan', 'link' => '08_laporan.php', 'active_page' => '08_laporan'],
-    ['icon' => 'fa-solid fa-check-circle', 'label' => 'Approval', 'link' => '../approver/approvalList.php', 'active_page' => 'approvalList'],
-    ['icon' => 'fa-solid fa-clock-rotate-left', 'label' => 'Audit Log', 'link' => '../approver/auditLog.php', 'active_page' => 'auditLog'],
-    ['icon' => 'fa-solid fa-bell', 'label' => 'Notifikasi', 'link' => '../pengguna/index.php', 'active_page' => 'index'],
+    ['icon' => 'fa-solid fa-check-circle', 'label' => 'Approval', 'link' => '08_approval.php', 'active_page' => '08_approval'],
+    ['icon' => 'fa-solid fa-bell', 'label' => 'Notifikasi', 'link' => '08_notifikasi.php', 'active_page' => '08_notifikasi'],
 ];
-
 ob_start();
 ?>
 
