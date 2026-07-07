@@ -24,7 +24,8 @@ if(!$user){
     exit;
 }
 
-$hashedPassword = password_hash('Password123!', PASSWORD_DEFAULT);
+$newPassword = $user->username . '@123';
+$hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 $success = $userRepository->adminResetPassword($user->id, $hashedPassword);
 
 if($success){

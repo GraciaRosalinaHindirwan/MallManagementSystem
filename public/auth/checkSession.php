@@ -3,7 +3,11 @@ session_start();
 
 if (!isset($_SESSION['user_id'])) {
 
+<<<<<<< HEAD
+    header('Location: ../index.php');
+=======
     header('Location: ../public/index.php');
+>>>>>>> 55bf5912288eaf5072aa118db5e7a3075d14d273
     exit;
 }
 
@@ -19,7 +23,11 @@ if (
 
     unset($_SESSION['user_id']);
 
+<<<<<<< HEAD
+    header('Location: ../index.php');
+=======
     header('Location: ../public/index.php');
+>>>>>>> 55bf5912288eaf5072aa118db5e7a3075d14d273
     exit;
 }
 $_SESSION['last_activity'] = time();

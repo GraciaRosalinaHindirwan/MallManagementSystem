@@ -14,7 +14,12 @@ class UserRepository implements UserRepositoryInterface{
     }
 
     public function findByUsername(string $username): ?UserDto{
-        $stmt = $this->conn->prepare("SELECT * FROM 09_users WHERE username = ?");
+        $stmt = $this->conn->prepare("
+            SELECT u.*, r.role as role_name 
+            FROM 09_users u 
+            JOIN 09_role_pages r ON u.role_page_id = r.id 
+            WHERE u.username = ?
+        ");
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -24,7 +29,7 @@ class UserRepository implements UserRepositoryInterface{
                 (int)$row['id'],
                 $row['username'],
                 $row['password'],
-                (string)$row['role_page_id'],
+                (string)$row['role_name'],
                 (bool)$row['must_change_password'],
                 (int)$row['failed_login_attempts'],
                 (bool)$row['is_blocked']
@@ -34,7 +39,12 @@ class UserRepository implements UserRepositoryInterface{
     }
 
     public function findById(int $userId): ?UserDto{
-        $stmt = $this->conn->prepare("SELECT * FROM 09_users WHERE id = ?");
+        $stmt = $this->conn->prepare("
+            SELECT u.*, r.role as role_name 
+            FROM 09_users u 
+            JOIN 09_role_pages r ON u.role_page_id = r.id 
+            WHERE u.id = ?
+        ");
         $stmt->bind_param("i", $userId);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -44,7 +54,7 @@ class UserRepository implements UserRepositoryInterface{
                 (int)$row['id'],
                 $row['username'],
                 $row['password'],
-                (string)$row['role_page_id'],
+                (string)$row['role_name'],
                 (bool)$row['must_change_password'],
                 (int)$row['failed_login_attempts'],
                 (bool)$row['is_blocked']
